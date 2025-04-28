@@ -1,0 +1,2182 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Cubby External API</title>
+
+    <style media="screen">
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight .gh {
+  color: #999999;
+}
+.highlight .sr {
+  color: #f6aa11;
+}
+.highlight .go {
+  color: #888888;
+}
+.highlight .gp {
+  color: #555555;
+}
+.highlight .gs {
+}
+.highlight .gu {
+  color: #aaaaaa;
+}
+.highlight .nb {
+  color: #f6aa11;
+}
+.highlight .cm {
+  color: #75715e;
+}
+.highlight .cp {
+  color: #75715e;
+}
+.highlight .c1 {
+  color: #75715e;
+}
+.highlight .cs {
+  color: #75715e;
+}
+.highlight .c, .highlight .ch, .highlight .cd, .highlight .cpf {
+  color: #75715e;
+}
+.highlight .err {
+  color: #960050;
+}
+.highlight .gr {
+  color: #960050;
+}
+.highlight .gt {
+  color: #960050;
+}
+.highlight .gd {
+  color: #49483e;
+}
+.highlight .gi {
+  color: #49483e;
+}
+.highlight .ge {
+  color: #49483e;
+}
+.highlight .kc {
+  color: #66d9ef;
+}
+.highlight .kd {
+  color: #66d9ef;
+}
+.highlight .kr {
+  color: #66d9ef;
+}
+.highlight .no {
+  color: #66d9ef;
+}
+.highlight .kt {
+  color: #66d9ef;
+}
+.highlight .mf {
+  color: #ae81ff;
+}
+.highlight .mh {
+  color: #ae81ff;
+}
+.highlight .il {
+  color: #ae81ff;
+}
+.highlight .mi {
+  color: #ae81ff;
+}
+.highlight .mo {
+  color: #ae81ff;
+}
+.highlight .m, .highlight .mb, .highlight .mx {
+  color: #ae81ff;
+}
+.highlight .sc {
+  color: #ae81ff;
+}
+.highlight .se {
+  color: #ae81ff;
+}
+.highlight .ss {
+  color: #ae81ff;
+}
+.highlight .sd {
+  color: #e6db74;
+}
+.highlight .s2 {
+  color: #e6db74;
+}
+.highlight .sb {
+  color: #e6db74;
+}
+.highlight .sh {
+  color: #e6db74;
+}
+.highlight .si {
+  color: #e6db74;
+}
+.highlight .sx {
+  color: #e6db74;
+}
+.highlight .s1 {
+  color: #e6db74;
+}
+.highlight .s, .highlight .sa, .highlight .dl {
+  color: #e6db74;
+}
+.highlight .na {
+  color: #a6e22e;
+}
+.highlight .nc {
+  color: #a6e22e;
+}
+.highlight .nd {
+  color: #a6e22e;
+}
+.highlight .ne {
+  color: #a6e22e;
+}
+.highlight .nf, .highlight .fm {
+  color: #a6e22e;
+}
+.highlight .vc {
+  color: #ffffff;
+}
+.highlight .nn {
+  color: #ffffff;
+}
+.highlight .ni {
+  color: #ffffff;
+}
+.highlight .bp {
+  color: #ffffff;
+}
+.highlight .vg {
+  color: #ffffff;
+}
+.highlight .vi {
+  color: #ffffff;
+}
+.highlight .nv, .highlight .vm {
+  color: #ffffff;
+}
+.highlight .w {
+  color: #ffffff;
+}
+.highlight {
+  color: #ffffff;
+}
+.highlight .n, .highlight .py, .highlight .nx {
+  color: #ffffff;
+}
+.highlight .nl {
+  color: #f92672;
+}
+.highlight .ow {
+  color: #f92672;
+}
+.highlight .nt {
+  color: #f92672;
+}
+.highlight .k, .highlight .kv {
+  color: #f92672;
+}
+.highlight .kn {
+  color: #f92672;
+}
+.highlight .kp {
+  color: #f92672;
+}
+.highlight .o {
+  color: #f92672;
+}
+    </style>
+    <style media="print">
+      * {
+        -webkit-transition:none!important;
+        transition:none!important;
+      }
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #586e75;
+}
+.highlight .err {
+  color: #002b36;
+  background-color: #dc322f;
+}
+.highlight .c, .highlight .ch, .highlight .cd, .highlight .cm, .highlight .cpf, .highlight .c1, .highlight .cs {
+  color: #657b83;
+}
+.highlight .cp {
+  color: #b58900;
+}
+.highlight .nt {
+  color: #b58900;
+}
+.highlight .o, .highlight .ow {
+  color: #93a1a1;
+}
+.highlight .p, .highlight .pi {
+  color: #93a1a1;
+}
+.highlight .gi {
+  color: #859900;
+}
+.highlight .gd {
+  color: #dc322f;
+}
+.highlight .gh {
+  color: #268bd2;
+  background-color: #002b36;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #6c71c4;
+}
+.highlight .kc {
+  color: #cb4b16;
+}
+.highlight .kt {
+  color: #cb4b16;
+}
+.highlight .kd {
+  color: #cb4b16;
+}
+.highlight .s, .highlight .sb, .highlight .sc, .highlight .dl, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #859900;
+}
+.highlight .sa {
+  color: #6c71c4;
+}
+.highlight .sr {
+  color: #2aa198;
+}
+.highlight .si {
+  color: #d33682;
+}
+.highlight .se {
+  color: #d33682;
+}
+.highlight .nn {
+  color: #b58900;
+}
+.highlight .nc {
+  color: #b58900;
+}
+.highlight .no {
+  color: #b58900;
+}
+.highlight .na {
+  color: #268bd2;
+}
+.highlight .m, .highlight .mb, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mx {
+  color: #859900;
+}
+.highlight .ss {
+  color: #859900;
+}
+    </style>
+    <link href="stylesheets/screen-9c19b03a.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print-966d6edc.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all-b12a2749.js"></script>
+
+    <script>
+      $(function() { setupCodeCopy(); });
+    </script>
+  </head>
+
+  <body class="index" data-languages="[]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" alt="" />
+      </span>
+    </a>
+    <div class="toc-wrapper">
+      <img src="images/logo-95c97c83.png" class="logo" alt="" />
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <ul id="toc" class="toc-list-h1">
+          <li>
+            <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#ids" class="toc-h2 toc-link" data-title="IDs">IDs</a>
+                  </li>
+                  <li>
+                    <a href="#money" class="toc-h2 toc-link" data-title="Money">Money</a>
+                  </li>
+                  <li>
+                    <a href="#api-response-structure" class="toc-h2 toc-link" data-title="API Response Structure">API Response Structure</a>
+                  </li>
+                  <li>
+                    <a href="#expansions" class="toc-h2 toc-link" data-title="Expansions">Expansions</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#operator-api" class="toc-h1 toc-link" data-title="Operator API">Operator API</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#authentication" class="toc-h2 toc-link" data-title="Authentication">Authentication</a>
+                  </li>
+                  <li>
+                    <a href="#notes-search" class="toc-h2 toc-link" data-title="Notes Search">Notes Search</a>
+                  </li>
+                  <li>
+                    <a href="#notes-create" class="toc-h2 toc-link" data-title="Notes Create">Notes Create</a>
+                  </li>
+                  <li>
+                    <a href="#access-codes-search" class="toc-h2 toc-link" data-title="Access Codes Search">Access Codes Search</a>
+                  </li>
+                  <li>
+                    <a href="#check-access-code" class="toc-h2 toc-link" data-title="Check Access Code">Check Access Code</a>
+                  </li>
+                  <li>
+                    <a href="#lock-register" class="toc-h2 toc-link" data-title="Lock Register">Lock Register</a>
+                  </li>
+                  <li>
+                    <a href="#lock-search" class="toc-h2 toc-link" data-title="Lock Search">Lock Search</a>
+                  </li>
+                  <li>
+                    <a href="#lock-disable" class="toc-h2 toc-link" data-title="Lock Disable">Lock Disable</a>
+                  </li>
+                  <li>
+                    <a href="#lock-attach" class="toc-h2 toc-link" data-title="Lock Attach">Lock Attach</a>
+                  </li>
+                  <li>
+                    <a href="#lock-return" class="toc-h2 toc-link" data-title="Lock Return">Lock Return</a>
+                  </li>
+                  <li>
+                    <a href="#organizations-search" class="toc-h2 toc-link" data-title="Organizations Search">Organizations Search</a>
+                  </li>
+                  <li>
+                    <a href="#facilities-search" class="toc-h2 toc-link" data-title="Facilities Search">Facilities Search</a>
+                  </li>
+                  <li>
+                    <a href="#units-search" class="toc-h2 toc-link" data-title="Units Search">Units Search</a>
+                  </li>
+                  <li>
+                    <a href="#pricing-group-search" class="toc-h2 toc-link" data-title="Pricing Group Search">Pricing Group Search</a>
+                  </li>
+                  <li>
+                    <a href="#customers-search" class="toc-h2 toc-link" data-title="Customers Search">Customers Search</a>
+                  </li>
+                  <li>
+                    <a href="#leases-search" class="toc-h2 toc-link" data-title="Leases Search">Leases Search</a>
+                  </li>
+                  <li>
+                    <a href="#lease-update-alternative-contacts" class="toc-h2 toc-link" data-title="Lease Update Alternative Contacts">Lease Update Alternative Contacts</a>
+                  </li>
+                  <li>
+                    <a href="#get-lease-notes" class="toc-h2 toc-link" data-title="Get Lease Notes">Get Lease Notes</a>
+                  </li>
+                  <li>
+                    <a href="#create-lease-note" class="toc-h2 toc-link" data-title="Create Lease Note">Create Lease Note</a>
+                  </li>
+                  <li>
+                    <a href="#get-move-in-charges" class="toc-h2 toc-link" data-title="Get Move-In Charges">Get Move-In Charges</a>
+                  </li>
+                  <li>
+                    <a href="#create-lease" class="toc-h2 toc-link" data-title="Create Lease">Create Lease</a>
+                  </li>
+                  <li>
+                    <a href="#cancel-lease" class="toc-h2 toc-link" data-title="Cancel Lease">Cancel Lease</a>
+                  </li>
+                  <li>
+                    <a href="#payment-methods-search" class="toc-h2 toc-link" data-title="Payment Methods Search">Payment Methods Search</a>
+                  </li>
+                  <li>
+                    <a href="#make-payment" class="toc-h2 toc-link" data-title="Make Payment">Make Payment</a>
+                  </li>
+                  <li>
+                    <a href="#ledger-search" class="toc-h2 toc-link" data-title="Ledger Search">Ledger Search</a>
+                  </li>
+                  <li>
+                    <a href="#add-private-policy-info" class="toc-h2 toc-link" data-title="Add private policy info">Add private policy info</a>
+                  </li>
+                  <li>
+                    <a href="#remove-private-policy-info" class="toc-h2 toc-link" data-title="Remove private policy info">Remove private policy info</a>
+                  </li>
+                  <li>
+                    <a href="#coverage-plans" class="toc-h2 toc-link" data-title="Coverage plans">Coverage plans</a>
+                  </li>
+                  <li>
+                    <a href="#coverage-policies-search" class="toc-h2 toc-link" data-title="Coverage Policies Search">Coverage Policies Search</a>
+                  </li>
+                  <li>
+                    <a href="#coverage-enroll" class="toc-h2 toc-link" data-title="Coverage Enroll">Coverage Enroll</a>
+                  </li>
+                  <li>
+                    <a href="#coverage-policy-unenroll" class="toc-h2 toc-link" data-title="Coverage Policy Unenroll">Coverage Policy Unenroll</a>
+                  </li>
+                  <li>
+                    <a href="#payments-search" class="toc-h2 toc-link" data-title="Payments Search">Payments Search</a>
+                  </li>
+                  <li>
+                    <a href="#auctions-search" class="toc-h2 toc-link" data-title="Auctions Search">Auctions Search</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#system-response-codes" class="toc-h1 toc-link" data-title="System Response Codes">System Response Codes</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#when-to-add-a-new-code" class="toc-h2 toc-link" data-title="When to add a new code?">When to add a new code?</a>
+                  </li>
+                  <li>
+                    <a href="#how-to-add-a-new-code" class="toc-h2 toc-link" data-title="How to add a new code?">How to add a new code?</a>
+                  </li>
+                  <li>
+                    <a href="#manager-application-1000-1999" class="toc-h2 toc-link" data-title="Manager application [1000 - 1999]">Manager application [1000 - 1999]</a>
+                  </li>
+                  <li>
+                    <a href="#tenant-portal-5000-5999" class="toc-h2 toc-link" data-title="Tenant portal [5000 - 5999]">Tenant portal [5000 - 5999]</a>
+                  </li>
+                  <li>
+                    <a href="#storefront-7000-7999" class="toc-h2 toc-link" data-title="Storefront [7000 - 7999]">Storefront [7000 - 7999]</a>
+                  </li>
+                  <li>
+                    <a href="#external-api-8000-9999" class="toc-h2 toc-link" data-title="External API [8000 - 9999]">External API [8000 - 9999]</a>
+                  </li>
+              </ul>
+          </li>
+      </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id='introduction'>Introduction</h1>
+<p>This is a JSON HTTP API.  It is not a RESTful API.</p>
+
+<p>In contrast to REST, which is focused on the <em>trasfer of state</em> between server and client,
+this API is oriented around <em>actions</em> that can be performed on system entities, and
+offers consistent <em>in-band</em> error reporting (so, generally HTTP response codes
+do not need to be inspected; only the bodies of server responses).</p>
+<h3 id='ids'>IDs</h3>
+<blockquote>
+<p>Example Entity IDs</p>
+</blockquote>
+<div class="highlight"><pre class="highlight plaintext"><code>cust_FiUtBj8JkF
+lease_jOi8joH3Hu
+org_Ji9JKfKkhuR
+quote_IJf03jNjKuf
+</code></pre></div>
+<p>Entity IDs in Cubby are generally in the form of <code>&lt;prefix&gt;_&lt;alpha&gt;</code> where the
+type of the object referred to is defined by the prefix.</p>
+<h3 id='money'>Money</h3>
+<p>We represent money as an integer, representing the number of cents.  There are problems both in the use of integers and in the use of floats to represent money.  We believe use of integers results in more predictable and obvious behavior for users of our API, and forces anyone that sends us money to confront a possible loss of precision before sending us numbers.</p>
+<h3 id='api-response-structure'>API Response Structure</h3><div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="c">/* Data content entirely specific to the endpoint */</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+  </span><span class="nl">"errorCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">1008</span><span class="p">,</span><span class="w"> </span><span class="c">/* See error codes doc */</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="c">/* In the case of errors, at least one string will be present here */</span><span class="w">
+    </span><span class="s2">"Plain english explanation regarding part of request"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Plain english explanation regarding yet another part"</span><span class="p">,</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>All valid HTTP Responses to the API will result in an HTTP
+response with an HTTP/200 status. This is true regardless
+of whether the HTTP request was successful.</p>
+
+<p>All errors are reported &quot;in-band&quot; with appropriate codes and
+messages set within the JSON body.</p>
+<h3 id='expansions'>Expansions</h3>
+<p>APIs strive to return comprehensive information in the target entity. Entities in the Cubby system tend to be connected
+to other entities (for example a <code>lease</code> and a <code>customer</code>), and it may be desirable to retrieve both a subject entity as
+well as related entities in a single HTTP request.</p>
+
+<p>To accommodate this, some endpoints offer <code>expansions</code>, which are effectively instruction on which related entities should
+be retrieved <em>in addition to</em> the base entity returned by the endpoint.</p>
+
+<p>Expansions are not expanded in-line, but are provided as auxiliary arrays which can easily be combined by using the 
+embedded entity IDs.</p>
+<h1 id='operator-api'>Operator API</h1>
+<p>API credentials conceptually attach to the <em>Organization</em> concept, and
+has access to all resources (managers, facilities, customers, leases) visible
+to the Organization.</p>
+<h3 id='authentication'>Authentication</h3>
+<p>Authentication is done via an API key, which is passed in the <code>Authorization</code> header. \
+Example via curl:
+<code>commandline
+curl -X &#39;POST&#39; https://api.cubbystorage.com/v1/organizations/search -H &#39;accept: */*&#39; -H &#39;Authorization: Bearer b73c7e4d-81f2-49e3-bbca-9a6fbd321d56&#39; -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;where&quot;: {}}&#39;
+</code>
+In order to obtain an API key, please contact support@cubbystorage.com.\
+Treat you API key like a password - because that’s what it is!</p>
+<h2 id='notes-search'>Notes Search</h2>
+<p><code>POST /v1/notes/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is a note"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06T12:00:00Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdBy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manager Name"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for notes by lease</p>
+<h2 id='notes-create'>Notes Create</h2>
+<p><code>POST /v1/notes/create</code></p>
+
+<blockquote>
+<p>Request Body </p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Add a note to a lease</p>
+<h3 id='required-properties'>Required Properties</h3>
+<ul>
+<li><code>noted</code> - the entity which is being noted (<code>customer</code> or <code>lease</code>)</li>
+<li><code>text</code> - a UTF-8 encoded note with at least one non-whitespace character must be specified</li>
+</ul>
+<h3 id='optional-properties'>Optional Properties</h3>
+<ul>
+<li><code>actor</code> - it is recommended to specify the author of the note</li>
+</ul>
+<h3 id='error-conditions'>Error conditions</h3>
+<ul>
+<li>It is an error for the <code>text</code> to contain any HTML, json-doc, or similar dynamic content.</li>
+</ul>
+<h2 id='access-codes-search'>Access Codes Search</h2>
+<p><code>POST /v1/access-codes/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_&lt;ID&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"accessCodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1575"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_K2kybwxRz9L"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for access codes by facility or customer</p>
+<h3 id='required-properties-2'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - the ID of the facility to search for access codes</li>
+</ul>
+<h2 id='check-access-code'>Check Access Code</h2>
+<p><code>POST /v1/access-codes/check</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1575"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"accessAllowed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Access allowed"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Check if an access code is valid for a facility</p>
+<h3 id='required-properties-3'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - the ID of the facility to check the access code against</li>
+<li><code>code</code> - the access code to check</li>
+</ul>
+<h3 id='response-parameters'>Response Parameters</h3>
+<ul>
+<li><code>accessAllowed</code> - a boolean indicating if the access code is valid</li>
+<li><code>message</code> - a message indicating the result of the check; examples include <code>&quot;Access allowed&quot;</code>, <code>&quot;Code not found&quot;</code>, and
+<code>&quot;Code disabled&quot;</code></li>
+</ul>
+<h2 id='lock-register'>Lock Register</h2>
+<p><code>POST /v1/locks/register</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"serial"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M9U2FK"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"combo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2934"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac|org_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"actor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Adds a new lock to the system. The lock is initially in an &quot;available&quot; state.
+Available locks can be associated with a location until they are attached to a unit.</p>
+<h3 id='required-properties-4'>Required Properties</h3>
+<ul>
+<li><code>serial</code> - the serial number of the lock</li>
+<li><code>combo</code> - the current combination for unlocking the lock</li>
+<li><code>location</code> - the <code>facility</code> or <code>organization</code> where the lock is physically present</li>
+</ul>
+<h3 id='error-conditions-2'>Error Conditions</h3>
+<ul>
+<li>It is an error to add a lock whose serial already exists in the system</li>
+</ul>
+<h3 id='response-parameters-2'>Response Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td>The ID of the newly registered lock</td>
+</tr>
+</tbody></table>
+<h2 id='lock-search'>Lock Search</h2>
+<p><code>POST /v1/locks/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_&lt;ID&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"locks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"serial"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M9U2FK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"combo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2934"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AVAILABLE | OPERATOR_USE | TENANT_USE | DISABLED"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attachedTo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"disabledReason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DAMAGED | MISSING"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for locks by organization</p>
+<h3 id='required-properties-5'>Required Properties</h3>
+<ul>
+<li><code>organizationId</code> - the ID of the organization to search for locks</li>
+</ul>
+<h3 id='response-parameters-3'>Response Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td>The ID of the lock</td>
+</tr>
+<tr>
+<td>facilityId</td>
+<td>The facility where the lock is physically present</td>
+</tr>
+<tr>
+<td>organizationId</td>
+<td>The organization where the lock is physically present</td>
+</tr>
+<tr>
+<td>serial</td>
+<td>The serial number of the lock</td>
+</tr>
+<tr>
+<td>combo</td>
+<td>The current combination for unlocking the lock</td>
+</tr>
+<tr>
+<td>status</td>
+<td>The current status of the lock.</td>
+</tr>
+<tr>
+<td>attachedTo</td>
+<td>The unit to which the lock is attached (only when status is either <code>OPERATOR_USE</code> or <code>TENANT_USE</code>)</td>
+</tr>
+<tr>
+<td>disabledReason</td>
+<td>The reason the lock is disabled (only when status is <code>DISABLED</code>)</td>
+</tr>
+</tbody></table>
+<h2 id='lock-disable'>Lock Disable</h2>
+<p><code>POST /v1/locks/disable</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DAMAGED | MISSING"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"actor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_&lt;ID&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Marks the lock as disabled, detaching it from any units it may be attached to.</p>
+<h3 id='required-properties-6'>Required Properties</h3>
+<ul>
+<li><code>lockId</code> - the ID of the lock which will be disabled</li>
+<li><code>reason</code> - the reason for disabling the lock, which can be <code>DAMAGED</code> or <code>MISSING</code></li>
+</ul>
+<h3 id='optional-properties-2'>Optional Properties</h3>
+<ul>
+<li><code>actor</code> - the user who performed this action</li>
+</ul>
+<h2 id='lock-attach'>Lock Attach</h2>
+<p><code>POST /v1/locks/attach</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"attachTo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"space_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"lockUse"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TENANT_USE | OPERATOR_USE"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"actor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_&lt;ID&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Attaches a lock to a unit either by renting it to a tenant or by restricting access to the unit.</p>
+<h3 id='required-properties-7'>Required Properties</h3>
+<ul>
+<li><code>lockId</code> - the ID of the lock of the lock</li>
+<li><code>attachTo</code> - the ID of the space the lock will be attached to</li>
+<li><code>lockUse</code> - <code>TENANT_USE</code> lock use means that the lock has been rented-to or loaned-to a tenant; the code will be
+immediately accessible to the tenant, and it is even possible that the tenant will change the code. <code>OPERATOR_USE</code> means
+the purpose of the lock is to restrict access to the unit</li>
+</ul>
+<h3 id='optional-properties-3'>Optional Properties</h3>
+<ul>
+<li><code>actor</code> - the user who performed this action</li>
+</ul>
+<h3 id='error-conditions-3'>Error Conditions</h3>
+<ul>
+<li>Cannot attach a lock to a space which already has a different lock attached to it</li>
+</ul>
+<h2 id='lock-return'>Lock Return</h2>
+<p><code>POST /v1/locks/return</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"actor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_&lt;ID&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Puts the lock back into inventory, detaching it from any unit it may be currently attached to and
+marking it available for re-use.</p>
+<h3 id='required-properties-8'>Required Properties</h3>
+<ul>
+<li><code>lockId</code> - the ID of the lock of the lock</li>
+</ul>
+<h3 id='optional-properties-4'>Optional Properties</h3>
+<ul>
+<li><code>actor</code> - the user who performed this action</li>
+</ul>
+<h2 id='organizations-search'>Organizations Search</h2>
+<p><code>POST /v1/organizations/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="na">organizationId</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"organizations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Anisha Estates"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns metadata for co-managed organization(s)</p>
+<h3 id='optional-properties-5'>Optional Properties</h3>
+<ul>
+<li><code>organizationId</code> - limits results to organizations with a specific ID, otherwise all co-managed organizations are
+returned</li>
+</ul>
+<h2 id='facilities-search'>Facilities Search</h2>
+<p><code>POST /v1/facilities/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="na">expansions</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"organization"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilities"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"315 Anisha Estates"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"315 Anisha Estates"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"address2"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Thompsonview"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alaska"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USA"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"98748"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"organizations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Anisha Estates"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns metadata for all co-managed facilities</p>
+<h3 id='required-properties-9'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - limits results to a specific facility</li>
+<li>or</li>
+<li><code>organizationId</code> - limits results to facilities belonging to a specific organization</li>
+</ul>
+<h3 id='optional-properties-6'>Optional Properties</h3>
+<ul>
+<li><code>expansions</code> - an array of strings which can be used to include additional data in the response; currently only
+<code>organization</code> is supported for facilities search</li>
+</ul>
+<h2 id='units-search'>Units Search</h2>
+<p><code>POST /v1/units/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"expansions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">...</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"units"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M001"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"width"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"height"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"area"</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"volume"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"overlocked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"rentability"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"available"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"unavailableReason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"REPAIRS_REQUIRED | CLEANING_REQUIRED | UNDER_RENOVATION | USED_BY_FACILITY | OTHER"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"unavailableReasonNote"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Note why the unit is unavailable"</span><span class="w">
+         </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"insurable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"floorName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="w">        
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns metadata for spaces at co-managed facilities</p>
+<h3 id='required-properties-10'>Required Properties</h3>
+<ul>
+<li><code>unitId</code> - limits results to a specific unit</li>
+<li>or</li>
+<li><code>facilityId</code> - limits results to spaces in a particular facility</li>
+<li>or</li>
+<li><code>pricingGroupId</code> - limits results to spaces in a particular pricing group</li>
+</ul>
+<h3 id='optional-properties-7'>Optional Properties</h3>
+<ul>
+<li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this</li>
+<li>endpoint are <code>facility</code>, <code>lease</code> and <code>pricingGroup</code></li>
+</ul>
+<h2 id='pricing-group-search'>Pricing Group Search</h2>
+<p><code>POST /v1/pricing-groups/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_4a2da7d271a"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"expansions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">...</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"pricingGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Standard"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"width"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"height"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"vehicleStorage"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"parking"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"standardRate"</span><span class="p">:</span><span class="w"> </span><span class="mi">22000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"walkInRate"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"webRate"</span><span class="p">:</span><span class="w"> </span><span class="mi">18000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"strikethroughRate"</span><span class="p">:</span><span class="w"> </span><span class="mi">16000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="s2">"CLIMATE_CONTROLLED"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"SECURITY_ALARM"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"FIRE_ALARM"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="p">,</span><span class="w"> 
+          </span><span class="s2">"discount_ji43jNjKuf"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for pricing groups by facilityId or pricingGroupId</p>
+<h3 id='required-properties-11'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - limits results to pricing groups in a particular facility</li>
+<li>or</li>
+<li><code>pricingGroupId</code> - limits results to a specific pricing group</li>
+</ul>
+<h3 id='optional-properties-8'>Optional Properties</h3>
+<ul>
+<li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
+endpoint are <code>discounts</code></li>
+</ul>
+<h3 id='discounts-search'>Discounts Search</h3>
+<p><code>POST /v1/discounts/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"discountId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"discountId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"First Month Free"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PERPETUAL | PERIODIC | PAID_UPFRONT | ONE_TIME"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status "</span><span class="err">DRAFT</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">PUBLISHED</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">ARCHIVED</span><span class="s2">",
+        "</span><span class="err">discountStart</span><span class="s2">": "</span><span class="err">NEXT_MONTH</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">SPECIFIC_AMOUNT</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">NOW</span><span class="s2">",
+        "</span><span class="err">startAfterMonths</span><span class="s2">": 1,
+        "</span><span class="err">discountedMonths</span><span class="s2">": 1
+
+        // Upfront discount fields
+        "</span><span class="err">upfrontPaidMonths</span><span class="s2">": 1,
+        "</span><span class="err">upfrontFreeMonths</span><span class="s2">": 1,
+
+        // Periodic discount fields
+        "</span><span class="err">applicationMethod</span><span class="s2">": "</span><span class="err">PERCENT_DEDUCTED</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">AMOUNT_DEDUCTED</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">AMOUNT_FIXED</span><span class="s2">",
+        "</span><span class="err">applicationAmount</span><span class="s2">": 1000
+      },
+      {/* ... */}
+    ]
+  },
+  "</span><span class="err">status</span><span class="s2">": 200,
+  "</span><span class="err">errors</span><span class="s2">": []
+}
+</span></code></pre></div>
+<p>Search for discounts by pricing group or discount id</p>
+<h3 id='required-properties-12'>Required Properties</h3>
+<ul>
+<li><code>pricingGroupId</code> - limits results to discounts in a particular pricing group</li>
+</ul>
+<h2 id='customers-search'>Customers Search</h2>
+<p><code>POST /v1/customers/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe Flatley"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+15943590263"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bebe.flatley@example.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"lease"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ACTIVE | ANY"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nl">"lead"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ACTIVE | ANY"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"expansions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> 
+    </span><span class="s2">"leads"</span><span class="w"> 
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body
+```json-doc
+{
+  &quot;data&quot;: {
+    &quot;customers&quot;: [
+      {
+        &quot;customerId&quot;: &quot;cust_BqaN6zApXCH&quot;,
+        &quot;name&quot;: &quot;Bebe Flatley&quot;,
+        &quot;firstName&quot;: &quot;Bebe&quot;,
+        &quot;lastName&quot;: &quot;Flatley&quot;,
+        &quot;dateOfBirth&quot;: &quot;1990-01-01&quot;,
+        &quot;military&quot;: false,
+        &quot;address&quot;: {
+          &quot;address&quot;: &quot;2055 Earnest Mountain&quot;,
+          &quot;address2&quot;: &quot;Apt. 805&quot;,
+          &quot;city&quot;: &quot;Johnston&quot;,
+          &quot;state&quot;: &quot;Minnesota&quot;,
+          &quot;country&quot;: &quot;USA&quot;,
+          &quot;zip&quot;: &quot;15219&quot;,
+          &quot;email&quot;: &quot;&quot;,
+          &quot;phone&quot;: &quot;+15943590263&quot;,
+        },
+        &quot;idType&quot;: &quot;DRIVER_LICENSE | PASSPORT | STATE_ID | MILITARY_ID&quot;,
+        &quot;idNumber&quot;: &quot;123456789&quot;,
+        &quot;leaseIds&quot;: [
+          &quot;lease_V4w64pjUwVK&quot;
+        ],
+        &quot;leadIds&quot;: [
+          &quot;lead_4a2da7d271a&quot;
+        ]
+      }
+    ],
+    &quot;leads&quot;: [
+      {
+        &quot;leadId&quot;: &quot;lead_4a2da7d271a&quot;,
+        &quot;source&quot;: &quot;WALK_IN&quot; | &quot;CALL&quot; | &quot;CONTACT_FORM&quot; | &quot;ABANDONED_CHECKOUT&quot; | &quot;FAILED_CHECKOUT&quot; | &quot;RESERVED_CHECKOUT&quot;,
+        &quot;status&quot;: &quot;NEW&quot; | &quot;ON_HOLD&quot; | &quot;IN_PROGRESS_HOT&quot; | &quot;IN_PROGRESS_COLD&quot; | &quot;CONVERTED&quot; | &quot;UNQUALIFIED&quot;,
+        &quot;pricingGroupId&quot;: &quot;pg_4a2da7d271a&quot;,
+        &quot;message&quot;: &quot;I&#39;m interested in a 10x10 unit&quot;,
+        &quot;targetMoveInDate&quot;: &quot;2024-03-01&quot;
+      }<br>
+    ]
+  }
+}</p>
+</blockquote>
+<div class="highlight"><pre class="highlight plaintext"><code>
+Search for customers
+
+### Required Properties
+* `customerId` - limits results to a specific customer
+* or
+* `organizationId` - limits results to customers in a particular organization
+* or
+* `facilityId` - limits results to customers in a particular facility
+
+### Optional Properties
+* `name` - limits results to customers with a specific name
+* `phone` - limits results to customers with a specific phone number
+* `email` - limits results to customers with a specific email address
+* `lease` - if provided, limits results to either customers with an active lease (`ACTIVE`) or customers with any lease (`ANY`)
+* `lead` - if provided, limits results to customers with a specific lead status (`ACTIVE` or `ANY`)
+* `expansions` - an array of strings which can be used to include additional data in the response; supported for this
+  endpoint are `leases` and `leads`
+
+## Customer Update
+
+`POST /v1/customers/update`
+
+&gt; Request Body
+
+```json-doc
+{
+  "customerId": "cust_BqaN6zApXCH",
+  "name": "Bebe Flatley",
+  "address": {
+    "address": "2055 Earnest Mountain",
+    "address2": "Apt. 805"
+    "city": "Johnston",
+    "zip": "15219"
+  }
+}
+</code></pre></div>
+<p>Updates customer information.  Only the fields that are to be updated need to be included in the request.</p>
+<h3 id='required-properties-13'>Required Properties</h3>
+<ul>
+<li><code>customerId</code> - the ID of the tenant to update</li>
+</ul>
+<h3 id='optional-properties-9'>Optional Properties</h3>
+<ul>
+<li><code>name</code> - the name of the customer</li>
+<li><code>address</code> - the address of the customer</li>
+<li><code>address2</code> - the second line of the address of the customer</li>
+<li><code>city</code> - the city of the customer</li>
+<li><code>state</code> - the state of the customer</li>
+<li><code>country</code> - the country of the customer</li>
+<li><code>zip</code> - the zip code of the customer</li>
+<li><code>email</code> - the email address of the customer</li>
+<li><code>phone</code> - the phone number of the customer</li>
+<li><code>dateOfBirth</code> - the date of birth of the customer</li>
+<li><code>military</code> - a boolean indicating if the customer is military</li>
+<li><code>idType</code> - the type of ID the customer has</li>
+<li><code>idNumber</code> - the number of the ID the customer has</li>
+</ul>
+<h2 id='leases-search'>Leases Search</h2>
+<p><code>POST /v1/leases/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"activeOnOrAfter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"activeOnOrBefore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-31"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"expansions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">...</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"leases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"moveInDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"moveOutDate"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"monthlyRentalAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20800</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"paidThroughDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"deliquencyStartDate"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"overlockNeeded"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"alternativeContact"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"name"</span><span class="err">:</span><span class="w"> </span><span class="s2">"Tyrell Maurice"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"phone"</span><span class="err">:</span><span class="w"> </span><span class="s2">"+122233344455"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"email"</span><span class="err">:</span><span class="w"> </span><span class="s2">"tyrel@test.test.test"</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"coverage"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"startDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-05-01"</span><span class="w">
+          </span><span class="nl">"premiumAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"coverageAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"privatePolicyNumber"</span><span class="err">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"privatePolicyExpirationDate"</span><span class="err">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"coverageAutoenrollable"</span><span class="err">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"unitContents"</span><span class="err">:</span><span class="w"> </span><span class="s2">"Personal vehicle"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"storingVehicle"</span><span class="err">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"vehicle"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SEDAN"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"SUV"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"TRUCK"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"RV"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"TRAILER"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"BOAT"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"PLANE"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"MOTORCYCLE"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"OTHER"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"licenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ABC123"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MN"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"customerId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"unitId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pricingGroupId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"facilityId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">     
+      </span><span class="err">}</span><span class="p">,</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"customers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe Flatley"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Flatley"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2055 Earnest Mountain"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"address2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apt. 805"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Johnston"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Minnesota"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USA"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bebe.flatley@example.org"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+15943590263"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">      
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns metadata for leases at co-managed facilities</p>
+<h3 id='required-properties-14'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - limits results to a specific lease</li>
+<li>or</li>
+<li><code>facilityId</code> - limits results to leases in a particular facility</li>
+<li>or</li>
+<li><code>customerId</code> - limits results to leases for a particular customer.  Can be used in conjunction with <code>facilityId</code> to limit results to a specific facility</li>
+</ul>
+<h3 id='optional-properties-10'>Optional Properties</h3>
+<ul>
+<li><code>activeOnOrAfter</code> - limits results to leases which are active on or after a specific date</li>
+<li><code>activeOnOrBefore</code> - limits results to leases which are active on or before a specific date</li>
+<li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this</li>
+<li>endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code> <code>ledger</code> and <code>customer</code></li>
+</ul>
+<h2 id='lease-update-alternative-contacts'>Lease Update Alternative Contacts</h2>
+<p><code>POST /v1/leases/update-alternative-contacts</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"alternativeContacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tyrell Maurice"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+122233344455"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tyrel@test.test.test"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Updates the alternative contacts for a lease</p>
+<h3 id='required-properties-15'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to update</li>
+<li><code>alternativeContacts</code> - an array of alternative contacts</li>
+</ul>
+<h2 id='get-lease-notes'>Get Lease Notes</h2>
+<p><code>POST /v1/leases/get-notes</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is a note"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06T12:00:00Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdBy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manager Name"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns the notes for a lease</p>
+<h3 id='required-properties-16'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease</li>
+</ul>
+<h2 id='create-lease-note'>Create Lease Note</h2>
+<p><code>POST /v1/leases/create-note</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is a note"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Creates a new note for a lease</p>
+<h2 id='get-move-in-charges'>Get Move-In Charges</h2>
+<p><code>POST /v1/leases/get-move-in-charges</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"moveInDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"rentAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20800</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"coverageLevelId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coverage_4a2da7d271a"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"chargeDeposit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"chargeMoveInFee"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"taxExempt"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"discounts: [ "</span><span class="err">discount_JgNkzV</span><span class="mi">4</span><span class="err">itfk</span><span class="s2">" ]
+}
+</span></code></pre></div>
+<blockquote>
+<p>Response Body
+<code>json-doc
+{
+  &quot;data&quot;: {
+    &quot;subtotal&quot;: 34300,
+    &quot;tax&quot;: 2898,
+    &quot;total&quot;: 37198,
+    &quot;charges&quot;: [
+      {
+        &quot;accruesOn&quot;: &quot;2024-10-21&quot;,
+        &quot;accruesThrough&quot;: &quot;2024-11-20&quot;,
+        &quot;type&quot;: &quot;RENT&quot;,
+        &quot;displayName&quot;: &quot;Rent&quot;,
+        &quot;description&quot;: &quot;&quot;,
+        &quot;amount&quot;: 21000,
+        &quot;undiscountedAmount&quot;: 21000,
+        &quot;discounts&quot;: []
+      },
+      {
+        &quot;type&quot;: &quot;COVERAGE&quot;,
+        &quot;displayName&quot;: &quot;Coverage&quot;,
+        &quot;description&quot;: &quot;&quot;,
+        &quot;accruesOn&quot;: &quot;2024-10-21&quot;,
+        &quot;accruesThrough&quot;: &quot;2024-11-20&quot;,
+        &quot;amount&quot;: 800,
+        &quot;undiscountedAmount&quot;: 800,
+        &quot;discounts&quot;: []
+      },
+      {
+        &quot;type&quot;: &quot;FEES&quot;,
+        &quot;displayName&quot;: &quot;Move-in Fee&quot;,
+        &quot;description&quot;: &quot;&quot;,
+        &quot;amount&quot;: 2500,
+        &quot;undiscountedAmount&quot;: 2500,
+        &quot;discounts&quot;: []
+      },
+      {
+        &quot;type&quot;: &quot;DEPOSIT&quot;,
+        &quot;displayName&quot;: &quot;Security Deposit&quot;,
+        &quot;description&quot;: &quot;&quot;,
+        &quot;amount&quot;: 10000,
+        &quot;undiscountedAmount&quot;: 10000,
+        &quot;discounts&quot;: []
+      }
+  },
+  &quot;status&quot;: 200,
+  &quot;errors&quot;: []
+}
+</code></p>
+</blockquote>
+
+<p>Returns the charges for a lease move-in</p>
+<h3 id='required-properties-17'>Required Properties</h3>
+<ul>
+<li><code>unitId</code> - the ID of the unit</li>
+<li><code>moveInDate</code> - the date the tenant is moving in</li>
+<li><code>rentAmount</code> - the rent amount</li>
+</ul>
+<h3 id='optional-properties-11'>Optional Properties</h3>
+<ul>
+<li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
+<li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
+<li><code>chargeMoveInFee</code> - a boolean indicating if the move-in fee should be charged, defaults to <code>true</code></li>
+<li><code>taxExempt</code> - a boolean indicating if the charges are tax exempt, defaults to <code>false</code></li>
+<li><code>discounts</code> - an array of discount IDs, defaults to <code>[]</code></li>
+</ul>
+<h2 id='create-lease'>Create Lease</h2>
+<p><code>POST /v1/leases/create</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"moveInDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"rentAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20800</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"coverageLevelId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coverage_4a2da7d271a"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"chargeDeposit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"chargeMoveInFee"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"taxExempt"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"discounts: [ "</span><span class="err">discount_JgNkzV</span><span class="mi">4</span><span class="err">itfk</span><span class="s2">" ],
+  "</span><span class="err">customerId</span><span class="s2">": "</span><span class="err">cust_BqaN</span><span class="mi">6</span><span class="err">zApXCH</span><span class="s2">",
+  "</span><span class="err">customer</span><span class="s2">": {
+      "</span><span class="err">name</span><span class="s2">": "</span><span class="err">Bebe</span><span class="w"> </span><span class="err">Flatley</span><span class="s2">",
+      "</span><span class="err">address</span><span class="s2">": {
+        "</span><span class="err">address</span><span class="s2">": "</span><span class="mi">2055</span><span class="w"> </span><span class="err">Earnest</span><span class="w"> </span><span class="err">Mountain</span><span class="s2">",
+        "</span><span class="err">address</span><span class="mi">2</span><span class="s2">": "</span><span class="err">Apt.</span><span class="w"> </span><span class="mi">805</span><span class="s2">",
+        "</span><span class="err">city</span><span class="s2">": "</span><span class="err">Johnston</span><span class="s2">",
+        "</span><span class="err">state</span><span class="s2">": "</span><span class="err">Minnesota</span><span class="s2">",
+        "</span><span class="err">country</span><span class="s2">": "</span><span class="err">USA</span><span class="s2">",
+        "</span><span class="err">zip</span><span class="s2">": "</span><span class="mi">15219</span><span class="s2">",
+        "</span><span class="err">email</span><span class="s2">": "</span><span class="err">bebe.flatley@example.org</span><span class="s2">",
+        "</span><span class="err">phone</span><span class="s2">": "</span><span class="err">+</span><span class="mi">15943590263</span><span class="s2">"      
+      }  
+  }
+}
+</span></code></pre></div>
+<blockquote>
+<p>Response Body
+<code>json-doc
+{
+  &quot;data&quot;: {
+    &quot;leaseId&quot;: &quot;lease_V4w64pjUwVK&quot;
+  },
+  &quot;status&quot;: 200,
+  &quot;errors&quot;: []
+}
+</code></p>
+</blockquote>
+
+<p>Creates a new lease</p>
+<h3 id='required-properties-18'>Required Properties</h3>
+<ul>
+<li><code>unitId</code> - the ID of the unit</li>
+<li><code>moveInDate</code> - the date the tenant is moving in</li>
+<li><p><code>rentAmount</code> - the rent amount</p></li>
+<li><p><code>customerId</code> - the ID of the tenant</p></li>
+<li><p>or</p></li>
+<li><p><code>customer</code> - the tenant information:</p></li>
+<li><ul>
+<li><code>name</code> - the name of the tenant</li>
+</ul></li>
+<li><ul>
+<li><code>phone</code> - the phone number of the tenant</li>
+</ul></li>
+</ul>
+<h3 id='optional-properties-12'>Optional Properties</h3>
+<ul>
+<li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
+<li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
+<li><code>chargeMoveInFee</code> - a boolean indicating if the move-in fee should be charged, defaults to <code>true</code></li>
+<li><code>taxExempt</code> - a boolean indicating if the charges are tax exempt, defaults to <code>false</code></li>
+<li><code>discounts</code> - an array of discount IDs, defaults to <code>[]</code></li>
+<li><code>customer</code> - the tenant information:</li>
+<li>* <code>address</code> - the address of the tenant</li>
+<li>* <code>address2</code> - the second line of the address of the tenant</li>
+<li>* <code>city</code> - the city of the tenant</li>
+<li>* <code>state</code> - the state of the tenant</li>
+<li>* <code>country</code> - the country of the tenant</li>
+<li>* <code>zip</code> - the zip code of the tenant</li>
+<li>* <code>email</code> - the email address of the tenant</li>
+<li>* <code>phone</code> - the phone number of the tenant</li>
+<li>* <code>dateOfBirth</code> - the date of birth of the tenant</li>
+<li>* <code>military</code> - a boolean indicating if the tenant is military</li>
+</ul>
+<h2 id='cancel-lease'>Cancel Lease</h2>
+<p><code>POST /v1/leases/cancel-lease</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Cancels a lease which has not yet started (i.e. the move-in date is in the future)</p>
+<h3 id='required-properties-19'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to cancel</li>
+</ul>
+<h2 id='payment-methods-search'>Payment Methods Search</h2>
+<p><code>POST /v1/payment-methods/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"paymentMethods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"paymentMethodId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"paymentMethod_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CREDIT_CARD | ACH"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"cardBrand"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VISA | MASTERCARD | AMERICAN_EXPRESS | DISCOVER | DINERS_CLUB | JCB | MAESTRO | UNIONPAY | MIR | ELO | HIPERCARD | FORBRUGSFORENINGEN | VISA_ELECTRON | UNKNOWN"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"cardLastFour"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1234"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"cardExpiration"</span><span class="p">:</span><span class="w"> </span><span class="s2">"03/24"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"achAccountLastFour"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1234"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"achAccountType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHECKING | SAVINGS"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for saved payment methods by customer</p>
+<h3 id='required-properties-20'>Required Properties</h3>
+<ul>
+<li><code>customerId</code> - the ID of the customer</li>
+</ul>
+<h2 id='make-payment'>Make Payment</h2>
+<p><code>POST /v1/leases/make-payment</code>
+<code>
+{
+  &quot;leaseId&quot;: &quot;lease_V4w64pjUwVK&quot;,
+  &quot;paymentMethodId&quot;: &quot;paymentMethod_V4w64pjUwVK&quot;,
+  &quot;amount&quot;: 1500
+}
+</code></p>
+
+<p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
+<h3 id='required-properties-21'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to make a payment for</li>
+<li><code>paymentMethodId</code> - the ID of the payment method to use</li>
+<li><code>amount</code> - the amount to pay</li>
+</ul>
+<h2 id='ledger-search'>Ledger Search</h2>
+<p><code>POST /v1/ledgers/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_NpZ1BGBoWrS"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"balances"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"totalDue"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"deposit"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"prepaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"bookEntries"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Move-in Fee"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DEPOSIT"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RENT"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="w">
+        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_STATE"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.5%"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_LOCAL"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.5%"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-33000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-30000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.327646"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manual Fee"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.431402"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.43866"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-30000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
+<h3 id='required-properties-22'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
+<li>or</li>
+<li><code>facilityId</code> - the ID of the facility to retrieve the ledger for</li>
+</ul>
+<h3 id='book-entry-structure'>Book entry structure</h3>
+<ul>
+<li><code>bookEntryId</code> - the ID of the book entry</li>
+<li><code>type</code> - the type of the entry, which can be <code>CHARGE</code>, <code>PAYMENT</code>, <code>TRANSFER</code>, or <code>WRITE_OFF</code></li>
+<li><code>entryTime</code> - the date and time the entry was made</li>
+<li><code>amount</code> - the amount of the entry in cents</li>
+<li><code>amountPaid</code> - the amount of the entry which has been paid in cents</li>
+<li><code>details</code> - an object containing additional details about the entry:
+
+<ul>
+<li>for <code>CHARGE</code> entries:</li>
+<li><code>category</code> - the category of the charge, which can be <code>RENT</code>, <code>COVERAGE</code>, <code>FEE</code>, <code>RETAIL_SALE</code>, <code>DISCOUNT</code>, <code>TAX_STATE</code>, <code>TAX_LOCAL</code>, <code>DAMAGE</code>, <code>AUCTION</code>, <code>PREPAID</code>, <code>CREDIT</code> or <code>OTHER</code></li>
+<li><code>accruesOn</code> - the date the charge accrues from</li>
+<li><code>description</code> - a description of the charge</li>
+<li>for <code>PAYMENT</code> entries:</li>
+<li><code>method</code> - the payment method used for the payment, which can be <code>PREPAID</code>, <code>CREDIT</code>, <code>DEPOSIT</code>, <code>CREDIT_CARD</code>, <code>OFFLINE_CARD</code>, <code>CASH</code>, <code>ACH</code>, <code>CHECK</code>, <code>MONEY_ORDER</code>, <code>VENMO</code>, <code>PAYPAL</code>, <code>ZELLE</code>, <code>CASH_APP</code>, <code>EXTERNAL</code></li>
+<li><code>cardType</code> - the type of card used for the payment</li>
+<li><code>cardLastFour</code> - the last 4 digits of the card used for the payment</li>
+<li><code>checkNumber</code> - the check number used for the payment</li>
+<li>for <code>TRANSFER</code> entries:</li>
+<li><code>source</code> - the source of the transfer, which can be <code>LEASE_BALANCE</code>, <code>IMPORTED_BALANCE</code> or <code>IMPORTED_DEPOSIT</code></li>
+<li>for <code>WRITE_OFF</code> entries:</li>
+<li><code>explanation</code> - the reason for the write-off </li>
+</ul></li>
+</ul>
+<h2 id='add-private-policy-info'>Add private policy info</h2>
+<p><code>POST /v1/coverage/add-private-policy</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"policyNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expirationDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-06-19"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Adds the private coverage policy number and expiration date for a lease.</p>
+<h3 id='required-properties-23'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
+<li><code>policyNumber</code> - the policy number for the private coverage policy</li>
+<li><code>expirationDate</code> - the expiration date for the private coverage policy</li>
+</ul>
+<h3 id='error-conditions-4'>Error Conditions</h3>
+<ul>
+<li>Lease must not have a private policy number already set</li>
+</ul>
+<h2 id='remove-private-policy-info'>Remove private policy info</h2>
+<p><code>POST /v1/coverage/remove-private-policy</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Removes the private coverage policy number and expiration date for a lease.</p>
+<h3 id='required-properties-24'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
+</ul>
+<h3 id='error-conditions-5'>Error Conditions</h3>
+<ul>
+<li>Lease must have a private policy number already set</li>
+</ul>
+<h2 id='coverage-plans'>Coverage plans</h2>
+<p><code>POST /v1/coverage-levels/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"coverageLevels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"coverageLevelId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coverage_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Standard"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XYZ Insurance"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"policyNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"active"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"coverageAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"premiumAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="c">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for coverage levels by facility</p>
+<h3 id='required-properties-25'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - limits results to coverage levels in a particular facility</li>
+</ul>
+<h2 id='coverage-policies-search'>Coverage Policies Search</h2>
+<p><code>POST /v1/coverage/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"activeOnOrAfter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"activeOnOrBefore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-10-31"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"coverages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"startDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-05-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"endDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-07-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"coverageAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"premiumAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div><h3 id='required-properties-26'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - limits results to policies in a particular facility </li>
+<li>or</li>
+<li><code>leaseId</code> - limit results to policies for a particular lease</li>
+</ul>
+<h3 id='optional-properties-13'>Optional Properties</h3>
+<ul>
+<li><code>activeOnOrAfter</code> - limits results to policies which are active on or after a specific date</li>
+<li><code>activeOnOrBefore</code> - limits results to policies which are active on or before a specific date</li>
+</ul>
+<h2 id='coverage-enroll'>Coverage Enroll</h2>
+<p><code>POST /v1/coverage/enroll</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"lease"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w"> 
+  </span><span class="nl">"coverageLevelId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coverage_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"immediate"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>If <code>immediate</code> is true, immediately enrolls a lease at the specified coverage level. Charges to the next rent date are
+automatically prorated. Any coverage which is already paid for is cancelled, with the unused portion credited to the
+account.</p>
+
+<p>If <code>immediate</code> is false, changes will take effect on the next rent date.</p>
+<h3 id='error-conditions-6'>Error Conditions</h3>
+<ul>
+<li>Only leases which are active and in good standing can be enrolled</li>
+<li>Only leases where the <code>coverageAutoenrollable</code> is <code>true</code> may be enrolled</li>
+</ul>
+<h2 id='coverage-policy-unenroll'>Coverage Policy Unenroll</h2>
+<p><code>POST /v1/coverage/unenroll</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"lease"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"immediate"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>If <code>immediate</code> is true, immediately unenrolls a lease from coverage. Any coverage which is already paid for is cancelled, 
+with the unused portion credited to the account.</p>
+
+<p>If <code>immediate</code> is false, changes will take effect on the next rent date.</p>
+<h3 id='error-conditions-7'>Error Conditions</h3>
+<ul>
+<li>Only leases which are active and have a coverage policy may be unenrolled</li>
+</ul>
+<h2 id='payments-search'>Payments Search</h2>
+<p><code>POST /v1/payments/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"paymentDateOnOrAfter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"paymentDateOnOrBefore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-31"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body
+<code>json-doc
+{
+  &quot;data&quot;: {
+    &quot;payments&quot;: [
+      {
+        &quot;paymentId&quot;: &quot;payment_V4w64pjUwVK&quot;,
+        &quot;createdAt&quot;: &quot;2024-03-01T12:00:00&quot;,
+        &quot;amount&quot;: 1500,
+        &quot;customerId&quot;: &quot;cust_BqaN6zApXCH&quot;,
+        &quot;methodType&quot;: &quot;CREDIT_CARD&quot; | &quot;ACH&quot; | &quot;CASH&quot; | &quot;CHECK&quot; | &quot;MONEY_ORDER&quot; | &quot;VENMO&quot; | &quot;PAYPAL&quot; | &quot;ZELLE&quot; | &quot;CASH_APP&quot; | &quot;EXTERNAL&quot;
+        &quot;status&quot;: &quot;SUCCEEDED&quot; | &quot;DECLINED&quot; | &quot;REJECTED&quot; | &quot;FAILED&quot; | &quot;REFUNDED&quot; | &quot;DISPUTED&quot; | &quot;ACH_RETURN&quot; | &quot;PENDING&quot;,
+        &quot;reason&quot;: &quot;Insufficient funds&quot;,
+        &quot;explanation&quot;: &quot;The account did not have sufficient funds to cover the transaction amount.&quot;
+      },
+      {/* ... */}
+    ]
+  },
+  &quot;status&quot;: 200,
+  &quot;errors&quot;: []
+}
+</code></p>
+</blockquote>
+
+<p>Search for payments by facility, customer, or payment date</p>
+<h3 id='required-properties-27'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - limits results to payments in a particular facility</li>
+<li>or</li>
+<li><code>customerId</code> - limits results to payments for a particular customer</li>
+</ul>
+<h3 id='optional-properties-14'>Optional Properties</h3>
+<ul>
+<li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific date</li>
+<li><code>paymentDateOnOrBefore</code> - limits results to payments which were made on or before a specific date</li>
+</ul>
+<h2 id='auctions-search'>Auctions Search</h2>
+<p><code>POST /v1/auctions/search</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"auctionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auction_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"auctions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"auctionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auction_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"auctionTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"advertisementDeadline"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-02-01T12:00:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"auctionedLeases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"lienStartDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LISTED"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"NO_BIDS"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"SOLD"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"PAYMENT_RECEIVED"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"COMPLETE"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"CANCELLED"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"winningBidderId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"bidAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"depositAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"customers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Smith"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2055 Earnest Mountain"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"address2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apt. 805"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Johnston"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Minnesota"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USA"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john.smith@example.org"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+15943590263"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for auctions by facility or auction ID</p>
+<h3 id='required-properties-28'>Required Properties</h3>
+<ul>
+<li><code>facilityId</code> - limits results to auctions in a particular facility</li>
+<li>or</li>
+<li><code>auctionId</code> - limits results to a specific auction</li>
+</ul>
+<h3 id='response-parameters-4'>Response Parameters</h3>
+<ul>
+<li><code>auctionId</code> - the ID of the auction</li>
+<li><code>auctionTime</code> - the date and time of the auction</li>
+<li><code>advertismentDeadline</code> - the deadline for publishing ad for the auction</li>
+<li><code>auctionedLeases</code> - an array of leases which are being auctioned</li>
+<li>* <code>leaseId</code> - the ID of the lease</li>
+<li>* <code>lienStartDate</code> - the date the lien started</li>
+<li>* <code>status</code> - the status of the auction, which can be one of the following:
+
+<ul>
+<li><code>LISTED</code> - the lease is listed for auction</li>
+<li><code>NO_BIDS</code> - the lease did not receive any bids</li>
+<li><code>SOLD</code> - the lease was sold</li>
+<li><code>PAYMENT_RECEIVED</code> - the winning bidder has successfully paid</li>
+<li><code>COMPLETE</code> - the auction is complete</li>
+<li><code>CANCELLED</code> - the auction process was cancelled</li>
+</ul></li>
+<li>* <code>winningBidderId</code> - the ID of the winning bidder (which is a ID of a <code>customer</code> entity)</li>
+<li>* <code>bidAmount</code> - the amount of the winning bid</li>
+<li>* <code>depositAmount</code> - the amount of the deposit charged to the winning bidder</li>
+</ul>
+<h1 id='system-response-codes'>System Response Codes</h1>
+<p>This document contains all custom response codes used by Cubby. It is intended to be a reference for developers and should be kept up to date as new codes are introduced.</p>
+<h3 id='when-to-add-a-new-code'>When to add a new code?</h3>
+<p>New codes should be added when clients need to handle a response in a specific way. Such as showing a custom message, redirecting users to a certain flow or triggering a specific action. If a request has multiple possible outcomes, each outcome should have a unique code, even if the response is the same.</p>
+<h3 id='how-to-add-a-new-code'>How to add a new code?</h3>
+<ol>
+<li>The first digit of the code should be the application identifier. Locate the corresponding one in this document.</li>
+<li>The second digit should be the module identifier. If the module is not listed, add a new section with the module name.
+Modules are logical groups of related functionality, such as code related to payments or user management.</li>
+<li>The third and fourth digits should be the code identifier. If the code is not listed, add a new row with the code and description.</li>
+</ol>
+<h2 id='manager-application-1000-1999'>Manager application [1000 - 1999]</h2>
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>1101</td>
+<td>Multi-factor authentication is required</td>
+</tr>
+</tbody></table>
+<h2 id='tenant-portal-5000-5999'>Tenant portal [5000 - 5999]</h2>
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+</tbody></table>
+<h2 id='storefront-7000-7999'>Storefront [7000 - 7999]</h2>
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>75XX</td>
+<td>Storefront checkout</td>
+</tr>
+<tr>
+<td>7501</td>
+<td>Price quote has expired and a new one must be generated to proceed</td>
+</tr>
+</tbody></table>
+<h2 id='external-api-8000-9999'>External API [8000 - 9999]</h2>
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+</tbody></table>
+
+      </div>
+      <div class="dark-box">
+      </div>
+    </div>
+  </body>
+</html>
