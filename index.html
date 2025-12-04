@@ -377,6 +377,15 @@
                     <a href="#leases-search" class="toc-h2 toc-link" data-title="Leases Search">Leases Search</a>
                   </li>
                   <li>
+                    <a href="#leases-get-rent-change-schedules" class="toc-h2 toc-link" data-title="Leases Get Rent Change Schedules">Leases Get Rent Change Schedules</a>
+                  </li>
+                  <li>
+                    <a href="#leases-change-rents" class="toc-h2 toc-link" data-title="Leases Change Rents">Leases Change Rents</a>
+                  </li>
+                  <li>
+                    <a href="#leases-cancel-rent-changes" class="toc-h2 toc-link" data-title="Leases Cancel Rent Changes">Leases Cancel Rent Changes</a>
+                  </li>
+                  <li>
                     <a href="#lease-update-alternative-contacts" class="toc-h2 toc-link" data-title="Lease Update Alternative Contacts">Lease Update Alternative Contacts</a>
                   </li>
                   <li>
@@ -1068,6 +1077,32 @@ returned</li>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>discounts</code></li>
 </ul>
+<h3 id='pricing-groups-change-rates'>Pricing Groups Change Rates</h3>
+<p><code>POST /v1/pricing-groups/change-rates</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"pricingGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"standardRate"</span><span class="p">:</span><span class="w"> </span><span class="mi">23000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"webRate"</span><span class="p">:</span><span class="w"> </span><span class="mi">21000</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Changes rates for pricing groups. Only the rates that are to be updated need to be included in the request.</p>
+<h3 id='required-properties-12'>Required Properties</h3>
+<ul>
+<li><code>pricingGroupId</code> - the ID of the pricing group to update</li>
+</ul>
+<h3 id='optional-properties-8'>Optional Properties</h3>
+<ul>
+<li><code>standardRate</code> - the new standard rate for the pricing group.  Cannot be <code>null</code> if provided.</li>
+<li><code>webRate</code> - the new web rate for the pricing group.  If <code>null</code>, the web rate defaults to the configured pricing strategy, or the pricing group&#39;s standard rate.</li>
+</ul>
 <h3 id='discounts-search'>Discounts Search</h3>
 <p><code>POST /v1/discounts/search</code></p>
 
@@ -1112,7 +1147,7 @@ endpoint are <code>discounts</code></li>
 }
 </span></code></pre></div>
 <p>Search for discounts by pricing group or discount id</p>
-<h3 id='required-properties-12'>Required Properties</h3>
+<h3 id='required-properties-13'>Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to discounts in a particular pricing group</li>
 </ul>
@@ -1149,6 +1184,7 @@ endpoint are <code>discounts</code></li>
         &quot;name&quot;: &quot;Bebe Flatley&quot;,
         &quot;firstName&quot;: &quot;Bebe&quot;,
         &quot;lastName&quot;: &quot;Flatley&quot;,
+        &quot;companyName&quot;: &quot;Cubby&quot;,
         &quot;dateOfBirth&quot;: &quot;1990-01-01&quot;,
         &quot;military&quot;: false,
         &quot;address&quot;: {
@@ -1222,13 +1258,14 @@ Search for customers
 }
 </code></pre></div>
 <p>Updates customer information.  Only the fields that are to be updated need to be included in the request.</p>
-<h3 id='required-properties-13'>Required Properties</h3>
+<h3 id='required-properties-14'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the tenant to update</li>
 </ul>
-<h3 id='optional-properties-8'>Optional Properties</h3>
+<h3 id='optional-properties-9'>Optional Properties</h3>
 <ul>
 <li><code>name</code> - the name of the customer</li>
+<li><code>companyName</code> - the company name of the customer</li>
 <li><code>address</code> - the address of the customer</li>
 <li><code>address2</code> - the second line of the address of the customer</li>
 <li><code>city</code> - the city of the customer</li>
@@ -1275,7 +1312,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new lead.  If <code>customerId</code> is not provided, a new customer will be created.</p>
-<h3 id='required-properties-14'>Required Properties</h3>
+<h3 id='required-properties-15'>Required Properties</h3>
 <ul>
 <li><code>organizationId</code> - the ID of the organization the lead belongs to</li>
 <li><code>source</code> - the source of the lead, which can be one of the following:
@@ -1300,7 +1337,7 @@ Search for customers
 </ul>
 
 <p>If <code>source</code> is <code>OTHER</code>, <code>customSource</code> must be provided.</p>
-<h3 id='optional-properties-9'>Optional Properties</h3>
+<h3 id='optional-properties-10'>Optional Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of an existing customer.  If not provided, a new customer will be created using the <code>customer</code> property</li>
 <li><code>customSource</code> - a custom source for the lead.  Required if <code>source</code> is <code>OTHER</code>, otherwise ignored</li>
@@ -1336,6 +1373,8 @@ Search for customers
         </span><span class="nl">"moveOutDate"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="nl">"monthlyRentalAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20800</span><span class="p">,</span><span class="w">
         </span><span class="nl">"paidThroughDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"nextChargeAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">22672</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"nextChargeDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-04-06"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"deliquencyStartDate"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="nl">"overlockNeeded"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
         </span><span class="p">},</span><span class="w">
@@ -1364,7 +1403,9 @@ Search for customers
         </span><span class="s2">"customerId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"unitId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"pricingGroupId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"facilityId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">     
+        </span><span class="s2">"facilityId"</span><span class="err">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"rentChangeScheduledDate"</span><span class="err">:</span><span class="w"> </span><span class="s2">"2024-06-01"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"rentChangeNewRentAmount"</span><span class="err">:</span><span class="w"> </span><span class="mi">22000</span><span class="w">
       </span><span class="err">}</span><span class="p">,</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">],</span><span class="w">
@@ -1396,7 +1437,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for leases at co-managed facilities</p>
-<h3 id='required-properties-15'>Required Properties</h3>
+<h3 id='required-properties-16'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to a specific lease</li>
 <li>or</li>
@@ -1404,13 +1445,105 @@ Search for customers
 <li>or</li>
 <li><code>customerId</code> - limits results to leases for a particular customer.  Can be used in conjunction with <code>facilityId</code> to limit results to a specific facility</li>
 </ul>
-<h3 id='optional-properties-10'>Optional Properties</h3>
+<h3 id='optional-properties-11'>Optional Properties</h3>
 <ul>
 <li><code>activeOnOrAfter</code> - limits results to leases which are active on or after a specific date</li>
 <li><code>activeOnOrBefore</code> - limits results to leases which are active on or before a specific date</li>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this</li>
 <li>endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code> <code>ledger</code> and <code>customer</code></li>
 </ul>
+<h3 id='response-properties'>Response Properties</h3>
+<ul>
+<li><code>nextChargeAmount</code> - total amount that will be charged on <code>nextChargeDate</code> including insurance, additional fees and taxes. Will be populated only when searching by <code>leaseId</code> or <code>customerId</code></li>
+</ul>
+<h2 id='leases-get-rent-change-schedules'>Leases Get Rent Change Schedules</h2>
+<p><code>POST /v1/leases/get-rent-change-schedules</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"rentChangeSchedules"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"rentChangeDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-06-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"noticeDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-05-01"</span><span class="p">,</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns the next possible rent change schedule for leases</p>
+<h3 id='required-properties-17'>Required Properties</h3>
+<ul>
+<li><code>leaseIds</code> - an array of lease IDs to get rent change schedules for</li>
+</ul>
+<h3 id='response-parameters-4'>Response Parameters</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease</li>
+<li><code>rentChangeDate</code> - the date the rent change will take effect</li>
+<li><code>noticeDate</code> - the date the rent change notice will be sent</li>
+</ul>
+<h2 id='leases-change-rents'>Leases Change Rents</h2>
+<p><code>POST /v1/leases/change-rents</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"newRentAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">22000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"rentChangeDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-06-01"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"noticeDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-05-01"</span><span class="p">,</span><span class="w">      
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Schedules rent changes for leases, which will take effect on the next possible rent change date for each lease</p>
+<h3 id='required-properties-18'>Required Properties</h3>
+<ul>
+<li><code>leases</code> - an array of lease rent change objects, each containing:
+
+<ul>
+<li><code>leaseId</code> - the ID of the lease to change the rent for</li>
+<li><code>newRentAmount</code> - the new rent amount in cents</li>
+</ul></li>
+</ul>
+<h3 id='optional-properties-12'>Optional Properties</h3>
+<ul>
+<li><code>rentChangeDate</code> - the date the rent change will take effect, as returned by the get rent change schedules endpoint; 
+if not provided, the next possible rent change date will be used</li>
+<li><code>noticeDate</code> - the date the rent change notice will be sent, as returned by the get rent change schedules endpoint; 
+if not provided, the notice date will be set to 30 days before the rent change date</li>
+</ul>
+<h2 id='leases-cancel-rent-changes'>Leases Cancel Rent Changes</h2>
+<p><code>POST /v1/leases/cancel-rent-changes</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Cancels scheduled rent changes for leases</p>
 <h2 id='lease-update-alternative-contacts'>Lease Update Alternative Contacts</h2>
 <p><code>POST /v1/leases/update-alternative-contacts</code></p>
 
@@ -1429,7 +1562,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Updates the alternative contacts for a lease</p>
-<h3 id='required-properties-16'>Required Properties</h3>
+<h3 id='required-properties-19'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to update</li>
 <li><code>alternativeContacts</code> - an array of alternative contacts</li>
@@ -1504,13 +1637,13 @@ Search for customers
 </blockquote>
 
 <p>Returns the charges for a lease move-in</p>
-<h3 id='required-properties-17'>Required Properties</h3>
+<h3 id='required-properties-20'>Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
 <li><code>rentAmount</code> - the rent amount</li>
 </ul>
-<h3 id='optional-properties-11'>Optional Properties</h3>
+<h3 id='optional-properties-13'>Optional Properties</h3>
 <ul>
 <li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
 <li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
@@ -1563,7 +1696,7 @@ Search for customers
 </blockquote>
 
 <p>Creates a new lease</p>
-<h3 id='required-properties-18'>Required Properties</h3>
+<h3 id='required-properties-21'>Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
@@ -1578,7 +1711,7 @@ Search for customers
 <li><code>phone</code> - the phone number of the tenant</li>
 </ul></li>
 </ul>
-<h3 id='optional-properties-12'>Optional Properties</h3>
+<h3 id='optional-properties-14'>Optional Properties</h3>
 <ul>
 <li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
 <li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
@@ -1608,7 +1741,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Cancels a lease which has not yet started (i.e. the move-in date is in the future)</p>
-<h3 id='required-properties-19'>Required Properties</h3>
+<h3 id='required-properties-22'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to cancel</li>
 </ul>
@@ -1644,7 +1777,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for saved payment methods by customer</p>
-<h3 id='required-properties-20'>Required Properties</h3>
+<h3 id='required-properties-23'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer</li>
 </ul>
@@ -1668,7 +1801,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a payment link which can be sent to the tenant to make a payment for one or more leases</p>
-<h3 id='required-properties-21'>Required Properties</h3>
+<h3 id='required-properties-24'>Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
 </ul>
@@ -1683,7 +1816,7 @@ Search for customers
 </code></p>
 
 <p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
-<h3 id='required-properties-22'>Required Properties</h3>
+<h3 id='required-properties-25'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
@@ -1721,7 +1854,8 @@ Search for customers
       </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
       </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Move-in Fee"</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Move-in Fee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1731,7 +1865,8 @@ Search for customers
       </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
       </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
       </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DEPOSIT"</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DEPOSIT"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1743,7 +1878,8 @@ Search for customers
       </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RENT"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="w">
-        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="w">
+        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1756,7 +1892,8 @@ Search for customers
         </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_STATE"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.5%"</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.5%"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1769,7 +1906,8 @@ Search for customers
         </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_LOCAL"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.5%"</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.5%"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1788,7 +1926,8 @@ Search for customers
       </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
       </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
       </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1808,7 +1947,8 @@ Search for customers
       </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
       </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manual Fee"</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manual Fee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -1828,12 +1968,36 @@ Search for customers
       </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="w">
       </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_RMhnGWgFSnp"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:53.063417"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test fee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_K7egMpsjeEs"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:54.70939"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-5000</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test fee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">    
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
-<h3 id='required-properties-23'>Required Properties</h3>
+<h3 id='required-properties-26'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
 <li>or</li>
@@ -1853,6 +2017,7 @@ Search for customers
 <li><code>category</code> - the category of the charge, which can be <code>RENT</code>, <code>COVERAGE</code>, <code>FEE</code>, <code>RETAIL_SALE</code>, <code>DISCOUNT</code>, <code>TAX_STATE</code>, <code>TAX_LOCAL</code>, <code>DAMAGE</code>, <code>AUCTION</code>, <code>PREPAID</code>, <code>CREDIT</code> or <code>OTHER</code></li>
 <li><code>accruesOn</code> - the date the charge accrues from</li>
 <li><code>description</code> - a description of the charge</li>
+<li><code>waive</code> - a boolean indicating if the charge is a waive</li>
 <li>for <code>PAYMENT</code> entries:</li>
 <li><code>method</code> - the payment method used for the payment, which can be <code>PREPAID</code>, <code>CREDIT</code>, <code>DEPOSIT</code>, <code>CREDIT_CARD</code>, <code>OFFLINE_CARD</code>, <code>CASH</code>, <code>ACH</code>, <code>CHECK</code>, <code>MONEY_ORDER</code>, <code>VENMO</code>, <code>PAYPAL</code>, <code>ZELLE</code>, <code>CASH_APP</code>, <code>EXTERNAL</code></li>
 <li><code>cardType</code> - the type of card used for the payment</li>
@@ -1877,7 +2042,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Adds the private coverage policy number and expiration date for a lease.</p>
-<h3 id='required-properties-24'>Required Properties</h3>
+<h3 id='required-properties-27'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
 <li><code>policyNumber</code> - the policy number for the private coverage policy</li>
@@ -1916,7 +2081,7 @@ Response Body</p>
 </blockquote>
 
 <p>The response body contains the requested private policy file as a binary stream</p>
-<h3 id='required-properties-25'>Required Properties</h3>
+<h3 id='required-properties-28'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
 </ul>
@@ -1959,7 +2124,7 @@ Response Body</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for coverage levels by facility</p>
-<h3 id='required-properties-26'>Required Properties</h3>
+<h3 id='required-properties-29'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to coverage levels in a particular facility</li>
 </ul>
@@ -1998,13 +2163,13 @@ Response Body</p>
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h3 id='required-properties-27'>Required Properties</h3>
+</span></code></pre></div><h3 id='required-properties-30'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to policies in a particular facility </li>
 <li>or</li>
 <li><code>leaseId</code> - limit results to policies for a particular lease</li>
 </ul>
-<h3 id='optional-properties-13'>Optional Properties</h3>
+<h3 id='optional-properties-15'>Optional Properties</h3>
 <ul>
 <li><code>activeOnOrAfter</code> - limits results to policies which are active on or after a specific date</li>
 <li><code>activeOnOrBefore</code> - limits results to policies which are active on or before a specific date</li>
@@ -2091,13 +2256,13 @@ with the unused portion credited to the account.</p>
 </blockquote>
 
 <p>Search for payments by facility, customer, or payment date</p>
-<h3 id='required-properties-28'>Required Properties</h3>
+<h3 id='required-properties-31'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to payments in a particular facility</li>
 <li>or</li>
 <li><code>customerId</code> - limits results to payments for a particular customer</li>
 </ul>
-<h3 id='optional-properties-14'>Optional Properties</h3>
+<h3 id='optional-properties-16'>Optional Properties</h3>
 <ul>
 <li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific date</li>
 <li><code>paymentDateOnOrBefore</code> - limits results to payments which were made on or before a specific date</li>
@@ -2166,7 +2331,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for auctions by facility or auction ID</p>
-<h3 id='required-properties-29'>Required Properties</h3>
+<h3 id='required-properties-32'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to auctions in a particular facility</li>
 <li>or</li>
@@ -2177,7 +2342,7 @@ with the unused portion credited to the account.</p>
 * <code>winningBidders</code> - includes information about the winning bidders for each auctioned lease
 * <code>leases</code> - includes information about the leases being auctioned
 * <code>units</code> - includes information about the units being auctioned</p>
-<h3 id='response-parameters-4'>Response Parameters</h3>
+<h3 id='response-parameters-5'>Response Parameters</h3>
 <ul>
 <li><code>auctionId</code> - the ID of the auction</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -2222,7 +2387,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new auction for a facility</p>
-<h3 id='required-properties-30'>Required Properties</h3>
+<h3 id='required-properties-33'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the auction for</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -2241,12 +2406,12 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Starts the lien process for a lease, which may include sending lien notices to the tenant and alternative contacts</p>
-<h3 id='required-properties-31'>Required Properties</h3>
+<h3 id='required-properties-34'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
 <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
 </ul>
-<h3 id='optional-properties-15'>Optional Properties</h3>
+<h3 id='optional-properties-17'>Optional Properties</h3>
 <ul>
 <li><code>sendEmailAndSms</code> - a boolean indicating if email and SMS notices should be sent, defaults to <code>false</code></li>
 <li><code>sendToAlternativeContacts</code> - a boolean indicating if alternative contacts should be notified, defaults to <code>false</code></li>
@@ -2296,7 +2461,7 @@ with the unused portion credited to the account.</p>
 </span><span class="err">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for notes related to leases, customers, leads, units, or pricing groups.</p>
-<h3 id='required-properties-32'>Required Properties</h3>
+<h3 id='required-properties-35'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to notes for a specific lease</li>
 <li>or</li>
@@ -2326,7 +2491,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new note related to a lease, customer, lead, unit, or pricing group.</p>
-<h3 id='required-properties-33'>Required Properties</h3>
+<h3 id='required-properties-36'>Required Properties</h3>
 <ul>
 <li><code>text</code> - the text of the note</li>
 <li>and one of</li>
@@ -2484,7 +2649,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-<h3 id='required-properties-34'>Required Properties</h3>
+<h3 id='required-properties-37'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -2495,7 +2660,7 @@ with the unused portion credited to the account.</p>
 <li><code>M</code> - one month</li>
 </ul></li>
 </ul>
-<h3 id='response-parameters-5'>Response Parameters</h3>
+<h3 id='response-parameters-6'>Response Parameters</h3>
 <p>The response contains an array of journal entries, each of which contains the following fields:</p>
 
 <ul>
@@ -2535,6 +2700,8 @@ with the unused portion credited to the account.</p>
 <li>* <code>WAIVED_DAMAGE</code> - Waived Damage</li>
 <li>* <code>WAIVED_RENT</code> - Waived Rent</li>
 <li>* <code>AUCTION</code> - Auctions</li>
+<li><code>mappedGlAccount</code> - the mapped GL account for the journal entry, if such a mapping exists for the facility</li>
+<li><code>mappedGlAccountNumber</code> - the mapped GL account number for the journal entry, if such a mapping exists for the facility</li>
 <li><code>details</code> - an object containing additional details about the journal entry:</li>
 <li>* <code>description</code> - a description of the journal entry</li>
 <li>* <code>customerId</code> - the ID of the customer associated with the journal entry</li>
@@ -2560,7 +2727,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Sends an SMS message to a customer</p>
-<h3 id='required-properties-35'>Required Properties</h3>
+<h3 id='required-properties-38'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -2580,7 +2747,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Sends an email message to a customer</p>
-<h3 id='required-properties-36'>Required Properties</h3>
+<h3 id='required-properties-39'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -2652,6 +2819,10 @@ Modules are logical groups of related functionality, such as code related to pay
 <tr>
 <td>7501</td>
 <td>Price quote has expired and a new one must be generated to proceed</td>
+</tr>
+<tr>
+<td>7502</td>
+<td>Checkout requires live assistance to complete</td>
 </tr>
 </tbody></table>
 <h2 id='external-api-8000-9999'>External API [8000 - 9999]</h2>
