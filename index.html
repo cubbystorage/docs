@@ -371,6 +371,9 @@
                     <a href="#customers-search" class="toc-h2 toc-link" data-title="Customers Search">Customers Search</a>
                   </li>
                   <li>
+                    <a href="#customer-update" class="toc-h2 toc-link" data-title="Customer Update">Customer Update</a>
+                  </li>
+                  <li>
                     <a href="#leads-create" class="toc-h2 toc-link" data-title="Leads Create">Leads Create</a>
                   </li>
                   <li>
@@ -1177,95 +1180,94 @@ endpoint are <code>discounts</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body
-```json-doc
-{
-  &quot;data&quot;: {
-    &quot;customers&quot;: [
-      {
-        &quot;customerId&quot;: &quot;cust_BqaN6zApXCH&quot;,
-        &quot;name&quot;: &quot;Bebe Flatley&quot;,
-        &quot;firstName&quot;: &quot;Bebe&quot;,
-        &quot;lastName&quot;: &quot;Flatley&quot;,
-        &quot;companyName&quot;: &quot;Cubby&quot;,
-        &quot;dateOfBirth&quot;: &quot;1990-01-01&quot;,
-        &quot;military&quot;: false,
-        &quot;address&quot;: {
-          &quot;address&quot;: &quot;2055 Earnest Mountain&quot;,
-          &quot;address2&quot;: &quot;Apt. 805&quot;,
-          &quot;city&quot;: &quot;Johnston&quot;,
-          &quot;state&quot;: &quot;Minnesota&quot;,
-          &quot;country&quot;: &quot;USA&quot;,
-          &quot;zip&quot;: &quot;15219&quot;,
-          &quot;email&quot;: &quot;&quot;,
-          &quot;phone&quot;: &quot;+15943590263&quot;,
-        },
-        &quot;idType&quot;: &quot;DRIVER_LICENSE | PASSPORT | STATE_ID | MILITARY_ID&quot;,
-        &quot;idNumber&quot;: &quot;123456789&quot;,
-        &quot;leaseIds&quot;: [
-          &quot;lease_V4w64pjUwVK&quot;
-        ],
-        &quot;leadIds&quot;: [
-          &quot;lead_4a2da7d271a&quot;
-        ]
-      }
-    ],
-    &quot;leads&quot;: [
-      {
-        &quot;leadId&quot;: &quot;lead_4a2da7d271a&quot;,
-        &quot;source&quot;: &quot;WALK_IN&quot;,
-        &quot;status&quot;: &quot;NEW&quot;,
-        &quot;pricingGroupId&quot;: &quot;pg_4a2da7d271a&quot;,
-        &quot;message&quot;: &quot;I&#39;m interested in a 10x10 unit&quot;,
-        &quot;targetMoveInDate&quot;: &quot;2024-03-01&quot;
-      }<br>
-    ]
-  }
-}</p>
+<p>Response Body</p>
 </blockquote>
-<div class="highlight"><pre class="highlight plaintext"><code>
-Search for customers
-
-### Required Properties
-* `customerId` - limits results to a specific customer
-* or
-* `organizationId` - limits results to customers in a particular organization
-* or
-* `facilityId` - limits results to customers in a particular facility
-
-### Optional Properties
-* `name` - limits results to customers with a specific name
-* `phone` - limits results to customers with a specific phone number
-* `email` - limits results to customers with a specific email address
-* `lease` - if provided, limits results to either customers with an active lease (`ACTIVE`) or customers with any lease (`ANY`)
-* `lead` - if provided, limits results to customers with a specific lead status (`ACTIVE` or `ANY`)
-* `expansions` - an array of strings which can be used to include additional data in the response; supported for this
-  endpoint are `leases` and `leads`
-
-## Customer Update
-
-`POST /v1/customers/update`
-
-&gt; Request Body
-
-```json-doc
-{
-  "customerId": "cust_BqaN6zApXCH",
-  "name": "Bebe Flatley",
-  "address": {
-    "address": "2055 Earnest Mountain",
-    "address2": "Apt. 805"
-    "city": "Johnston",
-    "zip": "15219"
-  }
-}
-</code></pre></div>
-<p>Updates customer information.  Only the fields that are to be updated need to be included in the request.</p>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"customers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe Flatley"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Flatley"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"companyName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cubby"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"dateOfBirth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1990-01-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"military"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2055 Earnest Mountain"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"address2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apt. 805"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Johnston"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Minnesota"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USA"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+15943590263"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"idType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DRIVER_LICENSE | PASSPORT | STATE_ID | MILITARY_ID"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"idNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456789"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"leadIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="s2">"lead_4a2da7d271a"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"leads"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"leadId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lead_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WALK_IN"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NEW"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"I'm interested in a 10x10 unit"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"targetMoveInDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01"</span><span class="w">
+      </span><span class="p">}</span><span class="w">    
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Search for customers</p>
 <h3 id='required-properties-14'>Required Properties</h3>
+<ul>
+<li><code>customerId</code> - limits results to a specific customer</li>
+<li>or</li>
+<li><code>organizationId</code> - limits results to customers in a particular organization</li>
+<li>or</li>
+<li><code>facilityId</code> - limits results to customers in a particular facility</li>
+</ul>
+<h3 id='optional-properties-9'>Optional Properties</h3>
+<ul>
+<li><code>name</code> - limits results to customers with a specific name</li>
+<li><code>phone</code> - limits results to customers with a specific phone number</li>
+<li><code>email</code> - limits results to customers with a specific email address</li>
+<li><code>lease</code> - if provided, limits results to either customers with an active lease (<code>ACTIVE</code>) or customers with any lease (<code>ANY</code>)</li>
+<li><code>lead</code> - if provided, limits results to customers with a specific lead status (<code>ACTIVE</code> or <code>ANY</code>)</li>
+<li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
+endpoint are <code>leases</code> and <code>leads</code></li>
+</ul>
+<h2 id='customer-update'>Customer Update</h2>
+<p><code>POST /v1/customers/update</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe Flatley"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2055 Earnest Mountain"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"address2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apt. 805"</span><span class="w">
+    </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Johnston"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Updates customer information.  Only the fields that are to be updated need to be included in the request.</p>
+<h3 id='required-properties-15'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the tenant to update</li>
 </ul>
-<h3 id='optional-properties-9'>Optional Properties</h3>
+<h3 id='optional-properties-10'>Optional Properties</h3>
 <ul>
 <li><code>name</code> - the name of the customer</li>
 <li><code>companyName</code> - the company name of the customer</li>
@@ -1315,7 +1317,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new lead.  If <code>customerId</code> is not provided, a new customer will be created.</p>
-<h3 id='required-properties-15'>Required Properties</h3>
+<h3 id='required-properties-16'>Required Properties</h3>
 <ul>
 <li><code>organizationId</code> - the ID of the organization the lead belongs to</li>
 <li><code>source</code> - the source of the lead, which can be one of the following:
@@ -1340,7 +1342,7 @@ Search for customers
 </ul>
 
 <p>If <code>source</code> is <code>OTHER</code>, <code>customSource</code> must be provided.</p>
-<h3 id='optional-properties-10'>Optional Properties</h3>
+<h3 id='optional-properties-11'>Optional Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of an existing customer.  If not provided, a new customer will be created using the <code>customer</code> property</li>
 <li><code>customSource</code> - a custom source for the lead.  Required if <code>source</code> is <code>OTHER</code>, otherwise ignored</li>
@@ -1440,7 +1442,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for leases at co-managed facilities</p>
-<h3 id='required-properties-16'>Required Properties</h3>
+<h3 id='required-properties-17'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to a specific lease</li>
 <li>or</li>
@@ -1448,7 +1450,7 @@ Search for customers
 <li>or</li>
 <li><code>customerId</code> - limits results to leases for a particular customer.  Can be used in conjunction with <code>facilityId</code> to limit results to a specific facility</li>
 </ul>
-<h3 id='optional-properties-11'>Optional Properties</h3>
+<h3 id='optional-properties-12'>Optional Properties</h3>
 <ul>
 <li><code>activeOnOrAfter</code> - limits results to leases which are active on or after a specific date</li>
 <li><code>activeOnOrBefore</code> - limits results to leases which are active on or before a specific date</li>
@@ -1490,7 +1492,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns the next possible rent change schedule for leases</p>
-<h3 id='required-properties-17'>Required Properties</h3>
+<h3 id='required-properties-18'>Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to get rent change schedules for</li>
 </ul>
@@ -1518,7 +1520,7 @@ Search for customers
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Schedules rent changes for leases, which will take effect on the next possible rent change date for each lease</p>
-<h3 id='required-properties-18'>Required Properties</h3>
+<h3 id='required-properties-19'>Required Properties</h3>
 <ul>
 <li><code>leases</code> - an array of lease rent change objects, each containing:
 
@@ -1527,7 +1529,7 @@ Search for customers
 <li><code>newRentAmount</code> - the new rent amount in cents</li>
 </ul></li>
 </ul>
-<h3 id='optional-properties-12'>Optional Properties</h3>
+<h3 id='optional-properties-13'>Optional Properties</h3>
 <ul>
 <li><code>rentChangeDate</code> - the date the rent change will take effect, as returned by the get rent change schedules endpoint; 
 if not provided, the next possible rent change date will be used</li>
@@ -1565,7 +1567,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Updates the alternative contacts for a lease</p>
-<h3 id='required-properties-19'>Required Properties</h3>
+<h3 id='required-properties-20'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to update</li>
 <li><code>alternativeContacts</code> - an array of alternative contacts</li>
@@ -1641,13 +1643,13 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </blockquote>
 
 <p>Returns the charges for a lease move-in</p>
-<h3 id='required-properties-20'>Required Properties</h3>
+<h3 id='required-properties-21'>Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
 <li><code>rentAmount</code> - the rent amount</li>
 </ul>
-<h3 id='optional-properties-13'>Optional Properties</h3>
+<h3 id='optional-properties-14'>Optional Properties</h3>
 <ul>
 <li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
 <li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
@@ -1700,7 +1702,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </blockquote>
 
 <p>Creates a new lease</p>
-<h3 id='required-properties-21'>Required Properties</h3>
+<h3 id='required-properties-22'>Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
@@ -1715,7 +1717,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 <li><code>phone</code> - the phone number of the tenant</li>
 </ul></li>
 </ul>
-<h3 id='optional-properties-14'>Optional Properties</h3>
+<h3 id='optional-properties-15'>Optional Properties</h3>
 <ul>
 <li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
 <li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
@@ -1745,7 +1747,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Cancels a lease which has not yet started (i.e. the move-in date is in the future)</p>
-<h3 id='required-properties-22'>Required Properties</h3>
+<h3 id='required-properties-23'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to cancel</li>
 </ul>
@@ -1781,7 +1783,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for saved payment methods by customer</p>
-<h3 id='required-properties-23'>Required Properties</h3>
+<h3 id='required-properties-24'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer</li>
 </ul>
@@ -1805,7 +1807,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a payment link which can be sent to the tenant to make a payment for one or more leases</p>
-<h3 id='required-properties-24'>Required Properties</h3>
+<h3 id='required-properties-25'>Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
 </ul>
@@ -1820,7 +1822,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </code></p>
 
 <p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
-<h3 id='required-properties-25'>Required Properties</h3>
+<h3 id='required-properties-26'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
@@ -2001,7 +2003,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
-<h3 id='required-properties-26'>Required Properties</h3>
+<h3 id='required-properties-27'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
 <li>or</li>
@@ -2046,7 +2048,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Adds the private coverage policy number and expiration date for a lease.</p>
-<h3 id='required-properties-27'>Required Properties</h3>
+<h3 id='required-properties-28'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
 <li><code>policyNumber</code> - the policy number for the private coverage policy</li>
@@ -2085,7 +2087,7 @@ Response Body</p>
 </blockquote>
 
 <p>The response body contains the requested private policy file as a binary stream</p>
-<h3 id='required-properties-28'>Required Properties</h3>
+<h3 id='required-properties-29'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
 </ul>
@@ -2128,7 +2130,7 @@ Response Body</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for coverage levels by facility</p>
-<h3 id='required-properties-29'>Required Properties</h3>
+<h3 id='required-properties-30'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to coverage levels in a particular facility</li>
 </ul>
@@ -2167,13 +2169,13 @@ Response Body</p>
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h3 id='required-properties-30'>Required Properties</h3>
+</span></code></pre></div><h3 id='required-properties-31'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to policies in a particular facility </li>
 <li>or</li>
 <li><code>leaseId</code> - limit results to policies for a particular lease</li>
 </ul>
-<h3 id='optional-properties-15'>Optional Properties</h3>
+<h3 id='optional-properties-16'>Optional Properties</h3>
 <ul>
 <li><code>activeOnOrAfter</code> - limits results to policies which are active on or after a specific date</li>
 <li><code>activeOnOrBefore</code> - limits results to policies which are active on or before a specific date</li>
@@ -2260,13 +2262,13 @@ with the unused portion credited to the account.</p>
 </blockquote>
 
 <p>Search for payments by facility, customer, or payment date</p>
-<h3 id='required-properties-31'>Required Properties</h3>
+<h3 id='required-properties-32'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to payments in a particular facility</li>
 <li>or</li>
 <li><code>customerId</code> - limits results to payments for a particular customer</li>
 </ul>
-<h3 id='optional-properties-16'>Optional Properties</h3>
+<h3 id='optional-properties-17'>Optional Properties</h3>
 <ul>
 <li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific date</li>
 <li><code>paymentDateOnOrBefore</code> - limits results to payments which were made on or before a specific date</li>
@@ -2335,7 +2337,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for auctions by facility or auction ID</p>
-<h3 id='required-properties-32'>Required Properties</h3>
+<h3 id='required-properties-33'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to auctions in a particular facility</li>
 <li>or</li>
@@ -2391,7 +2393,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new auction for a facility</p>
-<h3 id='required-properties-33'>Required Properties</h3>
+<h3 id='required-properties-34'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the auction for</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -2410,12 +2412,12 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Starts the lien process for a lease, which may include sending lien notices to the tenant and alternative contacts</p>
-<h3 id='required-properties-34'>Required Properties</h3>
+<h3 id='required-properties-35'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
 <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
 </ul>
-<h3 id='optional-properties-17'>Optional Properties</h3>
+<h3 id='optional-properties-18'>Optional Properties</h3>
 <ul>
 <li><code>sendEmailAndSms</code> - a boolean indicating if email and SMS notices should be sent, defaults to <code>false</code></li>
 <li><code>sendToAlternativeContacts</code> - a boolean indicating if alternative contacts should be notified, defaults to <code>false</code></li>
@@ -2465,7 +2467,7 @@ with the unused portion credited to the account.</p>
 </span><span class="err">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for notes related to leases, customers, leads, units, or pricing groups.</p>
-<h3 id='required-properties-35'>Required Properties</h3>
+<h3 id='required-properties-36'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to notes for a specific lease</li>
 <li>or</li>
@@ -2495,7 +2497,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new note related to a lease, customer, lead, unit, or pricing group.</p>
-<h3 id='required-properties-36'>Required Properties</h3>
+<h3 id='required-properties-37'>Required Properties</h3>
 <ul>
 <li><code>text</code> - the text of the note</li>
 <li>and one of</li>
@@ -2653,7 +2655,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-<h3 id='required-properties-37'>Required Properties</h3>
+<h3 id='required-properties-38'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -2782,7 +2784,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates an aged receivables report for one or more facilities.</p>
-<h3 id='required-properties-38'>Required Properties</h3>
+<h3 id='required-properties-39'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 </ul>
@@ -2826,7 +2828,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Sends an SMS message to a customer</p>
-<h3 id='required-properties-39'>Required Properties</h3>
+<h3 id='required-properties-40'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -2846,7 +2848,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Sends an email message to a customer</p>
-<h3 id='required-properties-40'>Required Properties</h3>
+<h3 id='required-properties-41'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
