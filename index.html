@@ -510,29 +510,6 @@
                   </li>
               </ul>
           </li>
-          <li>
-            <a href="#system-response-codes" class="toc-h1 toc-link" data-title="System Response Codes">System Response Codes</a>
-              <ul class="toc-list-h2">
-                  <li>
-                    <a href="#when-to-add-a-new-code" class="toc-h2 toc-link" data-title="When to add a new code?">When to add a new code?</a>
-                  </li>
-                  <li>
-                    <a href="#how-to-add-a-new-code" class="toc-h2 toc-link" data-title="How to add a new code?">How to add a new code?</a>
-                  </li>
-                  <li>
-                    <a href="#manager-application-1000-1999" class="toc-h2 toc-link" data-title="Manager application [1000 - 1999]">Manager application [1000 - 1999]</a>
-                  </li>
-                  <li>
-                    <a href="#tenant-portal-5000-5999" class="toc-h2 toc-link" data-title="Tenant portal [5000 - 5999]">Tenant portal [5000 - 5999]</a>
-                  </li>
-                  <li>
-                    <a href="#storefront-7000-7999" class="toc-h2 toc-link" data-title="Storefront [7000 - 7999]">Storefront [7000 - 7999]</a>
-                  </li>
-                  <li>
-                    <a href="#external-api-8000-9999" class="toc-h2 toc-link" data-title="External API [8000 - 9999]">External API [8000 - 9999]</a>
-                  </li>
-              </ul>
-          </li>
       </ul>
     </div>
     <div class="page-wrapper">
@@ -4111,85 +4088,6 @@ endpoint are <code>discounts</code></li>
 <li><code>subject</code> - the subject of the email (must be at most 255 characters)</li>
 <li><code>body</code> - the body of the email to send (must be at most 256 KB (262,144 characters) long)</li>
 </ul>
-<h1 id='system-response-codes'>System Response Codes</h1>
-<p>This document contains all custom response codes used by Cubby. It is intended to be a reference for developers and should be kept up to date as new codes are introduced.</p>
-<h3 id='when-to-add-a-new-code'>When to add a new code?</h3>
-<p>New codes should be added when clients need to handle a response in a specific way. Such as showing a custom message, redirecting users to a certain flow or triggering a specific action. If a request has multiple possible outcomes, each outcome should have a unique code, even if the response is the same.</p>
-<h3 id='how-to-add-a-new-code'>How to add a new code?</h3>
-<ol>
-<li>The first digit of the code should be the application identifier. Locate the corresponding one in this document.</li>
-<li>The second digit should be the module identifier. If the module is not listed, add a new section with the module name.
-Modules are logical groups of related functionality, such as code related to payments or user management.</li>
-<li>The third and fourth digits should be the code identifier. If the code is not listed, add a new row with the code and description.</li>
-</ol>
-<h2 id='manager-application-1000-1999'>Manager application [1000 - 1999]</h2>
-<table><thead>
-<tr>
-<th>Code</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>1101</td>
-<td>Multi-factor authentication is required</td>
-</tr>
-<tr>
-<td>1150</td>
-<td>Websocket connection closed</td>
-</tr>
-<tr>
-<td>1151</td>
-<td>Websocket connection failed</td>
-</tr>
-<tr>
-<td>1152</td>
-<td>Websocket authentication token expired</td>
-</tr>
-<tr>
-<td>1153</td>
-<td>Websocket subscription unauthorized</td>
-</tr>
-<tr>
-<td>1154</td>
-<td>Websocket message format exception</td>
-</tr>
-</tbody></table>
-<h2 id='tenant-portal-5000-5999'>Tenant portal [5000 - 5999]</h2>
-<table><thead>
-<tr>
-<th>Code</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-</tbody></table>
-<h2 id='storefront-7000-7999'>Storefront [7000 - 7999]</h2>
-<table><thead>
-<tr>
-<th>Code</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>75XX</td>
-<td>Storefront checkout</td>
-</tr>
-<tr>
-<td>7501</td>
-<td>Price quote has expired and a new one must be generated to proceed</td>
-</tr>
-<tr>
-<td>7502</td>
-<td>Checkout requires live assistance to complete</td>
-</tr>
-</tbody></table>
-<h2 id='external-api-8000-9999'>External API [8000 - 9999]</h2>
-<table><thead>
-<tr>
-<th>Code</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-</tbody></table>
 
       </div>
       <div class="dark-box">
