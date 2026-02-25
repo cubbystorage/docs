@@ -422,6 +422,9 @@
                     <a href="#payment-methods-search" class="toc-h2 toc-link" data-title="Payment Methods Search">Payment Methods Search</a>
                   </li>
                   <li>
+                    <a href="#generating-a-payment-token" class="toc-h2 toc-link" data-title="Generating a Payment Token">Generating a Payment Token</a>
+                  </li>
+                  <li>
                     <a href="#create-payment-method" class="toc-h2 toc-link" data-title="Create Payment Method">Create Payment Method</a>
                   </li>
                   <li>
@@ -2260,6 +2263,53 @@ or <code>ANYTIME</code></li>
 <ul>
 <li><code>customerId</code> - the ID of the customer</li>
 </ul>
+<h2 id='generating-a-payment-token'>Generating a Payment Token</h2>
+<p>Before creating a payment method in Cubby, you must first generate a token through Stripe.
+The token is then passed to the Create Payment Method endpoint below.</p>
+<h3 id='step-1-initialize-stripe'>Step 1: Initialize Stripe</h3>
+<blockquote>
+<p>Initialize Stripe</p>
+</blockquote>
+<div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://js.stripe.com/clover/stripe.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div><div class="highlight"><pre class="highlight javascript"><code><span class="kd">const</span> <span class="nx">stripe</span> <span class="o">=</span> <span class="nx">Stripe</span><span class="p">(</span><span class="nx">STRIPE_PK</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">stripeElements</span> <span class="o">=</span> <span class="nx">stripe</span><span class="p">.</span><span class="nx">elements</span><span class="p">({</span>
+    <span class="na">loader</span><span class="p">:</span> <span class="dl">'</span><span class="s1">auto</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">mode</span><span class="p">:</span> <span class="dl">'</span><span class="s1">setup</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">currency</span><span class="p">:</span> <span class="dl">'</span><span class="s1">usd</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">payment_method_types</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">card</span><span class="dl">'</span><span class="p">],</span>
+    <span class="na">paymentMethodCreation</span><span class="p">:</span> <span class="dl">'</span><span class="s1">manual</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Load the Stripe library and initialize Stripe Elements.  Your Stripe publishable key (<code>STRIPE_PK</code>)
+will be provided by Cubby.</p>
+<h3 id='step-2-create-stripe-payment-method'>Step 2: Create Stripe Payment Method</h3>
+<blockquote>
+<p>Create Stripe Payment Method</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript"><code><span class="k">await</span> <span class="nx">stripeElements</span><span class="p">.</span><span class="nx">submit</span><span class="p">();</span>
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">paymentMethod</span><span class="p">,</span> <span class="nx">error</span> <span class="p">}</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">stripe</span><span class="p">.</span><span class="nx">createPaymentMethod</span><span class="p">({</span>
+    <span class="na">elements</span><span class="p">:</span> <span class="nx">stripeElements</span><span class="p">,</span>
+    <span class="na">params</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">billing_details</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Bebe Flatley</span><span class="dl">'</span><span class="p">,</span>
+            <span class="na">email</span><span class="p">:</span> <span class="dl">'</span><span class="s1">bebe.flatley@example.com</span><span class="dl">'</span><span class="p">,</span>
+            <span class="na">phone</span><span class="p">:</span> <span class="dl">'</span><span class="s1">+15943590263</span><span class="dl">'</span><span class="p">,</span>
+            <span class="na">address</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">country</span><span class="p">:</span> <span class="dl">'</span><span class="s1">US</span><span class="dl">'</span><span class="p">,</span>
+                <span class="na">postal_code</span><span class="p">:</span> <span class="dl">'</span><span class="s1">15219</span><span class="dl">'</span><span class="p">,</span>
+                <span class="na">state</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="na">city</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="na">line1</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="na">line2</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Submit the Stripe Elements form and create a payment method.  The resulting <code>paymentMethod.id</code>
+is the token you will pass to the Cubby API.</p>
+<h3 id='step-3-send-to-cubby-api'>Step 3: Send to Cubby API</h3>
+<p>Use the <code>paymentMethod.id</code> as the <code>token</code> in the Create Payment Method endpoint below.</p>
 <h2 id='create-payment-method'>Create Payment Method</h2>
 <p><code>POST /v1/payment-methods/create</code></p>
 
