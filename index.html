@@ -3646,66 +3646,69 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </ul></li>
 </ul>
 <h3 id='response-parameters-9'>Response Parameters</h3>
-<p>The response contains an array of journal entry line items, each of which contains the following fields:
-* <code>id</code> - the ID of the journal entry line item
-* <code>journalEntryId</code> - the ID of the journal entry
-* <code>entryTime</code> - the date and time the journal entry was created
-* <code>facilityId</code> - the ID of the facility associated with the journal entry
-* <code>facilityName</code> - the name of the facility associated with the journal entry
-* <code>customerId</code> - the ID of the customer associated with the journal entry
-* <code>customerName</code> - the name of the customer associated with the journal entry
-* <code>unitId</code> - the ID of the unit associated with the journal entry
-* <code>unitName</code> - the name of the unit associated with the journal entry
-* <code>account</code> - the account the journal entry is associated with, which can be one of the following:
-* * <code>ACCOUNT_RECEIVABLE</code> - Accounts Receivable
-* * <code>RENT</code> - Rent
-* * <code>INSURANCE</code> - Insurance
-* * <code>FEES</code> - Fees
-* * <code>DISCOUNTS</code> - Discounts
-* * <code>TAX_STATE</code> - State Tax
-* * <code>TAX_LOCAL</code> - Local Tax
-* * <code>PREPAID_RENT</code> - Prepaid
-* * <code>CREDIT_CARD_PAYMENTS</code> - Credit Card
-* * <code>OFFLINE_CARD_PAYMENTS</code> - Offline Card
-* * <code>CASH_PAYMENTS</code> - Cash
-* * <code>ACH_PAYMENTS</code> - ACH
-* * <code>CHECK_PAYMENTS</code> - Check
-* * <code>MONEYORDER_PAYMENTS</code> - Money Order
-* * <code>VENMO_PAYMENTS</code> - Venmo
-* * <code>PAYPAL_PAYMENTS</code> - PayPal
-* * <code>ZELLE_PAYMENTS</code> - Zelle
-* * <code>CASH_APP_PAYMENTS</code> - Cash App
-* * <code>DEPOSIT</code> - Deposit
-* * <code>OLD_SYSTEM</code> - Imported Balance
-* * <code>OLD_SYSTEM_DEPOSIT</code> - Imported Deposit
-* * <code>DAMAGE</code> - Damage
-* * <code>BAD_DEBT</code> - Bad Debt
-* * <code>GIVEN_CREDITS</code> - Given Credits
-* * <code>EXTERNAL_ACCOUNT</code> - External Account
-* * <code>WAIVED_FEES</code> - Waived Fees
-* * <code>WAIVED_DAMAGE</code> - Waived Damage
-* * <code>WAIVED_RENT</code> - Waived Rent
-* * <code>AUCTION</code> - Auctions
-* <code>mappedGlAccount</code> - the mapped GL account for the journal entry, if such a mapping exists for the facility
-* <code>mappedGlAccountNumber</code> - the mapped GL account number for the journal entry, if such a mapping exists for the facility
-* <code>taxExempt</code> - a boolean indicating if the journal entry is tax exempt
-* <code>taxCategory</code> - the tax category for the journal entry, which can be one of the following:
-* * <code>RENT_ENCLOSED_STORAGE</code> - Rent for enclosed storage
-* * <code>RENT_PARKING_SPACE</code> - Rent for parking space
-* * <code>RENT_MOBILE_STORAGE</code> - Rent for mobile storage
-* * <code>INSURANCE</code> - Insurance
-* * <code>FEE_TAXABLE</code> - Taxable fee
-* * <code>FEE_NON_TAXABLE</code> - Non-taxable fee
-* * <code>RETAIL_GENERAL</code> - General retail
-* * <code>RETAIL_FOOD</code> - Food retail
-* * <code>RETAIL_NON_TAXABLE</code> - Non-taxable retail
-* * <code>DAMAGE</code> - Damage
-* * <code>DEPOSIT</code> - Deposit
-* * <code>AUCTION</code> - Auction
-* * <code>EXTERNAL_AUCTION</code> - External Auction
-* <code>explanation</code> - a description of the journal entry
-* <code>debit</code> - the debit amount for the journal entry in cents
-* <code>credit</code> - the credit amount for the journal entry in cents</p>
+<p>The response contains an array of journal entry line items, each of which contains the following fields:</p>
+
+<ul>
+<li><code>id</code> - the ID of the journal entry line item</li>
+<li><code>journalEntryId</code> - the ID of the journal entry</li>
+<li><code>entryTime</code> - the date and time the journal entry was created</li>
+<li><code>facilityId</code> - the ID of the facility associated with the journal entry</li>
+<li><code>facilityName</code> - the name of the facility associated with the journal entry</li>
+<li><code>customerId</code> - the ID of the customer associated with the journal entry</li>
+<li><code>customerName</code> - the name of the customer associated with the journal entry</li>
+<li><code>unitId</code> - the ID of the unit associated with the journal entry</li>
+<li><code>unitName</code> - the name of the unit associated with the journal entry</li>
+<li><code>account</code> - the account the journal entry is associated with, which can be one of the following:</li>
+<li>* <code>ACCOUNT_RECEIVABLE</code> - Accounts Receivable</li>
+<li>* <code>RENT</code> - Rent</li>
+<li>* <code>INSURANCE</code> - Insurance</li>
+<li>* <code>FEES</code> - Fees</li>
+<li>* <code>DISCOUNTS</code> - Discounts</li>
+<li>* <code>TAX_STATE</code> - State Tax</li>
+<li>* <code>TAX_LOCAL</code> - Local Tax</li>
+<li>* <code>PREPAID_RENT</code> - Prepaid</li>
+<li>* <code>CREDIT_CARD_PAYMENTS</code> - Credit Card</li>
+<li>* <code>OFFLINE_CARD_PAYMENTS</code> - Offline Card</li>
+<li>* <code>CASH_PAYMENTS</code> - Cash</li>
+<li>* <code>ACH_PAYMENTS</code> - ACH</li>
+<li>* <code>CHECK_PAYMENTS</code> - Check</li>
+<li>* <code>MONEYORDER_PAYMENTS</code> - Money Order</li>
+<li>* <code>VENMO_PAYMENTS</code> - Venmo</li>
+<li>* <code>PAYPAL_PAYMENTS</code> - PayPal</li>
+<li>* <code>ZELLE_PAYMENTS</code> - Zelle</li>
+<li>* <code>CASH_APP_PAYMENTS</code> - Cash App</li>
+<li>* <code>DEPOSIT</code> - Deposit</li>
+<li>* <code>OLD_SYSTEM</code> - Imported Balance</li>
+<li>* <code>OLD_SYSTEM_DEPOSIT</code> - Imported Deposit</li>
+<li>* <code>DAMAGE</code> - Damage</li>
+<li>* <code>BAD_DEBT</code> - Bad Debt</li>
+<li>* <code>GIVEN_CREDITS</code> - Given Credits</li>
+<li>* <code>EXTERNAL_ACCOUNT</code> - External Account</li>
+<li>* <code>WAIVED_FEES</code> - Waived Fees</li>
+<li>* <code>WAIVED_DAMAGE</code> - Waived Damage</li>
+<li>* <code>WAIVED_RENT</code> - Waived Rent</li>
+<li>* <code>AUCTION</code> - Auctions</li>
+<li><code>mappedGlAccount</code> - the mapped GL account for the journal entry, if such a mapping exists for the facility</li>
+<li><code>mappedGlAccountNumber</code> - the mapped GL account number for the journal entry, if such a mapping exists for the facility</li>
+<li><code>taxExempt</code> - a boolean indicating if the journal entry is tax exempt</li>
+<li><code>taxCategory</code> - the tax category for the journal entry, which can be one of the following:</li>
+<li>* <code>RENT_ENCLOSED_STORAGE</code> - Rent for enclosed storage</li>
+<li>* <code>RENT_PARKING_SPACE</code> - Rent for parking space</li>
+<li>* <code>RENT_MOBILE_STORAGE</code> - Rent for mobile storage</li>
+<li>* <code>INSURANCE</code> - Insurance</li>
+<li>* <code>FEE_TAXABLE</code> - Taxable fee</li>
+<li>* <code>FEE_NON_TAXABLE</code> - Non-taxable fee</li>
+<li>* <code>RETAIL_GENERAL</code> - General retail</li>
+<li>* <code>RETAIL_FOOD</code> - Food retail</li>
+<li>* <code>RETAIL_NON_TAXABLE</code> - Non-taxable retail</li>
+<li>* <code>DAMAGE</code> - Damage</li>
+<li>* <code>DEPOSIT</code> - Deposit</li>
+<li>* <code>AUCTION</code> - Auction</li>
+<li>* <code>EXTERNAL_AUCTION</code> - External Auction</li>
+<li><code>explanation</code> - a description of the journal entry</li>
+<li><code>debit</code> - the debit amount for the journal entry in cents</li>
+<li><code>credit</code> - the credit amount for the journal entry in cents</li>
+</ul>
 <h2 id='aged-receivables-report'>Aged Receivables Report</h2>
 <p><code>POST /v1/reports/aged-receivables</code></p>
 
@@ -3798,8 +3801,8 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>RANGE_90_120</code> - 90 to 120 days past due</li>
 <li><code>RANGE_120_PLUS</code> - more than 120 days past due</li>
 <li><code>RANGE_UNKNOWN</code> - unknown days past due</li>
-<li>* <code>amount</code> - the amount outstanding in that range in cents</li>
 </ul></li>
+<li>* <code>amount</code> - the amount outstanding in that range in cents</li>
 </ul>
 <h2 id='rent-roll-report'>Rent Roll Report</h2>
 <p><code>POST /v1/reports/rent-roll</code></p>
@@ -3877,47 +3880,56 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>throughDate</code> - the date through which to calculate rent due in <code>YYYY-MM-DD</code> format</li>
 </ul>
 <h3 id='response-parameters-11'>Response Parameters</h3>
-<p>The response contains an array of rent roll entries, one for each unit, each of which contains the following fields:
-* <code>facilityId</code> - the ID of the facility
-* <code>facilityName</code> - the name of the facility
-* <code>status</code> - the status of the unit, which can be one of the following:
-    - <code>RENTED</code> - the unit is currently rented
-    - <code>SCHEDULED_MOVE_IN</code> - the unit has a scheduled move-in
-    - <code>VACANT</code> - the unit is vacant
-    - <code>UNAVAILABLE</code> - the unit is unavailable for rent
-* <code>unitId</code> - the ID of the unit
-* <code>unitName</code> - the name of the unit
-* <code>pricingGroupId</code> - the ID of the pricing group
-* <code>pricingGroupName</code> - the name of the pricing group
-* <code>width</code> - the width of the unit in feet
-* <code>depth</code> - the depth of the unit in feet
-* <code>height</code> - the height of the unit in feet
-* <code>standardRate</code> - the standard rental rate for the unit in cents
-* <code>customerId</code> - the ID of the customer renting the unit
-* <code>customerName</code> - the name of the customer renting the unit
-* <code>companyName</code> - the company name of the customer renting the unit
-* <code>contact</code> - the contact information for the customer renting the unit
-* <code>totalDue</code> - the total amount due for the unit in cents
-* <code>deposit</code> - the deposit amount for the unit in cents
-* <code>prepaid</code> - the prepaid amount for the unit in cents
-* <code>monthlyRentalAmount</code> - the monthly rental amount for the unit in cents
-* <code>rentVarianceAmount</code> - the variance in rent for the unit in cents
-* <code>rentChangeScheduledDate</code> - the date the rent change is scheduled to take effect
-* <code>rentChangeNewRentAmount</code> - the new rent amount after the change in cents
-* <code>billingCycle</code> - the billing cycle for the unit, which can be one of the following:
-    - <code>WEEKLY</code> - billed weekly
-    - <code>BI_WEEKLY</code> - billed every two weeks
-    - <code>DAYS_28</code> - billed every 28 days
-    - <code>MONTHLY</code> - billed monthly
-* <code>moveInDate</code> - the move-in date for the unit
-* <code>paidOnDate</code> - the date the unit was last paid on
-* <code>paidThroughDate</code> - the date through which the unit is paid
-* <code>billingDayOfMonth</code> - the day of the month the unit is billed on
-* <code>taxExempt</code> - a boolean indicating if the unit is tax exempt
-* <code>paid</code> - a boolean indicating if the unit is paid
-* <code>autoPayEnabled</code> - a boolean indicating if auto-pay is enabled for the unit
-* <code>overlockNeeded</code> - a boolean indicating if an overlock is needed for the unit
-* <code>overlockApplied</code> - a boolean indicating if an overlock has been applied to the unit</p>
+<p>The response contains an array of rent roll entries, one for each unit, each of which contains the following fields:</p>
+
+<ul>
+<li><code>facilityId</code> - the ID of the facility</li>
+<li><code>facilityName</code> - the name of the facility</li>
+<li><code>status</code> - the status of the unit, which can be one of the following:
+
+<ul>
+<li><code>RENTED</code> - the unit is currently rented</li>
+<li><code>SCHEDULED_MOVE_IN</code> - the unit has a scheduled move-in</li>
+<li><code>VACANT</code> - the unit is vacant</li>
+<li><code>UNAVAILABLE</code> - the unit is unavailable for rent</li>
+</ul></li>
+<li><code>unitId</code> - the ID of the unit</li>
+<li><code>unitName</code> - the name of the unit</li>
+<li><code>pricingGroupId</code> - the ID of the pricing group</li>
+<li><code>pricingGroupName</code> - the name of the pricing group</li>
+<li><code>width</code> - the width of the unit in feet</li>
+<li><code>depth</code> - the depth of the unit in feet</li>
+<li><code>height</code> - the height of the unit in feet</li>
+<li><code>standardRate</code> - the standard rental rate for the unit in cents</li>
+<li><code>customerId</code> - the ID of the customer renting the unit</li>
+<li><code>customerName</code> - the name of the customer renting the unit</li>
+<li><code>companyName</code> - the company name of the customer renting the unit</li>
+<li><code>contact</code> - the contact information for the customer renting the unit</li>
+<li><code>totalDue</code> - the total amount due for the unit in cents</li>
+<li><code>deposit</code> - the deposit amount for the unit in cents</li>
+<li><code>prepaid</code> - the prepaid amount for the unit in cents</li>
+<li><code>monthlyRentalAmount</code> - the monthly rental amount for the unit in cents</li>
+<li><code>rentVarianceAmount</code> - the variance in rent for the unit in cents</li>
+<li><code>rentChangeScheduledDate</code> - the date the rent change is scheduled to take effect</li>
+<li><code>rentChangeNewRentAmount</code> - the new rent amount after the change in cents</li>
+<li><code>billingCycle</code> - the billing cycle for the unit, which can be one of the following:
+
+<ul>
+<li><code>WEEKLY</code> - billed weekly</li>
+<li><code>BI_WEEKLY</code> - billed every two weeks</li>
+<li><code>DAYS_28</code> - billed every 28 days</li>
+<li><code>MONTHLY</code> - billed monthly</li>
+</ul></li>
+<li><code>moveInDate</code> - the move-in date for the unit</li>
+<li><code>paidOnDate</code> - the date the unit was last paid on</li>
+<li><code>paidThroughDate</code> - the date through which the unit is paid</li>
+<li><code>billingDayOfMonth</code> - the day of the month the unit is billed on</li>
+<li><code>taxExempt</code> - a boolean indicating if the unit is tax exempt</li>
+<li><code>paid</code> - a boolean indicating if the unit is paid</li>
+<li><code>autoPayEnabled</code> - a boolean indicating if auto-pay is enabled for the unit</li>
+<li><code>overlockNeeded</code> - a boolean indicating if an overlock is needed for the unit</li>
+<li><code>overlockApplied</code> - a boolean indicating if an overlock has been applied to the unit</li>
+</ul>
 
 <p>Not applicable fields might be omitted or set to <code>null</code>.</p>
 <h2 id='storefront-facilities-search'>Storefront Facilities Search</h2>
