@@ -318,6 +318,9 @@
                     <a href="#api-response-structure" class="toc-h2 toc-link" data-title="API Response Structure">API Response Structure</a>
                   </li>
                   <li>
+                    <a href="#errors" class="toc-h2 toc-link" data-title="Errors">Errors</a>
+                  </li>
+                  <li>
                     <a href="#expansions" class="toc-h2 toc-link" data-title="Expansions">Expansions</a>
                   </li>
               </ul>
@@ -508,6 +511,9 @@
                   <li>
                     <a href="#send-email" class="toc-h2 toc-link" data-title="Send Email">Send Email</a>
                   </li>
+                  <li>
+                    <a href="#checkout-component" class="toc-h2 toc-link" data-title="Checkout Component">Checkout Component</a>
+                  </li>
               </ul>
           </li>
       </ul>
@@ -554,6 +560,32 @@ of whether the HTTP request was successful.</p>
 
 <p>All errors are reported &quot;in-band&quot; with appropriate codes and
 messages set within the JSON body.</p>
+<h3 id='errors'>Errors</h3>
+<blockquote>
+<p>Error Response Example</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"error"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errorCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">1008</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"Facility not found"</span><span class="p">,</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>When a request fails, the response <code>status</code> will be <code>&quot;error&quot;</code>.  The <code>errors</code> array will contain
+one or more plain-english strings describing what went wrong.  An <code>errorCode</code> may also be present
+to allow programmatic handling of specific error conditions.</p>
+
+<p>Common reasons for errors include:</p>
+
+<ul>
+<li>Missing or invalid required properties</li>
+<li>Referencing entities that do not exist or are not accessible</li>
+<li>Attempting an action that violates business rules (e.g. attaching a lock to a unit that already has one)</li>
+<li>Authentication failures (invalid or missing API key)</li>
+</ul>
+
+<p>The <code>data</code> field will be absent or <code>null</code> when the response is an error.</p>
 <h3 id='expansions'>Expansions</h3>
 <p>APIs strive to return comprehensive information in the target entity. Entities in the Cubby system tend to be connected
 to other entities (for example a <code>lease</code> and a <code>customer</code>), and it may be desirable to retrieve both a subject entity as
@@ -4088,6 +4120,78 @@ endpoint are <code>discounts</code></li>
 <li><code>subject</code> - the subject of the email (must be at most 255 characters)</li>
 <li><code>body</code> - the body of the email to send (must be at most 256 KB (262,144 characters) long)</li>
 </ul>
+<h2 id='checkout-component'>Checkout Component</h2>
+<p>The Cubby Checkout is an embeddable web component that provides a complete checkout flow
+for your storefront. It can be embedded on any page by including the storefront components
+script and placing the <code>&lt;cubby-checkout&gt;</code> element in your HTML.</p>
+<h3 id='setup'>Setup</h3>
+<blockquote>
+<p>Include the Script</p>
+</blockquote>
+<div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;script
+    </span><span class="na">type=</span><span class="s">"module"</span>
+    <span class="na">src=</span><span class="s">"https://cdn.cubbystorage.com/components/latest"</span>
+    <span class="na">data-api-key=</span><span class="s">"your-storefront-api-key"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>Include the storefront components script on your page.  The API key is passed via the
+<code>data-api-key</code> attribute on the script tag.  This is the same API key used for the
+Storefront API endpoints above.</p>
+<h3 id='usage'>Usage</h3>
+<blockquote>
+<p>Basic Checkout</p>
+</blockquote>
+<div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;cubby-checkout</span>
+    <span class="na">pricing-groups=</span><span class="s">"pg_4a2da7d271a"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/cubby-checkout&gt;</span>
+</code></pre></div>
+<blockquote>
+<p>Pre-populated Customer Data</p>
+</blockquote>
+<div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;cubby-checkout</span>
+    <span class="na">pricing-groups=</span><span class="s">"pg_4a2da7d271a"</span>
+    <span class="na">customer-name=</span><span class="s">"Jane Smith"</span>
+    <span class="na">customer-email=</span><span class="s">"jane@example.com"</span>
+    <span class="na">customer-phone=</span><span class="s">"+15551234567"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/cubby-checkout&gt;</span>
+</code></pre></div>
+<p>Place the <code>&lt;cubby-checkout&gt;</code> element wherever the checkout flow should appear.  The <code>pricing-groups</code>
+attribute is required and accepts a single pricing group ID as returned by
+the Storefront Pricing Groups Search endpoint.  Only one pricing group is supported at this time.</p>
+<h3 id='attributes'>Attributes</h3>
+<table><thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>pricing-groups</td>
+<td>string</td>
+<td>Yes</td>
+<td>The ID of the pricing group to display</td>
+</tr>
+<tr>
+<td>customer-name</td>
+<td>string</td>
+<td>No</td>
+<td>Pre-populates the customer name field</td>
+</tr>
+<tr>
+<td>customer-email</td>
+<td>string</td>
+<td>No</td>
+<td>Pre-populates the customer email field</td>
+</tr>
+<tr>
+<td>customer-phone</td>
+<td>string</td>
+<td>No</td>
+<td>Pre-populates the customer phone field</td>
+</tr>
+</tbody></table>
 
       </div>
       <div class="dark-box">
