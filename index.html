@@ -2349,13 +2349,15 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 </ul></li>
 </ul>
 <h2 id='get-payment-link'>Get Payment Link</h2>
-<p><code>POST /v1/leases/get-payment-link</code>
-<code>
-{
-  &quot;leaseIds&quot;: [&quot;lease_V4w64pjUwVK&quot;, &quot;lease_GfNkzV4itfk&quot;]
-}
-</code></p>
+<p><code>POST /v1/leases/get-payment-link</code></p>
 
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lease_GfNkzV4itfk"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <blockquote>
 <p>Response Body</p>
 </blockquote>
@@ -2373,15 +2375,17 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
 </ul>
 <h2 id='make-payment'>Make Payment</h2>
-<p><code>POST /v1/leases/make-payment</code>
-<code>
-{
-  &quot;leaseId&quot;: &quot;lease_V4w64pjUwVK&quot;,
-  &quot;paymentMethodId&quot;: &quot;pm_V4w64pjUwVK&quot;,
-  &quot;amount&quot;: 1500
-}
-</code></p>
+<p><code>POST /v1/leases/make-payment</code></p>
 
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"paymentMethodId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pm_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
 <h3 id='required-properties-31'>Required Properties</h3>
 <ul>
@@ -2390,14 +2394,16 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <li><code>amount</code> - the amount to pay</li>
 </ul>
 <h2 id='enable-autopay'>Enable AutoPay</h2>
-<p><code>POST /v1/leases/enable-auto-pay</code>
-<code>
-{
-  &quot;leaseId&quot;: &quot;lease_V4w64pjUwVK&quot;,
-  &quot;paymentMethodId&quot;: &quot;pm_V4w64pjUwVK&quot;
-}
-</code></p>
+<p><code>POST /v1/leases/enable-auto-pay</code></p>
 
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"paymentMethodId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pm_V4w64pjUwVK"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <p>Enables AutoPay for a lease using a saved payment method.  With AutoPay enabled, the tenant will be automatically charged for the amount due on the next charge date of the lease, and on subsequent charge dates until AutoPay is disabled.</p>
 <h3 id='required-properties-32'>Required Properties</h3>
 <ul>
@@ -2405,13 +2411,15 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <li><code>paymentMethodId</code> - the ID of the payment method to use for AutoPay</li>
 </ul>
 <h2 id='disable-autopay'>Disable AutoPay</h2>
-<p><code>POST /v1/leases/disable-auto-pay</code>
-<code>
-{
-  &quot;leaseId&quot;: &quot;lease_V4w64pjUwVK&quot;
-}
-</code></p>
+<p><code>POST /v1/leases/disable-auto-pay</code></p>
 
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <p>Disables AutoPay for a lease.</p>
 <h2 id='ledger-search'>Ledger Search</h2>
 <p><code>POST /v1/ledgers/search</code></p>
@@ -2662,13 +2670,15 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 </span></code></pre></div>
 <p>Removes the private coverage policy number and expiration date for a lease.</p>
 <h2 id='download-private-policy'>Download Private Policy</h2>
-<p><code>POST /v1/coverage/download-private-policy</code>
-<code>json-doc
-{
-  &quot;leaseId&quot;: &quot;lease_&lt;ID&gt;&quot;
-}
-</code></p>
+<p><code>POST /v1/coverage/download-private-policy</code></p>
 
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <blockquote>
 <p>Response Headers
 <code>
