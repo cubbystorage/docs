@@ -315,6 +315,9 @@
                     <a href="#money" class="toc-h2 toc-link" data-title="Money">Money</a>
                   </li>
                   <li>
+                    <a href="#date-and-time" class="toc-h2 toc-link" data-title="Date and Time">Date and Time</a>
+                  </li>
+                  <li>
                     <a href="#api-response-structure" class="toc-h2 toc-link" data-title="API Response Structure">API Response Structure</a>
                   </li>
                   <li>
@@ -337,6 +340,9 @@
           <li>
             <a href="#changelog" class="toc-h1 toc-link" data-title="Changelog">Changelog</a>
               <ul class="toc-list-h2">
+                  <li>
+                    <a href="#june-2026" class="toc-h2 toc-link" data-title="June 2026">June 2026</a>
+                  </li>
                   <li>
                     <a href="#may-2026" class="toc-h2 toc-link" data-title="May 2026">May 2026</a>
                   </li>
@@ -419,9 +425,8 @@
 <p>This is a JSON HTTP API.  It is not a RESTful API.</p>
 
 <p>In contrast to REST, which is focused on the <em>transfer of state</em> between server and client,
-this API is oriented around <em>actions</em> that can be performed on system entities, and
-offers consistent <em>in-band</em> error reporting (so, generally HTTP response codes
-do not need to be inspected; only the bodies of server responses).</p>
+this API is oriented around <em>actions</em> that can be performed on system entities. Errors are
+reported via standard HTTP status codes with a structured JSON body — see <a href="#errors">Errors</a>.</p>
 <h3 id='ids'>IDs</h3>
 <blockquote>
 <p>Example Entity IDs</p>
@@ -435,51 +440,58 @@ quote_IJf03jNjKuf
 type of the object referred to is defined by the prefix.</p>
 <h3 id='money'>Money</h3>
 <p>We represent money as an integer, representing the number of cents.  There are problems both in the use of integers and in the use of floats to represent money.  We believe use of integers results in more predictable and obvious behavior for users of our API, and forces anyone that sends us money to confront a possible loss of precision before sending us numbers.</p>
-<h3 id='api-response-structure'>API Response Structure</h3><div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="c">/* Data content entirely specific to the endpoint */</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-  </span><span class="nl">"errorCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">1008</span><span class="p">,</span><span class="w"> </span><span class="c">/* See error codes doc */</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="c">/* In the case of errors, at least one string will be present here */</span><span class="w">
-    </span><span class="s2">"Plain english explanation regarding part of request"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"Plain english explanation regarding yet another part"</span><span class="p">,</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>All valid HTTP Responses to the API will result in an HTTP
-response with an HTTP/200 status. This is true regardless
-of whether the HTTP request was successful.</p>
-
-<p>All errors are reported &quot;in-band&quot; with appropriate codes and
-messages set within the JSON body.</p>
-<h3 id='errors'>Errors</h3>
-<blockquote>
-<p>Error Response Example</p>
-</blockquote>
-<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"error"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errorCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">1008</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="s2">"Facility not found"</span><span class="p">,</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>When a request fails, the response <code>status</code> will be <code>&quot;error&quot;</code>.  The <code>errors</code> array will contain
-one or more plain-english strings describing what went wrong.  An <code>errorCode</code> may also be present
-to allow programmatic handling of specific error conditions.</p>
-
-<p>Common reasons for errors include:</p>
+<h3 id='date-and-time'>Date and Time</h3>
+<p>We represent dates and times as ISO-8601 strings.  Date-only fields (for example <code>moveInDate</code>, <code>accruesOn</code>, <code>dueDate</code>) use the form <code>yyyy-MM-dd</code> and carry no time component. Date-time fields fall into one of two categories:</p>
 
 <ul>
-<li>Missing or invalid required properties</li>
-<li>Referencing entities that do not exist or are not accessible</li>
-<li>Attempting an action that violates business rules (e.g. attaching a lock to a unit that already has one)</li>
-<li>Authentication failures (invalid or missing API key)</li>
+<li>If the value ends in <code>Z</code>, the timestamp is in UTC.  For example, <code>2024-03-01T12:00:00.000000Z</code> is March 1, 2024 at 12:00:00 UTC.</li>
+<li>If the value has no time zone suffix, the timestamp is in the time zone of the facility the value belongs to.  For example, <code>2024-03-01T12:00:00</code> on a record for a facility in <code>America/New_York</code> represents 12:00:00 local time at that facility (which is <code>2024-03-01T17:00:00Z</code> in UTC during EST).</li>
+</ul>
+<h3 id='api-response-structure'>API Response Structure</h3>
+<p>Successful responses return an HTTP <code>200</code>. The body is always wrapped in a small envelope:</p>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="c">/* Endpoint-specific payload. See each endpoint's documentation. */</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<ul>
+<li><code>status</code> — always <code>200</code> on success. Mirrors the HTTP status.</li>
+<li><code>data</code> — the endpoint-specific response payload. Omitted for endpoints that have no payload to return (the body is then just <code>{ &quot;status&quot;: 200 }</code>).</li>
 </ul>
 
-<p>The <code>data</code> field will be absent or <code>null</code> when the response is an error.</p>
+<blockquote>
+<p>Example: <code>POST /v1/facilities/search</code></p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"facilities"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="c">/* ... facility objects ... */</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"organizations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="c">/* ... organization objects ... */</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div><h3 id='errors'>Errors</h3>
+<p>Failed requests return a standard non-<code>2xx</code> HTTP status code (<code>400</code>, <code>401</code>, <code>403</code>, <code>404</code>, <code>500</code>, etc.) with the following body:</p>
+
+<blockquote>
+<p>Error Response</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"Facility not found"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<ul>
+<li><code>code</code> — mirrors the HTTP status code.</li>
+<li><code>errors</code> — one or more plain-english strings describing what went wrong.</li>
+</ul>
 <h3 id='expansions'>Expansions</h3>
 <p>APIs strive to return comprehensive information in the target entity. Entities in the Cubby system tend to be connected
 to other entities (for example a <code>lease</code> and a <code>customer</code>), and it may be desirable to retrieve both a subject entity as
@@ -826,7 +838,11 @@ Example via curl:</p>
 </tbody></table>
 
 <hr>
-<h1 id='changelog'>Changelog</h1><h2 id='may-2026'>May 2026</h2>
+<h1 id='changelog'>Changelog</h1><h2 id='june-2026'>June 2026</h2>
+<ul>
+<li><strong>Facilities Search: <code>timeZone</code> field</strong> — The facility object in <code>POST /v1/facilities/search</code> now includes a <code>timeZone</code> field containing the facility&#39;s IANA time zone identifier (e.g. <code>America/New_York</code>).</li>
+</ul>
+<h2 id='may-2026'>May 2026</h2>
 <ul>
 <li><strong>Merchant Services Disbursements Report</strong> — New endpoint <code>POST /v1/reports/merchant-services-disbursements</code> for retrieving batch settlement and transaction details from configured payment providers.</li>
 </ul>
@@ -852,6 +868,7 @@ Example via curl:</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"accessCodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -861,9 +878,7 @@ Example via curl:</p>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for access codes by facility or customer</p>
@@ -886,12 +901,11 @@ Example via curl:</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"accessAllowed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
     </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Access allowed"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Check if an access code is valid for a facility</p>
@@ -1152,6 +1166,7 @@ The lock must not be attached to a unit.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"organizations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -1160,9 +1175,7 @@ The lock must not be attached to a unit.</p>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for co-managed organization(s)</p>
@@ -1196,6 +1209,7 @@ returned</li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"managers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -1226,9 +1240,7 @@ returned</li>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for managers by facility, organization, or contact information</p>
@@ -1269,6 +1281,7 @@ returned</li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"facilities"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -1288,6 +1301,7 @@ returned</li>
         </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-122.419418"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="s2">"37.774929"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"timeZone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"America/New_York"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"paymentServiceProvider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRIPE | PAYABLI"</span><span class="w">
 
       </span><span class="p">},</span><span class="w">
@@ -1300,9 +1314,7 @@ returned</li>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for all co-managed facilities</p>
@@ -1341,6 +1353,7 @@ returned</li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"units"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -1367,9 +1380,7 @@ returned</li>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for spaces at co-managed facilities</p>
@@ -1441,6 +1452,7 @@ returned</li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"pricingGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -1469,9 +1481,7 @@ returned</li>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for pricing groups by facilityId or pricingGroupId</p>
@@ -1531,6 +1541,7 @@ endpoint are <code>discounts</code></li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -1551,9 +1562,7 @@ endpoint are <code>discounts</code></li>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for discounts by pricing group or discount id</p>
@@ -1592,10 +1601,13 @@ endpoint are <code>discounts</code></li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"customers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe Flatley"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Flatley"</span><span class="p">,</span><span class="w">
@@ -1625,6 +1637,8 @@ endpoint are <code>discounts</code></li>
     </span><span class="nl">"leads"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"leadId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lead_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WALK_IN"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NEW"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
@@ -1720,10 +1734,13 @@ endpoint are <code>leases</code> and <code>leads</code></li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"leads"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"leadId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lead_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WALK_IN"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NEW"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
@@ -1734,9 +1751,7 @@ endpoint are <code>leases</code> and <code>leads</code></li>
         </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for leads by facility</p>
@@ -1756,6 +1771,8 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <h3 id='response-parameters-4'>Response Parameters</h3>
 <ul>
 <li><code>leadId</code> - the ID of the lead</li>
+<li><code>createdAt</code> - the date and time the lead was created, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
+<li><code>updatedAt</code> - the date and time the lead was last updated, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
 <li><code>source</code> - the source of the lead. Can be one of the following:
 
 <ul>
@@ -1775,6 +1792,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><code>BILLBOARD</code></li>
 <li><code>PHYSICAL_AD</code></li>
 <li><code>AI_VOICE_AGENT</code></li>
+<li><code>SPAREFOOT</code></li>
 <li><code>OTHER</code></li>
 </ul></li>
 <li><code>customSource</code> - a custom source for the lead, if <code>source</code> is <code>OTHER</code></li>
@@ -1855,6 +1873,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><code>BILLBOARD</code></li>
 <li><code>PHYSICAL_AD</code></li>
 <li><code>AI_VOICE_AGENT</code></li>
+<li><code>SPAREFOOT</code></li>
 <li><code>OTHER</code></li>
 </ul></li>
 </ul>
@@ -1884,6 +1903,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><a href="#cancel-lease">Cancel Lease</a></li>
 <li><a href="#schedule-move-out">Schedule Move Out</a></li>
 <li><a href="#get-payment-link">Get Payment Link</a></li>
+<li><a href="#get-documents-link">Get Documents Link</a></li>
 <li><a href="#make-payment">Make Payment</a></li>
 <li><a href="#enable-autopay">Enable AutoPay</a></li>
 <li><a href="#disable-autopay">Disable AutoPay</a></li>
@@ -1907,10 +1927,13 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"leases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"moveInDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-06"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"moveOutDate"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="nl">"monthlyRentalAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20800</span><span class="p">,</span><span class="w">
@@ -1968,6 +1991,8 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
     </span><span class="nl">"customers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe Flatley"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bebe"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Flatley"</span><span class="p">,</span><span class="w">
@@ -1988,9 +2013,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
     </span><span class="nl">"facilities"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
     </span><span class="nl">"ledgers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
     </span><span class="nl">"compliances"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for leases at co-managed facilities</p>
@@ -2000,7 +2023,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li>or</li>
 <li><code>facilityId</code> - limits results to leases in a particular facility</li>
 <li>or</li>
-<li><code>customerId</code> - limits results to leases for a particular customer.  Can be used in conjunction with <code>facilityId</code> to limit results to a specific facility</li>
+<li><code>customerId</code> - limits results to leases for a particular customer</li>
 </ul>
 <h3 id='optional-properties-14'>Optional Properties</h3>
 <ul>
@@ -2011,6 +2034,8 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 </ul>
 <h3 id='response-properties'>Response Properties</h3>
 <ul>
+<li><code>createdAt</code> - the date and time the lease was created, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
+<li><code>updatedAt</code> - the date and time the lease was last updated, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
 <li><code>nextChargeAmount</code> - total amount that will be charged on <code>nextChargeDate</code> including insurance, additional fees and taxes. Will be populated only when searching by <code>leaseId</code> or <code>customerId</code></li>
 <li><code>coverage</code> - the current coverage details for the lease:
 
@@ -2057,6 +2082,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"compliances"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -2070,9 +2096,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns the compliance status for leases</p>
@@ -2119,6 +2143,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"rentChangeSchedules"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -2128,9 +2153,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns the next possible rent change schedule for leases</p>
@@ -2235,6 +2258,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"subtotal"</span><span class="p">:</span><span class="w"> </span><span class="mi">34300</span><span class="p">,</span><span class="w">
     </span><span class="nl">"tax"</span><span class="p">:</span><span class="w"> </span><span class="mi">2898</span><span class="p">,</span><span class="w">
@@ -2277,9 +2301,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
         </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns the charges for a lease move-in</p>
@@ -2338,11 +2360,10 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div><h3 id='required-properties-26'>Required Properties</h3>
 <ul>
@@ -2366,7 +2387,7 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
 <li><code>chargeMoveInFee</code> - a boolean indicating if the move-in fee should be charged, defaults to <code>true</code></li>
 <li><code>taxExempt</code> - a boolean indicating if the charges are tax exempt, defaults to <code>false</code></li>
 <li><code>discounts</code> - an array of discount IDs, defaults to <code>[]</code></li>
-<li><code>source</code> - the lead source, defaults to <code>OTHER</code>. One of: <code>WALK_IN</code>, <code>CALL</code>, <code>CONTACT_FORM</code>, <code>WEBSITE</code>, <code>REFERRAL</code>, <code>SEARCH_ENGINE</code>, <code>DIGITAL_AD</code>, <code>BILLBOARD</code>, <code>PHYSICAL_AD</code>, <code>AI_VOICE_AGENT</code>, <code>OTHER</code></li>
+<li><code>source</code> - the lead source, defaults to <code>OTHER</code>. One of: <code>WALK_IN</code>, <code>CALL</code>, <code>CONTACT_FORM</code>, <code>WEBSITE</code>, <code>REFERRAL</code>, <code>SEARCH_ENGINE</code>, <code>DIGITAL_AD</code>, <code>BILLBOARD</code>, <code>PHYSICAL_AD</code>, <code>AI_VOICE_AGENT</code>, <code>SPAREFOOT</code>, <code>OTHER</code></li>
 <li><code>customSource</code> - a custom source description, used when <code>source</code> is <code>OTHER</code></li>
 <li><code>alternativeContacts</code> - an array of alternative contacts for the lease</li>
 <li><code>customer</code> - the tenant information:</li>
@@ -2452,19 +2473,19 @@ exactly, otherwise a 400 error is returned.</p>
 <p>Response Body (success)</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"paymentTransactionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ptxn_8kLmN2pQrSt"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"paymentSuccess"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
 <p>Response Body (declined)</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
     </span><span class="nl">"paymentTransactionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ptxn_8kLmN2pQrSt"</span><span class="p">,</span><span class="w">
@@ -2472,9 +2493,7 @@ exactly, otherwise a 400 error is returned.</p>
     </span><span class="nl">"paymentFailureInfo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
       </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Insufficient funds"</span><span class="w">
     </span><span class="p">}</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div><h3 id='required-properties-27'>Required Properties</h3>
 <p>All properties from <a href="#create-lease">Create Lease</a>, plus:</p>
@@ -2592,17 +2611,41 @@ or <code>ANYTIME</code></li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"paymentLink"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://pay.example.com/1?token=abc123"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a payment link which can be sent to the tenant to make a payment for one or more leases</p>
 <h3 id='required-properties-30'>Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
+</ul>
+<h3 id='get-documents-link'>Get Documents Link</h3>
+<p><code>POST /v1/leases/get-documents-link</code></p>
+
+<blockquote>
+<p>Request Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"documentsLink"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://portal.example.com/leases/lease_1/documents?token=abc123"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Generates a link which can be sent to the tenant to view, manage, and sign documents for a lease.</p>
+<h3 id='required-properties-31'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease to generate a documents link for</li>
 </ul>
 <h3 id='make-payment'>Make Payment</h3>
 <p><code>POST /v1/leases/make-payment</code></p>
@@ -2617,7 +2660,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
-<h3 id='required-properties-31'>Required Properties</h3>
+<h3 id='required-properties-32'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
@@ -2635,7 +2678,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Enables AutoPay for a lease using a saved payment method.  With AutoPay enabled, the tenant will be automatically charged for the amount due on the next charge date of the lease, and on subsequent charge dates until AutoPay is disabled.</p>
-<h3 id='required-properties-32'>Required Properties</h3>
+<h3 id='required-properties-33'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to enable AutoPay for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use for AutoPay</li>
@@ -2673,6 +2716,7 @@ or <code>ANYTIME</code></li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"paymentMethods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -2689,7 +2733,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for saved payment methods by customer</p>
-<h3 id='required-properties-33'>Required Properties</h3>
+<h3 id='required-properties-34'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer</li>
 </ul>
@@ -2770,18 +2814,17 @@ is the token you will pass to the Cubby API.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"paymentMethodId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pm_V4w64pjUwVK"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new payment method for a customer using a token generated by the payment gateway.</p>
 
 <p>The caller must ensure the payment method has been successfully validated and authorized by the payment gateway before submission.
 Unvalidated payment methods may be rejected by the payment gateway when used for a transaction.</p>
-<h3 id='required-properties-34'>Required Properties</h3>
+<h3 id='required-properties-35'>Required Properties</h3>
 <ul>
 <li><code>methodType</code> - the type of payment method, which can be <code>CREDIT_CARD</code>, <code>ACH</code> or <code>ACSS</code></li>
 <li><code>token</code> - the token generated by the payment gateway</li>
@@ -2857,171 +2900,178 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_NpZ1BGBoWrS"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"balances"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"totalDue"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"deposit"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"prepaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"bookEntries"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Move-in Fee"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"ledgers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_NpZ1BGBoWrS"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"balances"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"totalDue"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"deposit"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"prepaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"bookEntries"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Move-in Fee"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DEPOSIT"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RENT"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="w">
+              </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_STATE"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.5%"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_LOCAL"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.5%"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-33000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-30000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.327646"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manual Fee"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.431402"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.43866"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-30000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_RMhnGWgFSnp"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:53.063417"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test fee"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_K7egMpsjeEs"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:54.70939"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-5000</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test fee"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">    
+        </span><span class="p">]</span><span class="w">
       </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">20000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DEPOSIT"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RENT"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="w">
-        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_STATE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.5%"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.689691"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TAX_LOCAL"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-31"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.5%"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:50.826992"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-33000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"paymentTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:51.983019"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-30000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.327646"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manual Fee"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.431402"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CASH"</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_JfNkzV4itfk"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PAYMENT"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:52.43866"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-30000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PREPAID"</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_RMhnGWgFSnp"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:53.063417"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test fee"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"bookEntryId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"be_K7egMpsjeEs"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CHARGE"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"entryTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-26T07:30:54.70939"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-5000</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"amountPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEE"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test fee"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"waive"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">    
-  </span><span class="p">]</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
-<h3 id='required-properties-35'>Required Properties</h3>
+<h3 id='required-properties-36'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
 <li>or</li>
@@ -3077,7 +3127,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Adds the private coverage policy number and expiration date for a lease.</p>
-<h3 id='required-properties-36'>Required Properties</h3>
+<h3 id='required-properties-37'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
 <li><code>policyNumber</code> - the policy number for the private coverage policy</li>
@@ -3118,7 +3168,7 @@ Response Body</p>
 </blockquote>
 
 <p>The response body contains the requested private policy file as a binary stream</p>
-<h3 id='required-properties-37'>Required Properties</h3>
+<h3 id='required-properties-38'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
 </ul>
@@ -3142,6 +3192,7 @@ Response Body</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"coverageLevels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -3155,13 +3206,11 @@ Response Body</p>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="w"> </span><span class="c">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for coverage levels by facility</p>
-<h3 id='required-properties-38'>Required Properties</h3>
+<h3 id='required-properties-39'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to coverage levels in a particular facility</li>
 </ul>
@@ -3184,6 +3233,7 @@ Response Body</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"coverages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -3196,11 +3246,9 @@ Response Body</p>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h3 id='required-properties-39'>Required Properties</h3>
+</span></code></pre></div><h3 id='required-properties-40'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to policies in a particular facility </li>
 <li>or</li>
@@ -3275,6 +3323,7 @@ with the unused portion credited to the account.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"payments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -3289,13 +3338,11 @@ with the unused portion credited to the account.</p>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for payments by facility, customer, or payment date</p>
-<h3 id='required-properties-40'>Required Properties</h3>
+<h3 id='required-properties-41'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to payments in a particular facility</li>
 <li>or</li>
@@ -3331,6 +3378,7 @@ with the unused portion credited to the account.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"auctions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -3372,13 +3420,11 @@ with the unused portion credited to the account.</p>
     </span><span class="p">],</span><span class="w">
     </span><span class="nl">"leases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">...</span><span class="w"> </span><span class="p">],</span><span class="w">
     </span><span class="nl">"units"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">...</span><span class="w"> </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for auctions by facility or auction ID</p>
-<h3 id='required-properties-41'>Required Properties</h3>
+<h3 id='required-properties-42'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to auctions in a particular facility</li>
 <li>or</li>
@@ -3428,15 +3474,14 @@ with the unused portion credited to the account.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"auctionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auction_V4w64pjUwVK"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new auction for a facility</p>
-<h3 id='required-properties-42'>Required Properties</h3>
+<h3 id='required-properties-43'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the auction for</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -3456,7 +3501,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Starts the lien process for a lease, which may include sending lien notices to the tenant and alternative contacts</p>
-<h3 id='required-properties-43'>Required Properties</h3>
+<h3 id='required-properties-44'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
 <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
@@ -3502,21 +3547,20 @@ with the unused portion credited to the account.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Customer requested a larger unit"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-01T12:00:00.000000Z"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"createdBy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_4a2da7d271a"</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for notes related to leases, customers, leads, units, or pricing groups.</p>
-<h3 id='required-properties-44'>Required Properties</h3>
+<h3 id='required-properties-45'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to notes for a specific lease</li>
 <li>or</li>
@@ -3527,6 +3571,12 @@ with the unused portion credited to the account.</p>
 <li><code>unitId</code> - limits results to notes for a specific unit</li>
 <li>or</li>
 <li><code>pricingGroupId</code> - limits results to notes for a specific pricing group</li>
+</ul>
+<h3 id='response-properties-2'>Response Properties</h3>
+<ul>
+<li><code>text</code> - the text of the note</li>
+<li><code>createdAt</code> - the date and time the note was created, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
+<li><code>createdBy</code> - the ID of the user who created the note</li>
 </ul>
 <h3 id='notes-create'>Notes Create</h3>
 <p><code>POST /v1/notes/create</code></p>
@@ -3544,7 +3594,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new note related to a lease, customer, lead, unit, or pricing group.</p>
-<h3 id='required-properties-45'>Required Properties</h3>
+<h3 id='required-properties-46'>Required Properties</h3>
 <ul>
 <li><code>text</code> - the text of the note</li>
 <li>and one of</li>
@@ -3585,6 +3635,7 @@ with the unused portion credited to the account.</p>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -3608,13 +3659,11 @@ with the unused portion credited to the account.</p>
     </span><span class="nl">"customers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for tasks by facility, organization, unit, customer, status, or due date</p>
-<h3 id='required-properties-46'>Required Properties</h3>
+<h3 id='required-properties-47'>Required Properties</h3>
 <p>At least one of the following:
 * <code>organizationId</code> - limits results to tasks in a specific organization
 * <code>facilityId</code> - limits results to tasks in a specific facility
@@ -3644,7 +3693,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new task at the specified facility</p>
-<h3 id='required-properties-47'>Required Properties</h3>
+<h3 id='required-properties-48'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the task in</li>
 <li><code>title</code> - the title of the task</li>
@@ -3801,7 +3850,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-<h3 id='required-properties-48'>Required Properties</h3>
+<h3 id='required-properties-49'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -4103,7 +4152,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates an accrual basis general ledger report for a facility over a specified time period.</p>
-<h3 id='required-properties-49'>Required Properties</h3>
+<h3 id='required-properties-50'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -4190,6 +4239,8 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <h3 id='aged-receivables-report'>Aged Receivables Report</h3>
 <p><code>POST /v1/reports/aged-receivables</code></p>
 
+<p><code>throughDate</code> is optional and defaults to the facility&#39;s current date. When provided, aging buckets are computed as of the end of that date.</p>
+
 <blockquote>
 <p>Request Body</p>
 </blockquote>
@@ -4197,7 +4248,8 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"facilityIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="w">
-    </span><span class="p">]</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"throughDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-31"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
@@ -4251,7 +4303,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates an aged receivables report for one or more facilities.</p>
-<h3 id='required-properties-50'>Required Properties</h3>
+<h3 id='required-properties-51'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 </ul>
@@ -4352,7 +4404,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a rent roll report for one or more facilities.</p>
-<h3 id='required-properties-51'>Required Properties</h3>
+<h3 id='required-properties-52'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>throughDate</code> - the date through which to calculate rent due in <code>YYYY-MM-DD</code> format</li>
@@ -4469,7 +4521,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a merchant services disbursements report for one or more facilities over a specified time period. The report includes batch-level settlement summaries and individual transaction details from configured payment providers (Stripe, Payabli).</p>
-<h3 id='required-properties-52'>Required Properties</h3>
+<h3 id='required-properties-53'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -4552,6 +4604,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"facilities"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -4584,13 +4637,11 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for storefront-visible facilities by facility or organization</p>
-<h3 id='required-properties-53'>Required Properties</h3>
+<h3 id='required-properties-54'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to a specific facility</li>
 <li>or</li>
@@ -4619,6 +4670,7 @@ endpoint are <code>organization</code> and <code>schedules</code></li>
 <p>Response Body</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
   </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"pricingGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -4648,13 +4700,11 @@ endpoint are <code>organization</code> and <code>schedules</code></li>
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for storefront-visible pricing groups by facility or pricing group ID</p>
-<h3 id='required-properties-54'>Required Properties</h3>
+<h3 id='required-properties-55'>Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to a specific pricing group</li>
 <li>or</li>
@@ -4694,7 +4744,7 @@ endpoint are <code>discounts</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Sends an SMS message to a customer</p>
-<h3 id='required-properties-55'>Required Properties</h3>
+<h3 id='required-properties-56'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -4703,8 +4753,31 @@ endpoint are <code>discounts</code></li>
 <h3 id='send-email'>Send Email</h3>
 <p><code>POST /v1/messages/email/send</code></p>
 
+<p>Sends an email message to a customer. Unlike the other endpoints in this API, this one is sent as <code>multipart/form-data</code> so that file attachments can be included alongside the JSON request.</p>
+
+<p>The request must include the following parts:</p>
+
+<table><thead>
+<tr>
+<th>Part name</th>
+<th>Content</th>
+<th>Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>request</code></td>
+<td>A JSON object with the fields described under <strong>Required Properties</strong> below. The part must be sent with <code>Content-Type: application/json</code>.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>attachments</code></td>
+<td>A file to attach to the email. Repeat the part name for multiple attachments. Maximum of <strong>5 attachments</strong>, each up to <strong>5 MB</strong>.</td>
+<td>No</td>
+</tr>
+</tbody></table>
+
 <blockquote>
-<p>Request Body</p>
+<p>JSON body of the <code>request</code> part</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
@@ -4713,8 +4786,34 @@ endpoint are <code>discounts</code></li>
   </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;p&gt;Your payment is due tomorrow.&lt;/p&gt;"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
-<p>Sends an email message to a customer</p>
-<h3 id='required-properties-56'>Required Properties</h3>
+<blockquote>
+<p>Example: send an email with no attachments</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST <span class="s1">'https://api.cubbystorage.com/v1/messages/email/send'</span> <span class="se">\</span>
+  <span class="nt">--header</span> <span class="s1">'Authorization: Bearer b73c7e4d-81f2-49e3-bbca-9a6fbd321d56'</span> <span class="se">\</span>
+  <span class="nt">--form</span> <span class="s1">'request={
+      "customerId": "cust_BqaN6zApXCH",
+      "facilityId": "fac_C7bSZyPT6fp",
+      "subject": "Payment Due Reminder",
+      "body": "&lt;p&gt;Your payment is due tomorrow.&lt;/p&gt;"
+    };type=application/json'</span>
+</code></pre></div>
+<blockquote>
+<p>Example: send an email with two attachments</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST <span class="s1">'https://api.cubbystorage.com/v1/messages/email/send'</span> <span class="se">\</span>
+  <span class="nt">--header</span> <span class="s1">'Authorization: Bearer b73c7e4d-81f2-49e3-bbca-9a6fbd321d56'</span> <span class="se">\</span>
+  <span class="nt">--form</span> <span class="s1">'request={
+      "customerId": "cust_BqaN6zApXCH",
+      "facilityId": "fac_C7bSZyPT6fp",
+      "subject": "Payment Due Reminder",
+      "body": "&lt;p&gt;Your payment is due tomorrow.&lt;/p&gt;"
+    };type=application/json'</span> <span class="se">\</span>
+  <span class="nt">--form</span> <span class="s1">'attachments=@invoice.pdf'</span> <span class="se">\</span>
+  <span class="nt">--form</span> <span class="s1">'attachments=@receipt.pdf'</span>
+</code></pre></div><h3 id='required-properties-57'>Required Properties</h3>
+<p>The following fields belong inside the JSON <code>request</code> part:</p>
+
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
