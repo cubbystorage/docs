@@ -346,6 +346,33 @@
                   <li>
                     <a href="#may-2026" class="toc-h2 toc-link" data-title="May 2026">May 2026</a>
                   </li>
+                  <li>
+                    <a href="#april-2026" class="toc-h2 toc-link" data-title="April 2026">April 2026</a>
+                  </li>
+                  <li>
+                    <a href="#march-2026" class="toc-h2 toc-link" data-title="March 2026">March 2026</a>
+                  </li>
+                  <li>
+                    <a href="#february-2026" class="toc-h2 toc-link" data-title="February 2026">February 2026</a>
+                  </li>
+                  <li>
+                    <a href="#january-2026" class="toc-h2 toc-link" data-title="January 2026">January 2026</a>
+                  </li>
+                  <li>
+                    <a href="#december-2025" class="toc-h2 toc-link" data-title="December 2025">December 2025</a>
+                  </li>
+                  <li>
+                    <a href="#november-2025" class="toc-h2 toc-link" data-title="November 2025">November 2025</a>
+                  </li>
+                  <li>
+                    <a href="#october-2025" class="toc-h2 toc-link" data-title="October 2025">October 2025</a>
+                  </li>
+                  <li>
+                    <a href="#september-2025" class="toc-h2 toc-link" data-title="September 2025">September 2025</a>
+                  </li>
+                  <li>
+                    <a href="#december-2024" class="toc-h2 toc-link" data-title="December 2024">December 2024</a>
+                  </li>
               </ul>
           </li>
           <li>
@@ -845,6 +872,67 @@ Example via curl:</p>
 <h2 id='may-2026'>May 2026</h2>
 <ul>
 <li><strong>Merchant Services Disbursements Report</strong> — New endpoint <code>POST /v1/reports/merchant-services-disbursements</code> for retrieving batch settlement and transaction details from configured payment providers.</li>
+<li><strong>Value Pricing Strategies Search</strong> — New endpoint <code>POST /v1/value-pricing-strategies/search</code>. <code>POST /v1/pricing-groups/search</code> now also returns <code>valuePricingStrategyId</code> on each pricing group with a strategy assigned, plus a top-level <code>valuePricingStrategies</code> array when the <code>valuePricingStrategies</code> expansion is requested.</li>
+<li><strong>Leases, Leads, Customers Search: <code>createdAt</code> / <code>updatedAt</code> timestamps</strong> — <code>createdAt</code> and <code>updatedAt</code> UTC timestamps are now included on objects returned by <code>POST /v1/leases/search</code>, <code>POST /v1/leads/search</code>, and <code>POST /v1/customers/search</code>.</li>
+<li><strong>Search endpoints: <code>updatedAfter</code> / <code>updatedBefore</code> filters</strong> — Strict (exclusive) UTC timestamp filters <code>updatedAfter</code> and <code>updatedBefore</code> added to <code>/v1/leases/search</code>, <code>/v1/leads/search</code>, and <code>/v1/customers/search</code>. Designed as incremental-sync cursors: passing the <code>updatedAt</code> from your previous response as <code>updatedAfter</code> on the next poll excludes the boundary record.</li>
+<li><strong>Leases Search: <code>activeOnOrAfter</code> / <code>activeOnOrBefore</code> filter fix</strong> — These inclusive date filters now apply consistently across all code paths in <code>/v1/leases/search</code>.</li>
+<li><strong>Aged Receivables Report: optional <code>throughDate</code> parameter</strong> — <code>POST /v1/reports/aged-receivables</code> now accepts an optional <code>throughDate</code>. When supplied, aging buckets are computed as of the end of that date, enabling historical snapshots. Defaults to the facility&#39;s current date.</li>
+<li><strong>Get Documents Link</strong> — New endpoint <code>POST /v1/leases/get-documents-link</code>. Returns a <code>documentsLink</code> URL pointing to the tenant portal page where the tenant can view, manage, and sign lease documents.</li>
+<li><strong>Documentation: roles and permissions</strong> — New section documenting the <code>Manager</code>, <code>Search</code>, and <code>Storefront</code> API key roles with per-resource access tables.</li>
+</ul>
+<h2 id='april-2026'>April 2026</h2>
+<ul>
+<li><strong>Checkout</strong> — New endpoint <code>POST /v1/leases/checkout</code>. Creates a lease and collects the first payment atomically. Accepts all Create Lease fields plus a required <code>payment</code> object (<code>amount</code>, billing address, <code>methodType</code>, and gateway token). On payment decline the lease is rolled back; the response includes <code>paymentSuccess</code>, <code>paymentTransactionId</code>, and <code>paymentFailureInfo</code>.</li>
+<li><strong>Auctions: <code>leaseConfigurationId</code> field</strong> — <code>leaseConfigurationId</code> added to auction-create requests and auction-search responses, linking an auction to the lease configuration (agreement template) assigned to the pricing group.</li>
+</ul>
+<h2 id='march-2026'>March 2026</h2>
+<ul>
+<li><strong>Leases Search: <code>scheduledMoveOut</code> field</strong> — Lease objects in <code>/v1/leases/search</code> now include a <code>scheduledMoveOut</code> object when a move-out is scheduled: <code>moveOutDate</code>, <code>noticeGivenDate</code>, <code>moveOutReason</code>, <code>customReason</code>, and <code>moveOutTime</code>.</li>
+<li><strong>Leads Create: facility-level token support</strong> — <code>POST /v1/leads/create</code> now accepts a <code>facilityId</code> in place of <code>organizationId</code> when using a facility-scoped API token.</li>
+</ul>
+<h2 id='february-2026'>February 2026</h2>
+<ul>
+<li><strong>AutoPay Enable / Disable</strong> — New endpoints <code>POST /v1/leases/enable-auto-pay</code> and <code>POST /v1/leases/disable-auto-pay</code>. <code>enable-auto-pay</code> requires <code>leaseId</code> and <code>paymentMethodId</code>; <code>disable-auto-pay</code> requires <code>leaseId</code> only. Lease objects in <code>/v1/leases/search</code> now include <code>autoPayPaymentMethodId</code>.</li>
+<li><strong>Leases Search: <code>coverageChange</code> field</strong> — Lease objects now include a <code>coverageChange</code> object showing the next scheduled coverage change: <code>coverageType</code>, <code>startDate</code>, <code>coverageLevelId</code>, <code>premiumAmount</code>, and <code>coverageAmount</code>.</li>
+<li><strong>Lease Compliance</strong> — New endpoints <code>POST /v1/leases/get-compliances</code> and a <code>compliance</code> expansion on <code>/v1/leases/search</code>. Returns per-lease compliance status for each required document type (<code>LEASE_AGREEMENT</code>, <code>COVERAGE</code>, <code>IDENTITY</code>, <code>VEHICLE</code>) with statuses <code>NOT_REQUIRED</code>, <code>INCOMPLETE</code>, <code>PENDING_APPROVAL</code>, <code>SIGNATURE_NEEDED</code>, <code>REJECTED</code>, or <code>APPROVED</code>.</li>
+<li><strong>Accrual General Ledger Report</strong> — New endpoint <code>POST /v1/reports/general-ledger/accrual</code>. Returns journal entry line items with <code>debit</code>/<code>credit</code> amounts, <code>account</code>, <code>taxCategory</code>, <code>taxExempt</code>, <code>explanation</code>, and GL mapping fields. Requires <code>facilityId</code>, <code>startDate</code>, and <code>reportRelativeDuration</code>.</li>
+<li><strong>Ledger Search: <code>paymentTime</code> field</strong> — <code>paymentTime</code> UTC timestamp added to charge entries in <code>/v1/ledgers/search</code>, indicating when the charge was fully paid.</li>
+<li><strong>Pricing Groups Change Rates: <code>strikethroughRate</code> field</strong> — <code>strikethroughRate</code> added as an optional property on <code>POST /v1/pricing-groups/change-rates</code>. Setting it to <code>null</code> removes the strikethrough price; it only displays on the storefront when greater than the web rate.</li>
+<li><strong>Facilities Search: additional fields</strong> — <code>internalName</code>, <code>organizationId</code>, <code>longitude</code>, <code>latitude</code>, and <code>paymentServiceProvider</code> (<code>STRIPE</code> or <code>PAYABLI</code>) added to facility objects in <code>/v1/facilities/search</code>.</li>
+<li><strong>Units Search: <code>walkthroughOrder</code> field</strong> — <code>walkthroughOrder</code> integer added to unit objects in <code>/v1/units/search</code>.</li>
+</ul>
+<h2 id='january-2026'>January 2026</h2>
+<ul>
+<li><strong>Leads Search</strong> — New endpoint <code>POST /v1/leads/search</code>. Filters by <code>organizationId</code>, <code>facilityId</code>, <code>customerId</code>, <code>pricingGroupId</code>, <code>unitId</code>, or <code>leadId</code>. Supports <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>, and <code>customer</code> expansions.</li>
+<li><strong>Rent Roll Report</strong> — New endpoint <code>POST /v1/reports/rent-roll</code>. Returns a per-unit snapshot including <code>monthlyRentalAmount</code>, <code>rentVarianceAmount</code>, <code>totalDue</code>, <code>deposit</code>, <code>prepaid</code>, <code>moveInDate</code>, <code>paidThroughDate</code>, <code>autoPayEnabled</code>, overlock status, scheduled rent-change fields, and customer contact details. Requires <code>facilityIds</code> and <code>throughDate</code>.</li>
+<li><strong>Payment Methods Create</strong> — New endpoint <code>POST /v1/payment-methods/create</code>. Accepts a gateway <code>token</code> and <code>methodType</code> (<code>CREDIT_CARD</code>, <code>ACH</code>, or <code>ACSS</code>) with method-specific fields (card brand, expiration, last four, holder; ACH/ACSS account type, holder, last four).</li>
+<li><strong>Units Set Rentability</strong> — New endpoint <code>POST /v1/units/set-rentability</code>. Sets a unit&#39;s <code>rentable</code> boolean; when <code>false</code>, requires <code>unrentableReason</code> (<code>REPAIRS_REQUIRED</code>, <code>CLEANING_REQUIRED</code>, <code>UNDER_RENOVATION</code>, <code>USED_BY_FACILITY</code>, <code>OTHER</code>) and an optional <code>unrentableReasonNote</code>.</li>
+</ul>
+<h2 id='december-2025'>December 2025</h2>
+<ul>
+<li><strong>Aged Receivables Report</strong> — New endpoint <code>POST /v1/reports/aged-receivables</code>. Returns per-lease aging buckets (<code>RANGE_0_30</code>, <code>RANGE_30_60</code>, <code>RANGE_60_90</code>, <code>RANGE_90_120</code>, <code>RANGE_120_PLUS</code>) for one or more facilities.</li>
+<li><strong>Ledger Search: <code>waive</code> flag</strong> — <code>waive</code> boolean added to charge entries in <code>/v1/ledgers/search</code>, indicating whether the charge has been waived.</li>
+<li><strong>Pricing Groups Change Rates</strong> — New endpoint <code>POST /v1/pricing-groups/change-rates</code>. Bulk-updates <code>standardRate</code> and/or <code>webRate</code> for one or more pricing groups by <code>pricingGroupId</code>.</li>
+<li><strong>Customers Search: <code>companyName</code> field</strong> — <code>companyName</code> added to customer objects returned by <code>/v1/customers/search</code> and other endpoints that embed customer data.</li>
+</ul>
+<h2 id='november-2025'>November 2025</h2>
+<ul>
+<li><strong>Change Rents</strong> — New endpoints for scheduling and applying rent changes on leases.</li>
+<li><strong>Notes Search / Create</strong> — New endpoints <code>POST /v1/notes/search</code> and <code>POST /v1/notes/create</code>.</li>
+<li><strong>General Ledger Cash Report: GL mapping fields</strong> — <code>mappedGlAccount</code> and <code>mappedGlAccountNumber</code> added to line items in <code>POST /v1/reports/general-ledger/cash</code> when a GL mapping is configured for the facility.</li>
+</ul>
+<h2 id='october-2025'>October 2025</h2>
+<ul>
+<li><strong>Leases Search: <code>pricingGroup</code> expansion</strong> — The <code>expansions</code> array on <code>/v1/leases/search</code> now supports <code>pricingGroup</code>, returning the pricing group object alongside each lease.</li>
+</ul>
+<h2 id='september-2025'>September 2025</h2>
+<ul>
+<li><strong>Lock Transfer</strong> — New endpoint <code>POST /v1/locks/transfer</code>. Transfers a lock to a different facility within the same organization. The lock must not be currently attached to a unit.</li>
+</ul>
+<h2 id='december-2024'>December 2024</h2>
+<ul>
+<li><strong>Pricing Groups Search</strong> — New endpoint <code>POST /v1/pricing-groups/search</code>. Returns storefront-visible pricing groups by <code>facilityId</code> or <code>pricingGroupId</code>, including standard rate, web rate, <code>strikethroughRate</code>, dimensions, features, and an optional <code>discounts</code> expansion.</li>
+<li><strong>Payments Search</strong> — New endpoint <code>POST /v1/payments/search</code>. Filters by <code>facilityId</code> or <code>customerId</code>, with optional <code>paymentDateOnOrAfter</code> / <code>paymentDateOnOrBefore</code> date range filters.</li>
 </ul>
 <h1 id='operator-api'>Operator API</h1><h2 id='access-codes-2'>Access Codes</h2>
 <ul>
