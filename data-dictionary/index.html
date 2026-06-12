@@ -1,0 +1,1089 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Cubby Data Dictionary</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
+      font-size: 14px;
+      background: #2e3136;
+      color: #aaa;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .toc-wrapper {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 230px;
+      background: #1e2127;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 20px;
+    }
+    .toc-logo {
+      padding: 20px 20px 14px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      display: block;
+    }
+    .toc-nav {
+      padding: 0 15px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .toc-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #555;
+      padding: 16px 0 6px;
+    }
+    .toc-link {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      padding: 4px 0;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toc-link:hover { color: #fff; }
+    .toc-link.active { color: #66d9ef; }
+    .toc-divider {
+      border: none;
+      border-top: 1px solid #2a2d33;
+      margin: 12px 0;
+    }
+
+    /* ── Main layout ── */
+    .page-wrapper {
+      margin-left: 230px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-header {
+      padding: 36px 40px 0;
+      max-width: 1200px;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 8px;
+    }
+    .page-header p {
+      color: #888;
+      font-size: 13.5px;
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+
+    /* ── Controls bar ── */
+    .controls {
+      padding: 0 40px 20px;
+      max-width: 1200px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+      pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: #1a1d23;
+      border: 1px solid #3a3d42;
+      border-radius: 5px;
+      color: #ddd;
+      font-size: 13px;
+      padding: 8px 12px 8px 32px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: #66d9ef; }
+    .search-wrap input::placeholder { color: #555; }
+
+    select.filter-select {
+      background: #1a1d23;
+      border: 1px solid #3a3d42;
+      border-radius: 5px;
+      color: #ddd;
+      font-size: 13px;
+      padding: 8px 28px 8px 11px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color .15s;
+    }
+    select.filter-select:focus { border-color: #66d9ef; }
+
+    .result-count {
+      font-size: 12px;
+      color: #555;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      padding: 0 40px 60px;
+      overflow-x: auto;
+    }
+
+    table.dd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.dd-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    table.dd-table thead th {
+      background: #1a1d23;
+      color: #888;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #3a3d42;
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    table.dd-table thead th:hover { color: #ccc; }
+    table.dd-table thead th.sort-asc,
+    table.dd-table thead th.sort-desc { color: #66d9ef; }
+
+    .sort-icon { margin-left: 5px; opacity: .4; font-size: 10px; }
+    th.sort-asc .sort-icon,
+    th.sort-desc .sort-icon { opacity: 1; }
+
+    table.dd-table tbody tr {
+      border-bottom: 1px solid #272a2f;
+      transition: background .1s;
+    }
+    table.dd-table tbody tr:hover { background: rgba(255,255,255,.03); }
+    table.dd-table tbody tr.hidden { display: none; }
+
+    table.dd-table td {
+      padding: 10px 14px;
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    .cell-table {
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      color: #e0e0e0;
+      white-space: nowrap;
+    }
+    .cell-column {
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      color: #a6e22e;
+      white-space: nowrap;
+    }
+    .cell-type {
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11.5px;
+      color: #66d9ef;
+      white-space: nowrap;
+    }
+    .cell-desc {
+      color: #999;
+      max-width: 520px;
+    }
+    .cell-desc code {
+      background: rgba(0,0,0,.35);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11.5px;
+      color: #e6db74;
+    }
+
+    /* row type badges */
+    .row-table-header td { background: #22252b; }
+    .row-table-header .cell-table { font-size: 13.5px; font-weight: 700; color: #fff; }
+    .row-table-header .cell-desc { color: #888; font-style: italic; }
+    .badge-table {
+      display: inline-block;
+      background: rgba(102,217,239,.1);
+      color: #66d9ef;
+      border: 1px solid rgba(102,217,239,.25);
+      border-radius: 3px;
+      font-size: 10px;
+      font-family: Consolas, monospace;
+      padding: 1px 6px;
+      vertical-align: middle;
+      margin-left: 6px;
+      font-weight: 400;
+    }
+
+    /* empty state */
+    .empty-state {
+      padding: 60px 40px;
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+      display: none;
+    }
+    .empty-state svg { display: block; margin: 0 auto 14px; opacity: .3; }
+
+    /* highlight matches */
+    mark {
+      background: rgba(102,217,239,.25);
+      color: #fff;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="toc-wrapper">
+    <a href="../" class="toc-logo">cubby</a>
+    <div class="toc-nav">
+      <div class="toc-section-label">Documentation</div>
+      <a href="../api/" class="toc-link">API Reference</a>
+      <a href="../data-dictionary/" class="toc-link active">Data Dictionary</a>
+      <hr class="toc-divider">
+      <div class="toc-section-label">Tables</div>
+      <a href="#" class="toc-link" onclick="filterTable('');return false;">All tables</a>
+      <a href="#" class="toc-link" id="toc-access_log"       onclick="filterTable('access_log');return false;">access_log</a>
+      <a href="#" class="toc-link" id="toc-auctions"         onclick="filterTable('auctions');return false;">auctions</a>
+      <a href="#" class="toc-link" id="toc-book_entries"     onclick="filterTable('book_entries');return false;">book_entries</a>
+      <a href="#" class="toc-link" id="toc-call_agent_availability" onclick="filterTable('call_agent_availability');return false;">call_agent_availability</a>
+      <a href="#" class="toc-link" id="toc-call_child"       onclick="filterTable('call_child');return false;">call_child</a>
+      <a href="#" class="toc-link" id="toc-calls"            onclick="filterTable('calls');return false;">calls</a>
+      <a href="#" class="toc-link" id="toc-contact"          onclick="filterTable('contact');return false;">contact</a>
+      <a href="#" class="toc-link" id="toc-cubby_events"     onclick="filterTable('cubby_events');return false;">cubby_events</a>
+      <a href="#" class="toc-link" id="toc-customer_touches" onclick="filterTable('customer_touches');return false;">customer_touches</a>
+      <a href="#" class="toc-link" id="toc-discount_programs" onclick="filterTable('discount_programs');return false;">discount_programs</a>
+      <a href="#" class="toc-link" id="toc-discounts"        onclick="filterTable('discounts');return false;">discounts</a>
+      <a href="#" class="toc-link" id="toc-emails"           onclick="filterTable('emails');return false;">emails</a>
+      <a href="#" class="toc-link" id="toc-facilities"       onclick="filterTable('facilities');return false;">facilities</a>
+      <a href="#" class="toc-link" id="toc-facility_groups"  onclick="filterTable('facility_groups');return false;">facility_groups</a>
+      <a href="#" class="toc-link" id="toc-ga_events"        onclick="filterTable('ga_events');return false;">ga_events</a>
+      <a href="#" class="toc-link" id="toc-leads"            onclick="filterTable('leads');return false;">leads</a>
+      <a href="#" class="toc-link" id="toc-lease_auctions"   onclick="filterTable('lease_auctions');return false;">lease_auctions</a>
+      <a href="#" class="toc-link" id="toc-leases"           onclick="filterTable('leases');return false;">leases</a>
+      <a href="#" class="toc-link" id="toc-managers"         onclick="filterTable('managers');return false;">managers</a>
+      <a href="#" class="toc-link" id="toc-payments"         onclick="filterTable('payments');return false;">payments</a>
+      <a href="#" class="toc-link" id="toc-pricing_group"    onclick="filterTable('pricing_group');return false;">pricing_group</a>
+      <a href="#" class="toc-link" id="toc-rate_changes"     onclick="filterTable('rate_changes');return false;">rate_changes</a>
+      <a href="#" class="toc-link" id="toc-scheduled_move_outs" onclick="filterTable('scheduled_move_outs');return false;">scheduled_move_outs</a>
+      <a href="#" class="toc-link" id="toc-spaces_historical" onclick="filterTable('spaces_historical');return false;">spaces_historical</a>
+      <a href="#" class="toc-link" id="toc-unit_turnover"    onclick="filterTable('unit_turnover');return false;">unit_turnover</a>
+      <a href="#" class="toc-link" id="toc-units"            onclick="filterTable('units');return false;">units</a>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="page-wrapper">
+
+    <div class="page-header">
+      <h1>Data Dictionary</h1>
+      <p>
+        Tables and columns in the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> BigQuery dataset.
+        Refreshed nightly. Click a table in the sidebar to filter, or search and filter below.
+      </p>
+    </div>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search tables, columns, descriptions…" oninput="applyFilters()">
+      </div>
+
+      <select class="filter-select" id="table-select" onchange="applyFilters()">
+        <option value="">All tables</option>
+        <option>access_log</option>
+        <option>auctions</option>
+        <option>book_entries</option>
+        <option>call_agent_availability</option>
+        <option>call_child</option>
+        <option>calls</option>
+        <option>contact</option>
+        <option>cubby_events</option>
+        <option>customer_touches</option>
+        <option>discount_programs</option>
+        <option>discounts</option>
+        <option>emails</option>
+        <option>facilities</option>
+        <option>facility_groups</option>
+        <option>ga_events</option>
+        <option>leads</option>
+        <option>lease_auctions</option>
+        <option>leases</option>
+        <option>managers</option>
+        <option>payments</option>
+        <option>pricing_group</option>
+        <option>rate_changes</option>
+        <option>scheduled_move_outs</option>
+        <option>spaces_historical</option>
+        <option>unit_turnover</option>
+        <option>units</option>
+      </select>
+
+      <select class="filter-select" id="type-select" onchange="applyFilters()">
+        <option value="">All types</option>
+        <option>STRING</option>
+        <option>NUMERIC</option>
+        <option>INTEGER</option>
+        <option>FLOAT</option>
+        <option>BOOLEAN</option>
+        <option>TIMESTAMP</option>
+        <option>DATE</option>
+        <option>RECORD</option>
+      </select>
+
+      <span class="result-count" id="result-count"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="dd-table" id="dd-table">
+        <thead>
+          <tr>
+            <th onclick="sortBy(0)" data-col="0">Table <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy(1)" data-col="1">Column <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy(2)" data-col="2">Type <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy(3)" data-col="3">Description <span class="sort-icon">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="dd-tbody">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+      <div class="empty-state" id="empty-state">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        No matching columns found.
+      </div>
+    </div>
+
+  </div><!-- /.page-wrapper -->
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+// Format: [table, column, type, description]
+// column='' means it's a table-level row (description of the whole table)
+const DATA = [
+  ["access_log", "", "TABLE", "Materialized access-log table. Contains one row per facility access event (gate/door entry attempts), enriched with contact, facility, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["access_log", "org_id", "", "The organization identifier. Common filter field across all views."],
+  ["access_log", "id", "", "Unique identifier for the access log entry."],
+  ["access_log", "contact_id", "", "The tenant who triggered the access event. Joins to contact.contact_id."],
+  ["access_log", "device_name", "", "The name of the access control device (e.g., gate keypad, door reader)."],
+  ["access_log", "code", "", "The access code entered for the entry attempt."],
+  ["access_log", "event", "", "The type of access event (e.g., entry, exit)."],
+  ["access_log", "occurred_at", "", "Timestamp when the access event occurred."],
+  ["access_log", "result", "", "The outcome of the access attempt (e.g., granted, denied)."],
+  ["access_log", "reason", "", "Additional detail about the result, particularly for denied access attempts."],
+  ["access_log", "created_at", "", "Timestamp when the record was created in the system."],
+  ["access_log", "updated_at", "", "Timestamp when the record was last updated."],
+  ["access_log", "facility_name", "", "Name of the facility where the event occurred. Denormalized from facilities."],
+  ["access_log", "facility_id", "", "The facility where the event occurred. Joins to facilities.facility_id."],
+  ["access_log", "org_name", "", "Name of the organization that owns the facility. Denormalized."],
+  ["auctions", "", "TABLE", "Materialized auctions table. Contains one row per auction event (typically lien auctions for delinquent tenants) with facility and organisation attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["auctions", "org_id", "", "The organization identifier. Common filter field."],
+  ["auctions", "auction_id", "", "Unique identifier for the auction."],
+  ["auctions", "facility_name", "", "Name of the facility hosting the auction. Denormalized from facilities."],
+  ["auctions", "date_time", "", "Scheduled date and time of the auction."],
+  ["auctions", "advert_deadline", "", "The deadline by which the auction must be advertised, as required by lien law."],
+  ["auctions", "created_at", "", "Timestamp when the auction record was created."],
+  ["auctions", "updated_at", "", "Timestamp when the auction record was last updated."],
+  ["auctions", "facility_id", "", "The facility hosting the auction. Joins to facilities.facility_id."],
+  ["book_entries", "", "TABLE", "Materialized book-entry table. Contains one row per accounting book entry (charges, payments, credits, and transfers), enriched with facility, lease, unit, and contact context. The pre-calculated amt_* columns make it easier to aggregate common financial metrics. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["book_entries", "book_entry_id", "", "Unique identifier for the book entry. Primary key."],
+  ["book_entries", "org_id", "", "The organization identifier. Common filter field."],
+  ["book_entries", "facility", "", "Name of the facility. Denormalized (note: same as facility_name in other tables)."],
+  ["book_entries", "facility_id", "", "The facility this entry belongs to. Joins to facilities.facility_id."],
+  ["book_entries", "entry_date_time", "", "The datetime of the accounting entry."],
+  ["book_entries", "txn_id", "", "Transaction identifier grouping related entries together (e.g., a charge and its tax line)."],
+  ["book_entries", "type", "", "The type of ledger entry - CREDIT/DEBIT"],
+  ["book_entries", "amount", "", "The monetary amount of the entry."],
+  ["book_entries", "book", "", "The accounting book/ledger this entry belongs to (e.g., A/R)."],
+  ["book_entries", "lease_id", "", "The lease this entry is associated with. Joins to leases.lease_id."],
+  ["book_entries", "unit", "", "The unit name. Denormalized."],
+  ["book_entries", "unit_id", "", "The unit associated with this entry. Joins to units.unit_id."],
+  ["book_entries", "contact_id", "", "The tenant/contact for this entry. Joins to contact.contact_id."],
+  ["book_entries", "contact_name", "", "The tenant"],
+  ["book_entries", "accrual_start", "", "The date from which this entry accrues (relevant for rent charges)."],
+  ["book_entries", "explanation_text", "", "Human-readable description of the entry."],
+  ["book_entries", "entry_num", "", "Sequential entry number within a transaction."],
+  ["book_entries", "applies_to", "", "References another entry this one applies to (e.g., a payment applying against a specific charge)."],
+  ["book_entries", "ar_entry_category", "", "Categorizes the entry within accounts receivable (e.g., rent, fees, insurance)."],
+  ["book_entries", "explanation", "", "Short code or label describing the entry type."],
+  ["book_entries", "tax_category", "", "The tax category applied to this entry."],
+  ["book_entries", "tax_exempt", "", "Flag (0/1) indicating whether this entry is tax-exempt."],
+  ["book_entries", "amt_revenue", "", "Portion of the amount allocated to revenue."],
+  ["book_entries", "amt_payment", "", "Portion of the amount allocated to payments received."],
+  ["book_entries", "amt_asset", "", "Portion allocated to assets on the balance sheet."],
+  ["book_entries", "amt_liability", "", "Portion allocated to liabilities."],
+  ["book_entries", "amt_transfer", "", "Portion allocated to transfers between accounts."],
+  ["call_agent_availability", "", "TABLE", "Materialized call-agent-availability table. Aggregates manager status durations by day and status for call-center availability reporting. One row per manager per availability status per day. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["call_agent_availability", "manager_id", "", "The manager/agent whose availability is recorded. Joins to managers.manager_id."],
+  ["call_agent_availability", "manager_name", "", "The manager"],
+  ["call_agent_availability", "org_id", "", "The organization identifier. Common filter field."],
+  ["call_agent_availability", "day", "", "The date for which availability is recorded."],
+  ["call_agent_availability", "status_raw", "", "The raw status code from the phone system."],
+  ["call_agent_availability", "status_name", "", "Human-readable availability status name (e.g., Available, On Call, Offline)."],
+  ["call_agent_availability", "total_duration_seconds", "", "Total seconds the agent spent in this status on the given day."],
+  ["call_child", "", "TABLE", "Materialized call-child table. Contains one row per child call interaction — a single inbound call may have multiple legs (e.g., IVR, transfer to agent). Enriched with abandonment logic, facility context, and assigned manager details. Use for granular call routing and agent-level analysis. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["call_child", "org_id", "", "The organization identifier. Common filter field."],
+  ["call_child", "call_child_id", "", "Unique identifier for the child call leg."],
+  ["call_child", "call_id", "", "The parent call this leg belongs to. Joins to calls.call_id."],
+  ["call_child", "facility_id", "", "The facility associated with this call leg. Joins to facilities.facility_id."],
+  ["call_child", "facility_name", "", "The facility name. Denormalized from facilities."],
+  ["call_child", "communication_direction", "", "Whether this leg is inbound or outbound."],
+  ["call_child", "abandoned", "", "Whether the caller hung up before the call was answered by an agent (true/false)"],
+  ["call_child", "agent_type", "", "The type of agent handling this leg (e.g., human, bot/IVR)."],
+  ["call_child", "wait_time", "", "Seconds the caller waited before this leg was answered."],
+  ["call_child", "duration", "", "Duration in seconds of this call leg."],
+  ["call_child", "status", "", "Outcome/status of this call leg (e.g., answered, no-answer, transferred)."],
+  ["call_child", "manager_id", "", "The manager who handled this leg, if human. Joins to managers.manager_id."],
+  ["call_child", "manager_name", "", "The manager"],
+  ["call_child", "answered_at", "", "Timestamp when this leg was answered."],
+  ["call_child", "parent_started_at", "", "Timestamp when the parent call started. Denormalized from calls.started_at."],
+  ["call_child", "started_at", "", "Timestamp when this specific leg started."],
+  ["call_child", "scores", "", "JSON object containing AI-scored quality metrics for this call leg."],
+  ["call_child", "transcription", "", "JSON object containing the transcription of this call leg."],
+  ["calls", "", "TABLE", "Materialized calls table. Contains one row per inbound or outbound phone call, enriched with facility and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["calls", "org_id", "", "The organization identifier. Common filter field."],
+  ["calls", "call_id", "", "Unique identifier for the call."],
+  ["calls", "caller_phone", "", "The phone number of the caller."],
+  ["calls", "recipient_phone", "", "The phone number that was dialed (the facility"],
+  ["calls", "status", "", "Overall status/outcome of the call (e.g., completed, missed, voicemail)."],
+  ["calls", "communication_direction", "", "Whether the call is inbound or outbound."],
+  ["calls", "support_phone", "", "The support/tracking phone number this call was routed through."],
+  ["calls", "forwarded_from", "", "The phone number the call was forwarded from, if applicable."],
+  ["calls", "option_selected_type", "", "The IVR menu option the caller selected (e.g., new_rental, existing_tenant, pay_bill)."],
+  ["calls", "started_at", "", "Timestamp when the call started."],
+  ["calls", "created_at", "", "Timestamp when the call record was created in the system."],
+  ["calls", "updated_at", "", "Timestamp when the call record was last updated."],
+  ["calls", "ended_at", "", "Timestamp when the call ended."],
+  ["calls", "facility_id", "", "The facility associated with this call. Joins to facilities.facility_id."],
+  ["calls", "facility_name", "", "The facility name. Denormalized from facilities."],
+  ["contacts", "", "TABLE", "Materialized contacts table. Contains one row per contact (tenant, lead, or prospect), enriched with first interest. A contact may have multiple leases over time. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["contacts", "contact_id", "", "Unique identifier for the contact. Primary key."],
+  ["contacts", "org_id", "", "The organization identifier. Common filter field."],
+  ["contacts", "name", "", "The contact"],
+  ["contacts", "address", "", "Street address line 1."],
+  ["contacts", "address2", "", "Street address line 2."],
+  ["contacts", "company_name", "", "Company name, if the contact is a business tenant."],
+  ["contacts", "city", "", "City of the contact"],
+  ["contacts", "state", "", "State/province of the contact"],
+  ["contacts", "country", "", "Country of the contact"],
+  ["contacts", "zip", "", "Postal/ZIP code."],
+  ["contacts", "email", "", "The contact"],
+  ["contacts", "phone", "", "The contact"],
+  ["contacts", "secondary_phone", "", "An optional secondary phone number for the contact."],
+  ["contacts", "created_at", "", "Timestamp when the contact was created in the system."],
+  ["contacts", "updated_at", "", "Timestamp when the contact record was last updated."],
+  ["contacts", "date_of_birth", "", "The contact"],
+  ["contacts", "is_military", "", "Whether the contact has self-identified as active military or a veteran."],
+  ["contacts", "email_comm_preference", "", "The contact"],
+  ["contacts", "sms_comm_preference", "", "The contact"],
+  ["contacts", "lead_status", "", "Current status of the contact in the lead pipeline (e.g., new, qualified, converted)."],
+  ["contacts", "lead_source", "", "The marketing source from which this contact originally came."],
+  ["cubby_events", "", "TABLE", "Materialized Cubby events table. Contains one row per event (e.g., door locked, task changed, competitor tracked, pricing updated) with resolved organisation, facility, manager, unit, contact, and pricing-group context. Useful for operational auditing. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["cubby_events", "org_id", "", "The organization identifier. Common filter field."],
+  ["cubby_events", "facility_id", "", "The facility where the event occurred. Joins to facilities.facility_id."],
+  ["cubby_events", "type", "", "The type of action taken within Cubby (e.g., door_locked, task_changed, competitor_tracked)."],
+  ["cubby_events", "data", "", "Serialized payload containing event-specific detail data."],
+  ["cubby_events", "unit_id", "", "The unit associated with this event, if applicable. Joins to units.unit_id."],
+  ["cubby_events", "pg_id", "", "The pricing group associated with this event, if applicable. Joins to pricing_group.pg_id."],
+  ["cubby_events", "contact_id", "", "The contact associated with this event, if applicable. Joins to contact.contact_id."],
+  ["cubby_events", "created_at", "", "Timestamp when the event occurred."],
+  ["cubby_events", "updated_at", "", "Timestamp when the event record was last updated."],
+  ["cubby_events", "lease_id", "", "The lease associated with this event, if applicable. Joins to leases.lease_id."],
+  ["cubby_events", "manager_name", "", "The manager who triggered the event. Denormalized."],
+  ["cubby_events", "manager_id", "", "The manager who triggered the event. Joins to managers.manager_id."],
+  ["cubby_events", "last_login_at", "", "Timestamp of the manager"],
+  ["customer_touches", "", "TABLE", "Materialized customer-touches table. Contains one row per customer touchpoint, linking GA session data to contacts and leases to attribute marketing source at the individual customer level. Enriched with contact, lease, lead, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["customer_touches", "org_id", "", "The organization identifier. Common filter field."],
+  ["customer_touches", "ga_session", "", "The Google Analytics session identifier for this touch. Joins to ga_events via ga_session_id."],
+  ["customer_touches", "source", "", "The marketing source/channel of this touch (e.g., google, direct, email)."],
+  ["customer_touches", "gclid", "", "Google Click ID from a paid search ad click, if applicable."],
+  ["customer_touches", "action", "", "The specific action the customer took (e.g., form_submit, checkout_started)."],
+  ["customer_touches", "created_at", "", "Timestamp when the touch was recorded."],
+  ["customer_touches", "contact_id", "", "The contact who performed this action. Joins to contact.contact_id."],
+  ["customer_touches", "lease_id", "", "The lease associated with this touch, if applicable. Joins to leases.lease_id."],
+  ["customer_touches", "lead_id", "", "The lead associated with this touch, if applicable. Joins to leads.lead_id."],
+  ["date_dim", "", "TABLE", "Calendar date dimension from 1900-01-01 through 2200-12-31. One row per date."],
+  ["date_dim", "date", "", "The calendar date. Primary key."],
+  ["date_dim", "date_int", "", "Integer representation of the date in YYYYMMDD format, useful for numeric comparisons and partitioning."],
+  ["date_dim", "year", "", "Four-digit calendar year (e.g., 2024)."],
+  ["date_dim", "month_num", "", "Month number within the year (1–12)."],
+  ["date_dim", "day_of_month", "", "Day number within the month (1–31)."],
+  ["date_dim", "month_name", "", "Full name of the month (e.g., January)."],
+  ["date_dim", "month_name_short", "", "Abbreviated month name (e.g., Jan)."],
+  ["date_dim", "day_name", "", "Full name of the day of the week (e.g., Monday)."],
+  ["date_dim", "day_name_short", "", "Abbreviated day name (e.g., Mon)."],
+  ["date_dim", "day_of_week", "", "Day number within the week, where 1 = Sunday and 7 = Saturday."],
+  ["date_dim", "year_month", "", "Year and month formatted as a string (e.g., 2024-01), useful for monthly grouping."],
+  ["date_dim", "year_quarter", "", "Year and quarter formatted as a string (e.g., 2024-Q1), useful for quarterly grouping."],
+  ["date_dim", "day_of_year", "", "Day number within the year (1–366)."],
+  ["date_dim", "week_of_year", "", "Week number within the year (1–53)."],
+  ["date_dim", "quarter_num", "", "Quarter number within the year (1–4)."],
+  ["date_dim", "quarter_name", "", "Full name of the quarter (e.g., Q1)."],
+  ["date_dim", "first_day_of_week", "", "Date of the first day (Sunday) of the week containing this date."],
+  ["date_dim", "last_day_of_week", "", "Date of the last day (Saturday) of the week containing this date."],
+  ["date_dim", "first_day_of_month", "", "Date of the first day of the month containing this date."],
+  ["date_dim", "last_day_of_month", "", "Date of the last day of the month containing this date."],
+  ["date_dim", "first_day_of_quarter", "", "Date of the first day of the quarter containing this date."],
+  ["date_dim", "last_day_of_quarter", "", "Date of the last day of the quarter containing this date."],
+  ["date_dim", "first_day_of_year", "", "Date of the first day of the year containing this date."],
+  ["date_dim", "last_day_of_year", "", "Date of the last day of the year containing this date."],
+  ["date_dim", "is_weekend", "", "Whether the date falls on a Saturday or Sunday."],
+  ["date_dim", "is_weekday", "", "Whether the date falls on a Monday through Friday."],
+  ["date_dim", "is_first_day_of_month", "", "Whether the date is the first day of its month."],
+  ["date_dim", "is_last_day_of_month", "", "Whether the date is the last day of its month."],
+  ["date_dim", "is_first_day_of_year", "", "Whether the date is January 1st."],
+  ["date_dim", "is_last_day_of_year", "", "Whether the date is December 31st."],
+  ["date_dim", "is_today", "", "Whether the date matches today"],
+  ["discount_programs", "", "TABLE", "Materialized discount-programs table. Contains one row per discount program (e.g., Military Discount, Web Special, First Month Free) with organisation attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["discount_programs", "org_id", "", "The organization identifier. Common filter field."],
+  ["discount_programs", "organisation_name", "", "The name of the organization offering this program. Denormalized."],
+  ["discount_programs", "discount_program_name", "", "The name of the discount program."],
+  ["discount_programs", "discount_program_id", "", "Unique identifier for the program. Joins to discounts.discount_program_id."],
+  ["discount_programs", "created_at", "", "Timestamp when the program was created."],
+  ["discount_programs", "updated_at", "", "Timestamp when the program was last updated."],
+  ["discount_programs", "active", "", "Flag (0/1) indicating whether the program is currently active."],
+  ["discount_programs", "type", "", "The type/category of discount program."],
+  ["discount_programs", "application_method", "", "How the discount is applied (e.g., percent, flat_amount)."],
+  ["discount_programs", "application_amount", "", "The discount value (percentage or dollar amount, depending on application_method)."],
+  ["discount_programs", "upfront_strict_full_month", "", "Flag indicating whether the upfront requirement enforces payment of a full month"],
+  ["discount_programs", "upfront_paid_months", "", "Number of months the tenant must pay upfront to qualify for this program."],
+  ["discount_programs", "upfront_free_months", "", "Number of free months granted under this program."],
+  ["discount_programs", "charge_type", "", "Whether the discount applies to recurring rent or a one-time charge."],
+  ["discount_programs", "discount_start", "", "When the discount begins (e.g., immediately, after a delay)."],
+  ["discount_programs", "start_after_months", "", "Number of months after move-in before the discount activates."],
+  ["discount_programs", "discounted_months", "", "Number of months the discount is applied."],
+  ["discounts", "", "TABLE", "Materialized discounts table. Contains one row per applied lease discount, linking a lease to the discount program it is enrolled in, with facility and programme context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["discounts", "org_id", "", "The organization identifier. Common filter field."],
+  ["discounts", "active", "", "Flag (0/1) indicating whether this discount is currently active on the lease."],
+  ["discounts", "created_at", "", "Timestamp when the discount was applied to the lease."],
+  ["discounts", "updated_at", "", "Timestamp when the discount record was last updated."],
+  ["discounts", "start_date", "", "The date the discount period begins on the lease."],
+  ["discounts", "end_date", "", "The date the discount period ends on the lease."],
+  ["discounts", "start_after_periods", "", "Number of billing periods after move-in before the discount activates."],
+  ["discounts", "discounted_periods", "", "Number of billing periods the discount applies."],
+  ["discounts", "facility_name", "", "Name of the facility. Denormalized from facilities."],
+  ["discounts", "discount_program_id", "", "The discount program this discount is based on. Joins to discount_programs.discount_program_id."],
+  ["discounts", "facility_id", "", "The facility this discount is at. Joins to facilities.facility_id."],
+  ["discounts", "lease_id", "", "The lease this discount is applied to. Joins to leases.lease_id."],
+  ["emails", "", "TABLE", "Materialized emails table. Contains one row per outbound email (e.g., late notices, move-in confirmations, rate change letters) with contact, lease, facility, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["emails", "org_id", "", "The organization identifier. Common filter field."],
+  ["emails", "status", "", "Delivery status of the email (e.g., delivered, bounced, opened, failed)."],
+  ["emails", "tag", "", "Category/template tag identifying the type of email (e.g., late_notice, move_in_confirmation)."],
+  ["emails", "recipient_name", "", "The name of the email recipient."],
+  ["emails", "recipient_email", "", "The email address of the recipient."],
+  ["emails", "subject", "", "The email subject line."],
+  ["emails", "body", "", "The full HTML or text body of the email."],
+  ["emails", "created_by", "", "The manager or system process that created/triggered the email."],
+  ["emails", "created_at", "", "Timestamp when the email was created/queued."],
+  ["emails", "sent_at", "", "Timestamp when the email was sent."],
+  ["emails", "delivered_at", "", "Timestamp when delivery was confirmed. NULL if not yet delivered."],
+  ["emails", "bounced_at", "", "Timestamp when a bounce was received. NULL if not bounced."],
+  ["emails", "opened_at", "", "Timestamp when the email was first opened. NULL if not tracked or not opened."],
+  ["emails", "clicked_at", "", "Timestamp when a link was first clicked. NULL if not tracked or not clicked."],
+  ["emails", "failed_at", "", "Timestamp when a send failure occurred. NULL if no failure."],
+  ["emails", "bounce_reason", "", "The reason code or description for a bounce, if applicable."],
+  ["emails", "failure_reason", "", "The reason for a send failure, if applicable."],
+  ["emails", "unit", "", "The unit name associated with this email. Denormalized."],
+  ["emails", "unit_id", "", "The unit associated with this email, if applicable. Joins to units.unit_id."],
+  ["emails", "lease_id", "", "The lease associated with this email, if applicable. Joins to leases.lease_id."],
+  ["emails", "facility_id", "", "The facility this email is associated with. Joins to facilities.facility_id."],
+  ["emails", "facility_name", "", "The facility name. Denormalized."],
+  ["emails", "org_name", "", "The organization name. Denormalized."],
+  ["facilities", "", "TABLE", "Materialized facilities table. The primary dimension table for facility-level analysis. Contains one row per facility with organisation attribution and descriptive metadata. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["facilities", "org_id", "", "The organization identifier. Common filter field."],
+  ["facilities", "facility_id", "", "Unique identifier for the facility. Primary key."],
+  ["facilities", "facility_name", "", "The public-facing name of the facility."],
+  ["facilities", "legal_name", "", "The legal business name of the facility, which may differ from the public name."],
+  ["facilities", "internal_name", "", "An internal-use name or alias (e.g., for multi-brand operators)."],
+  ["facilities", "time_zone", "", "The IANA time zone of the facility (e.g., America/Chicago). Useful when working with datetime fields."],
+  ["facilities", "address", "", "The street address of the facility."],
+  ["facilities", "latitude", "", "Geographic latitude of the facility."],
+  ["facilities", "longitude", "", "Geographic longitude of the facility."],
+  ["facilities", "facility_phone", "", "The primary phone number for the facility."],
+  ["facilities", "created_at", "", "Timestamp when the facility was added to the system."],
+  ["facilities", "updated_at", "", "Timestamp when the facility record was last updated."],
+  ["facilities", "lease_anniversary", "", "Defines the day of the month on which rent is due and leases anniversary."],
+  ["facilities", "jump_day", "", "Day of the month after which a new lease"],
+  ["facility_groups", "", "TABLE", "Materialized facility-groups table. Contains facility-to-group memberships used to roll up multiple facilities into named reporting groups, with organisation attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["facility_groups", "org_id", "", "The organization identifier. Common filter field."],
+  ["facility_groups", "facility_id", "", "The facility in this group assignment. Joins to facilities.facility_id."],
+  ["facility_groups", "facility_name", "", "The facility name. Denormalized."],
+  ["facility_groups", "facility_group_name", "", "The name of the group this facility belongs to (used for multi-facility reporting rollups)."],
+  ["leads", "", "TABLE", "Materialized leads table. One row per lead, created when a prospective tenant expresses interest in renting a unit. Enriched with contact, facility, pricing group, attribution, and conversion details. Row-level security is enforced separately via a BigQuery Row Access Policy on org_id."],
+  ["leads", "org_id", "", "The organization identifier. Common filter field."],
+  ["leads", "lead_id", "", "Unique identifier for the lead."],
+  ["leads", "created_at", "", "Timestamp when the lead was created."],
+  ["leads", "updated_at", "", "Timestamp when the lead was last updated."],
+  ["leads", "target_move_in_date", "", "The date the prospect indicated they want to move in."],
+  ["leads", "age_of_lead_minutes", "", "Minutes from lead creation to conversion or disqualification."],
+  ["leads", "status", "", "Current status of the lead (e.g., new, qualified, converted, lost)."],
+  ["leads", "contact_id", "", "The contact associated with this lead. Joins to contact.contact_id."],
+  ["leads", "contact_name", "", "The contact"],
+  ["leads", "facility_id", "", "The facility the lead is interested in. Joins to facilities.facility_id."],
+  ["leads", "facility_name", "", "The facility name. Denormalized."],
+  ["leads", "pg_id", "", "The pricing group (unit type) the prospect is interested in. Joins to pricing_group.pg_id."],
+  ["leads", "pg_name", "", "The pricing group name. Denormalized."],
+  ["leads", "pg_features", "", "JSON object containing the features of the requested unit type."],
+  ["leads", "rate_quoted", "", "The rental rate quoted to the lead at time of inquiry."],
+  ["leads", "unit_id", "", "The specific unit reserved or assigned to this lead, if applicable. Joins to units.unit_id."],
+  ["leads", "created_by", "", "The manager or channel that created the lead (e.g., online, walk-in)."],
+  ["leads", "converted_by", "", "The manager or channel that converted the lead to a lease."],
+  ["leads", "converted_datetime", "", "Timestamp when the lead was converted to a lease."],
+  ["leads", "time_to_convert", "", "Seconds from lead creation to conversion. NULL if not converted."],
+  ["leads", "time_to_unqualified", "", "Seconds from lead creation to being marked unqualified/lost. NULL if not lost."],
+  ["leads", "converted_lease_id", "", "The lease created when this lead converted. Joins to leases.lease_id."],
+  ["leads", "lead_source", "", "The source channel of the lead (e.g., organic, paid, referral)."],
+  ["leads", "first_touch_source", "", "The first marketing touchpoint source for this lead."],
+  ["leads", "ga_source", "", "The GA traffic source associated with the lead"],
+  ["leads", "source", "", "Overall source attribution for the lead."],
+  ["leads", "origin", "", "Channel or interface where the lead was originally created (e.g., Manager, WEBSITE, CONTACT_FORM, ABANDONED_CHECKOUT)"],
+  ["leads", "marketing_source", "", "Marketing channel attributed to the lead (e.g., WALK_IN, DIGITAL_AD, CALL, REFERRAL, SEARCH_ENGINE)"],
+  ["leads", "phone_call_child_id", "", "Key linking the lead to a call_child record when the lead originated from a phone call"],
+  ["leads", "first_touch_action", "", "The first on-site action taken by this lead."],
+  ["leads", "ga_session", "", "The GA session identifier. Joins to ga_events and customer_touches."],
+  ["leads", "ga_session_id", "", "Alternate string format of the GA session ID."],
+  ["leads", "value_pricing_tier", "", "The value tier selected by the prospect during their online session (e.g., Basic, Standard, Premium). Sourced from GA4 add_to_cart events."],
+  ["lease_auctions", "", "TABLE", "Materialized lease-auctions table. Contains one row per lien process tied to a delinquent lease and auction, enriched with winner and facility context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["lease_auctions", "org_id", "", "The organization identifier. Common filter field."],
+  ["lease_auctions", "lease_id", "", "The lease being auctioned. Joins to leases.lease_id."],
+  ["lease_auctions", "auction_id", "", "The auction this lease is part of. Joins to auctions.auction_id."],
+  ["lease_auctions", "lien_start_date", "", "The date the lien process began for this lease."],
+  ["lease_auctions", "lien_end_date", "", "The date the lien process ended (auction date or earlier resolution)."],
+  ["lease_auctions", "status", "", "Current status of the lease auction (e.g., scheduled, sold, cancelled, redeemed)."],
+  ["lease_auctions", "winner_id", "", "Identifier of the winning bidder, if the auction completed."],
+  ["lease_auctions", "bid", "", "The winning bid amount."],
+  ["lease_auctions", "deposit", "", "The deposit amount collected from the winning bidder."],
+  ["lease_auctions", "created_at", "", "Timestamp when the lease auction record was created."],
+  ["lease_auctions", "updated_at", "", "Timestamp when the record was last updated."],
+  ["lease_auctions", "tax_exempt", "", "Flag indicating whether the auction sale is tax-exempt."],
+  ["lease_auctions", "imported", "", "Flag indicating whether this record was imported from a legacy system."],
+  ["lease_auctions", "facility_name", "", "The facility name. Denormalized."],
+  ["lease_auctions", "facility_id", "", "The facility hosting the auction. Joins to facilities.facility_id."],
+  ["leases", "", "TABLE", "Materialized lease fact table. Contains one row per active or historical lease, enriched with facility, unit, contact, financial balance, insurance, discount, and access code details. Many contact_* fields are denormalized copies of the tenant"],
+  ["leases", "facility_id", "", "The facility where the leased unit is located. Joins to facilities.facility_id."],
+  ["leases", "facility_name", "", "The facility name. Denormalized."],
+  ["leases", "org_id", "", "The organization identifier. Common filter field."],
+  ["leases", "lease_id", "", "Unique string identifier for the lease. Primary key."],
+  ["leases", "lease_id_int", "", "Integer version of the lease identifier."],
+  ["leases", "unit_name", "", "The unit number/name on the lease. Denormalized from units."],
+  ["leases", "unit_id", "", "The unit being leased. Joins to units.unit_id."],
+  ["leases", "is_active", "", "Flag (0/1) indicating whether the lease is currently active."],
+  ["leases", "lease_created_by", "", "The manager or channel that created the lease (e.g., online, walk-in)."],
+  ["leases", "lease_started", "", "The date the lease began."],
+  ["leases", "created_at", "", "Timestamp when the lease record was created in the system."],
+  ["leases", "lease_ended", "", "The date the lease ended. NULL for active leases."],
+  ["leases", "lease_rent_original", "", "The rent amount when the lease was first created."],
+  ["leases", "lease_rent_current", "", "The tenant"],
+  ["leases", "lease_rent_next", "", "The rent amount that will take effect at the next scheduled rate change."],
+  ["leases", "lease_rent_next_chg_date", "", "The date on which the next rent change takes effect. NULL if no change is scheduled."],
+  ["leases", "lease_rent_last_chg_date", "", "The date of the most recent rent change."],
+  ["leases", "lease_all_discounts", "", "A string listing all discount programs currently applied to this lease."],
+  ["leases", "is_lease_paid", "", "Flag indicating whether the lease is currently paid up to date."],
+  ["leases", "status_late_since_date", "", "The date from which the lease has been continuously in a late/delinquent status."],
+  ["leases", "status_paid_through_date", "", "The date through which rent has been paid on this lease."],
+  ["leases", "status_paid_on_date", "", "The most recent date a payment was made on this lease."],
+  ["leases", "is_needs_overlock", "", "Flag indicating whether the unit has been flagged to be overlocked."],
+  ["leases", "is_in_auction", "", "Flag indicating whether this lease is currently in the lien/auction process."],
+  ["leases", "is_autopay_enabled", "", "Whether autopay is active on this lease."],
+  ["leases", "alternative_contacts", "", "Serialized list of emergency/alternative contacts associated with the tenant."],
+  ["leases", "autopay_method_type", "", "The type of payment method on file for autopay (e.g., card, ACH)."],
+  ["leases", "autopay_card_brand", "", "The card brand of the autopay payment method (e.g., Visa, Mastercard). NULL if ACH or no autopay."],
+  ["leases", "autopay_card_expiration", "", "The expiration date of the autopay card on file. NULL if ACH or no autopay."],
+  ["leases", "ins_premium", "", "The monthly insurance premium amount charged on this lease. NULL if no insurance."],
+  ["leases", "ins_coverage_level", "", "The coverage level/amount of the tenant"],
+  ["leases", "access_code", "", "The gate/keypad access code for this tenant."],
+  ["leases", "is_access_code_enabled", "", "Flag indicating whether the access code is currently active."],
+  ["leases", "contact_id", "", "The primary tenant contact. Joins to contact.contact_id."],
+  ["leases", "contact_pinned_note", "", "A pinned note visible on the lease (e.g., for special tenant instructions or flags)."],
+  ["leases", "is_military", "", "Flag indicating whether the tenant has identified as active military or veteran."],
+  ["leases", "contact_name", "", "The tenant"],
+  ["leases", "contact_company_name", "", "The tenant"],
+  ["leases", "contact_email", "", "The tenant"],
+  ["leases", "contact_phone", "", "The tenant"],
+  ["leases", "contact_address_1", "", "The tenant"],
+  ["leases", "contact_address_2", "", "The tenant"],
+  ["leases", "contact_city", "", "The tenant"],
+  ["leases", "contact_state", "", "The tenant"],
+  ["leases", "contact_zip", "", "The tenant"],
+  ["leases", "lease_lifetime_payments", "", "Total amount paid by the tenant over the entire life of the lease."],
+  ["leases", "balance_ar", "", "Current accounts receivable balance (amount currently owed by the tenant)."],
+  ["leases", "balance_deposit", "", "The deposit balance held for this lease."],
+  ["leases", "balance_prepaid", "", "Any prepaid/credit balance on the lease (positive = credit owed to tenant)."],
+  ["leases", "value_pricing_tier", "", "The value tier selected by the tenant during their online rental session (e.g., Basic, Standard, Premium). Sourced from GA4 add_to_cart events."],
+  ["managers", "", "TABLE", "Materialized managers table. Contains the managers visible to each organisation through facility-manager or organisation-manager access mappings. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["managers", "manager_id", "", "Unique identifier for the manager. Primary key."],
+  ["managers", "org_id", "", "The organization identifier. Common filter field."],
+  ["managers", "manager_name", "", "The manager"],
+  ["managers", "manager_username", "", "The manager"],
+  ["managers", "manager_email", "", "The manager"],
+  ["managers", "manager_phone", "", "The manager"],
+  ["managers", "manager_permissions", "", "Integer representing the manager"],
+  ["payments", "", "TABLE", "Materialized payments table. Contains one row per payment transaction (payments, refunds, and reversals) with contact, facility, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["payments", "payment_id", "", "Unique identifier for the payment. Primary key."],
+  ["payments", "org_id", "", "The organization identifier. Common filter field."],
+  ["payments", "facility_id", "", "The facility where the payment was made. Joins to facilities.facility_id."],
+  ["payments", "facility_name", "", "The facility name. Denormalized."],
+  ["payments", "contact_id", "", "The contact who made the payment. Joins to contact.contact_id."],
+  ["payments", "contact_name", "", "The contact"],
+  ["payments", "payment_date", "", "The date of the payment (date only, no time)."],
+  ["payments", "payment_datetime", "", "The full datetime of the payment."],
+  ["payments", "payment_amount", "", "The amount of the payment. Negative values indicate refunds/reversals."],
+  ["payments", "payment_type", "", "The type of payment transaction (e.g., payment, refund, reversal)."],
+  ["payments", "payment_status", "", "The status of the payment (e.g., successful, pending, failed)."],
+  ["payments", "payment_method", "", "The payment method used (e.g., credit_card, ACH, cash, check)."],
+  ["payments", "payment_card_brand", "", "The card brand if paid by card (e.g., Visa, Mastercard). NULL if not a card payment."],
+  ["payments", "payment_card_last_four", "", "The last four digits of the card number. NULL if not a card payment."],
+  ["payments", "payment_check_number", "", "The check number. NULL if not a check payment."],
+  ["payments", "payment_channel", "", "The channel through which the payment was made (e.g., online, kiosk, in_person, autopay)."],
+  ["pricing_group", "", "TABLE", "Materialized pricing-group table. Contains one row per pricing group (unit type) per facility with current calculated rates, strategy metadata, and facility context. Defines the dimensions, rates, and features for a category of units. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["pricing_group", "pg_id", "", "Unique identifier for the pricing group. Primary key."],
+  ["pricing_group", "org_id", "", "The organization identifier. Common filter field."],
+  ["pricing_group", "name", "", "The name of the pricing group (e.g., \"],
+  ["pricing_group", "standard_rate", "", "The standard/street rental rate for this unit type."],
+  ["pricing_group", "web_rate", "", "The online/web rental rate for this unit type."],
+  ["pricing_group", "walk_in_rate", "", "The walk-in rate offered at the facility for this unit type."],
+  ["pricing_group", "show_strikethrough_rate", "", "Flag indicating whether to display a strikethrough/was-price on the website."],
+  ["pricing_group", "strikethrough_rate", "", "The \"],
+  ["pricing_group", "pricing_strategy_name", "", "The name of the dynamic pricing strategy applied to this unit type, if any."],
+  ["pricing_group", "web_rate_override", "", "A manual override for the web rate, superseding any automated pricing strategy."],
+  ["pricing_group", "strikethrough_price_override", "", "A manual override for the strikethrough price."],
+  ["pricing_group", "walk_in_rate_override", "", "A manual override for the walk-in rate."],
+  ["pricing_group", "facility_id", "", "The facility this pricing group belongs to. Joins to facilities.facility_id."],
+  ["pricing_group", "width", "", "Width of units in this pricing group, in feet."],
+  ["pricing_group", "height", "", "Ceiling height of units in this pricing group, in feet."],
+  ["pricing_group", "depth", "", "Depth of units in this pricing group, in feet."],
+  ["pricing_group", "features", "", "JSON array of features shared by units in this group (e.g., climate_controlled, drive_up)."],
+  ["rate_changes", "", "TABLE", "Materialized rate-changes table. Contains one row per scheduled or applied lease rent change request, enriched with lease, unit, contact, and facility context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["rate_changes", "org_id", "", "The organization identifier. Common filter field."],
+  ["rate_changes", "rent_change_amount", "", "The dollar amount of the proposed or applied rent change."],
+  ["rate_changes", "rent_change_scheduled_date", "", "The date the rent change is scheduled to take effect. Note: field name has an uppercase D."],
+  ["rate_changes", "rent_change_status", "", "Current status of the rate change (e.g., scheduled, applied, cancelled)."],
+  ["rate_changes", "rent_change_created_at", "", "Timestamp when the rate change was created/scheduled."],
+  ["rate_changes", "lease_rent_current", "", "The tenant"],
+  ["rate_changes", "lease_rent_previous", "", "The monthly rent amount on the lease prior to the rate change, in dollars."],
+  ["rate_changes", "street_rate", "", "The current street rate for the unit type at time of the change. Denormalized from pricing_group."],
+  ["rate_changes", "facility_id", "", "The facility. Joins to facilities.facility_id."],
+  ["rate_changes", "facility_name", "", "The facility name. Denormalized."],
+  ["rate_changes", "unit_name", "", "The unit name. Denormalized from units."],
+  ["rate_changes", "unit_id", "", "The unit receiving the rate change. Joins to units.unit_id."],
+  ["rate_changes", "lease_id", "", "The lease receiving the rate change. Joins to leases.lease_id."],
+  ["rate_changes", "is_autopay_enabled", "", "Whether autopay is enabled on the lease. Denormalized from leases."],
+  ["rate_changes", "is_lease_paid", "", "Whether the lease is currently paid up. Denormalized from leases."],
+  ["rate_changes", "contact_id", "", "The tenant. Joins to contact.contact_id."],
+  ["rate_changes", "contact_pinned_note", "", "Pinned note on the lease. Denormalized from leases."],
+  ["rate_changes", "is_military", "", "Military status of the tenant. Denormalized from leases/contact."],
+  ["rate_changes", "contact_name", "", "The tenant"],
+  ["rate_changes", "contact_company_name", "", "The tenant"],
+  ["rate_changes", "contact_email", "", "The tenant"],
+  ["rate_changes", "contact_phone", "", "The tenant"],
+  ["rate_changes", "contact_address_1", "", "The tenant"],
+  ["rate_changes", "contact_address_2", "", "The tenant"],
+  ["rate_changes", "contact_city", "", "The tenant"],
+  ["rate_changes", "contact_state", "", "The tenant"],
+  ["rate_changes", "contact_zip", "", "The tenant"],
+  ["recurring_fees", "", "TABLE", "Materialized recurring-fees table. Contains one row per recurring fee assignment on a lease, enriched with fee and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["recurring_fees", "org_id", "", "Identifier for the organization (facility) associated with the recurring fee."],
+  ["recurring_fees", "name", "", "Internal name of the recurring fee (e.g., \"],
+  ["recurring_fees", "display_name", "", "Tenant-facing name of the fee as shown on invoices and receipts"],
+  ["recurring_fees", "fee_id", "", "Unique identifier of the fee template"],
+  ["recurring_fees", "amount", "", "Fixed dollar amount of the fee; null for percentage-based fees"],
+  ["recurring_fees", "percentage", "", "Percentage of rent charged as the fee; null for flat-rate fees"],
+  ["recurring_fees", "tax_category", "", "Tax classification of the fee (e.g., FEE_NON_TAXABLE)"],
+  ["recurring_fees", "active", "", "Whether the fee is currently active on the lease (1 = active, 0 = inactive)"],
+  ["recurring_fees", "lease_id", "", "Unique identifier of the lease this recurring fee is applied to"],
+  ["recurring_fees", "created_at", "", "Timestamp when the recurring fee was first added to the lease"],
+  ["recurring_fees", "updated_at", "", "Timestamp when the recurring fee record was last modified"],
+  ["scheduled_move_outs", "", "TABLE", "Materialized scheduled-move-outs table. Contains one row per planned move-out event, created when a tenant gives notice of their intent to vacate, with lease, manager, and facility context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["scheduled_move_outs", "org_id", "", "The organization identifier. Common filter field."],
+  ["scheduled_move_outs", "move_out_date", "", "The scheduled date of the move-out."],
+  ["scheduled_move_outs", "move_out_time", "", "The scheduled time of the move-out."],
+  ["scheduled_move_outs", "move_out_reason", "", "Standardized reason code for the move-out (e.g., price, found_different_storage, no_longer_needed)."],
+  ["scheduled_move_outs", "notice_given_date", "", "The date the tenant gave notice of intent to move out."],
+  ["scheduled_move_outs", "created_by", "", "The manager or channel that recorded the scheduled move-out."],
+  ["scheduled_move_outs", "created_at", "", "Timestamp when the scheduled move-out was created."],
+  ["scheduled_move_outs", "updated_at", "", "Timestamp when the record was last updated."],
+  ["scheduled_move_outs", "custom_reason", "", "Free-text reason for the move-out provided by the tenant, if any."],
+  ["scheduled_move_outs", "lease_id", "", "The lease scheduled to move out. Joins to leases.lease_id."],
+  ["scheduled_move_outs", "facility_id", "", "The facility. Joins to facilities.facility_id."],
+  ["sms", "", "TABLE", "Materialized SMS table. Contains one row per SMS message with lease, contact, facility, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["sms", "org_id", "", "Unique identifier of the organization associated with the SMS"],
+  ["sms", "status", "", "Delivery status of the SMS message (e.g., DELIVERED, SENT, FAILED, NEW)"],
+  ["sms", "tag", "", "Template type identifying the message purpose (e.g., RENTAL_CONFIRMATION, INVOICE, RECEIPT, LIEN_NOTICE, OVERLOCK_ADDED)"],
+  ["sms", "contact_name", "", "Full name of the contact (tenant) associated with the SMS"],
+  ["sms", "contact_phone", "", "Phone number the SMS was sent to"],
+  ["sms", "body", "", "Full text content of the SMS message"],
+  ["sms", "direction", "", "Direction of the SMS relative to the facility (e.g., OUTBOUND, INBOUND)"],
+  ["sms", "created_by", "", "Name of the manager who triggered the SMS, or \"],
+  ["sms", "created_at", "", "Timestamp when the SMS record was created"],
+  ["sms", "sent_at", "", "Timestamp when the SMS was submitted for delivery"],
+  ["sms", "delivered_at", "", "Timestamp when delivery to the recipient was confirmed"],
+  ["sms", "failed_at", "", "Timestamp when the SMS delivery failed"],
+  ["sms", "error_code", "", "Carrier error code returned on failed delivery (e.g., 30003, 30006)"],
+  ["sms", "unit", "", "Display name of the storage unit associated with the SMS"],
+  ["sms", "unit_id", "", "Unique identifier of the unit associated with the SMS"],
+  ["sms", "lease_id", "", "Unique identifier of the lease associated with the SMS"],
+  ["sms", "facility_id", "", "Unique identifier of the facility associated with the SMS"],
+  ["sms", "facility_name", "", "Name of the facility associated with the SMS"],
+  ["sms", "org_name", "", "Name of the organization associated with the SMS"],
+  ["unit_turnover", "", "TABLE", "Materialized unit-turnover table. Contains move-in, move-out, and transfer events derived from leases, capturing the full unit and lease context at the time of the move. Enriched with unit, pricing, tenant, insurance, and lead-source context. Use for cohort and turnover analysis. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["unit_turnover", "move_type", "", "The type of move event (e.g., move_in, move_out, transfer_in, transfer_out)."],
+  ["unit_turnover", "move_date", "", "The date of the move event."],
+  ["unit_turnover", "org_id", "", "The organization identifier. Common filter field."],
+  ["unit_turnover", "facility_id", "", "The facility. Joins to facilities.facility_id."],
+  ["unit_turnover", "facility_name", "", "The facility name. Denormalized."],
+  ["unit_turnover", "unit_id", "", "The unit involved in the move. Joins to units.unit_id."],
+  ["unit_turnover", "unit_name", "", "The unit name. Denormalized."],
+  ["unit_turnover", "unit_type", "", "The unit type category. Denormalized from units."],
+  ["unit_turnover", "unit_features", "", "JSON array of unit features (e.g., climate_controlled, drive_up). Denormalized from units."],
+  ["unit_turnover", "unit_floor_num", "", "The floor number of the unit. Denormalized."],
+  ["unit_turnover", "unit_building_name", "", "The building within the facility. Denormalized."],
+  ["unit_turnover", "unit_width", "", "Unit width in feet. Denormalized."],
+  ["unit_turnover", "unit_depth", "", "Unit depth in feet. Denormalized."],
+  ["unit_turnover", "unit_height", "", "Unit ceiling height in feet. Denormalized."],
+  ["unit_turnover", "lease_id", "", "The lease associated with this move event. Joins to leases.lease_id."],
+  ["unit_turnover", "lease_created_by", "", "The channel or manager that created the lease. Denormalized."],
+  ["unit_turnover", "lease_rent", "", "The rent amount on the lease at the time of the move event."],
+  ["unit_turnover", "lease_created_date", "", "Datetime when the lease was originally created."],
+  ["unit_turnover", "lease_start_date", "", "The start date of the lease."],
+  ["unit_turnover", "lease_end_date", "", "The end date of the lease. NULL for active leases at time of a move-in."],
+  ["unit_turnover", "lease_created_by_transfer", "", "Whether the lease was created as the result of a unit transfer."],
+  ["unit_turnover", "transferred_from_lease_id", "", "If this was a transfer-in, the original source lease ID. Joins to leases.lease_id. NULL if not a transfer."],
+  ["unit_turnover", "lease_terminated_by_transfer", "", "Whether this lease was ended by a unit transfer rather than a standard move-out."],
+  ["unit_turnover", "transferred_to_lease_id", "", "Lease ID of the new lease the tenant transferred to; populated only when the move type is a transfer"],
+  ["unit_turnover", "transferred_to_unit_id", "", "Unit ID of the unit the tenant transferred to; populated only when the move type is a transfer"],
+  ["unit_turnover", "lease_days_rented", "", "Total days the unit was rented on this lease at time of move-out."],
+  ["unit_turnover", "lease_discounts_applied", "", "Discount programs that were applied to this lease. Denormalized."],
+  ["unit_turnover", "lead_source", "", "The marketing source that originated the rental inquiry. Denormalized from leads."],
+  ["unit_turnover", "ins_premium", "", "The insurance premium on the lease at time of the move. NULL if no insurance."],
+  ["unit_turnover", "ins_coverage_level", "", "The insurance coverage level at time of the move. NULL if no insurance."],
+  ["unit_turnover", "contact_id", "", "The tenant contact. Joins to contact.contact_id."],
+  ["unit_turnover", "contact_name", "", "The tenant"],
+  ["unit_turnover", "contact_email", "", "The tenant"],
+  ["unit_turnover", "contact_phone", "", "The tenant"],
+  ["unit_turnover", "pg_id", "", "The pricing group for this unit at time of the move. Joins to pricing_group.pg_id."],
+  ["unit_turnover", "pg_name", "", "The pricing group name. Denormalized."],
+  ["unit_turnover", "pg_standard_rate", "", "The standard street rate for the pricing group at time of the move."],
+  ["unit_turnover", "web_rate", "", "The web rate for the pricing group at time of the move."],
+  ["unit_turnover", "walk_in_rate", "", "The walk-in rate for the pricing group at time of the move."],
+  ["unit_turnover", "strikethrough_rate", "", "The strikethrough/was-price at time of the move."],
+  ["unit_turnover", "web_rate_override", "", "The web rate override at time of the move, if set."],
+  ["unit_turnover", "strikethrough_price_override", "", "The strikethrough price override at time of the move, if set."],
+  ["unit_turnover", "walk_in_rate_override", "", "The walk-in rate override at time of the move, if set."],
+  ["units", "", "TABLE", "Materialized units table. Contains one row per current unit with pricing, occupancy, physical dimensions, and facility attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id."],
+  ["units", "facility_id", "", "The facility this unit is in. Joins to facilities.facility_id."],
+  ["units", "facility_name", "", "The facility name. Denormalized."],
+  ["units", "org_id", "", "The organization identifier. Common filter field."],
+  ["units", "unit_id", "", "Unique identifier for the unit. Primary key."],
+  ["units", "unit_id_int", "", "Integer version of the unit identifier."],
+  ["units", "unit_name", "", "The unit number/name as displayed to tenants (e.g., A101, 205)."],
+  ["units", "created_at", "", "Timestamp when the unit was added to the system."],
+  ["units", "unit_type", "", "The unit type category (e.g., interior, drive_up, climate)."],
+  ["units", "unit_features", "", "JSON array of features for this specific unit (e.g., climate_controlled, drive_up, elevator_access)."],
+  ["units", "pg_id", "", "The pricing group this unit belongs to. Joins to pricing_group.pg_id."],
+  ["units", "pricing_group", "", "The name of the pricing group. Denormalized."],
+  ["units", "rate_managed", "", "The dynamically managed/system-calculated rate for this unit, if using automated pricing."],
+  ["units", "pricing_strategy_name", "", "Name of the active pricing strategy applied to the unit (e.g., \"],
+  ["units", "web_rate", "", "The current web rate for this unit"],
+  ["units", "walk_in_rate", "", "The current walk-in rate for this unit"],
+  ["units", "strikethrough_rate", "", "The current strikethrough/was-price for this unit"],
+  ["units", "web_rate_override", "", "A manual override for the web rate on this pricing group."],
+  ["units", "strikethrough_price_override", "", "A manual override for the strikethrough price."],
+  ["units", "walk_in_rate_override", "", "A manual override for the walk-in rate."],
+  ["units", "unit_floor_num", "", "The floor number where the unit is located."],
+  ["units", "unit_building_name", "", "The name of the building within the facility."],
+  ["units", "unit_width", "", "The width of the unit in feet."],
+  ["units", "unit_depth", "", "The depth of the unit in feet."],
+  ["units", "unit_height", "", "The ceiling height of the unit in feet."],
+  ["units", "is_active", "", "Flag indicating whether the unit is currently active/in service."],
+  ["units", "is_leased", "", "Flag (0/1) indicating whether the unit is currently leased."],
+  ["units", "is_insurable", "", "Flag indicating whether the unit is eligible for tenant insurance."],
+  ["units", "is_rentable", "", "Flag indicating whether the unit is currently available to be rented."],
+  ["units", "is_overlocked", "", "Flag indicating whether the unit currently has an overlock applied."],
+  ["units", "unit_unrentable_reason", "", "The reason code for why the unit is marked unrentable. NULL if rentable."],
+  ["units", "unit_unrentable_note", "", "Free-text note explaining why the unit is unrentable. NULL if rentable."],
+  ["units", "rentability_state_since", "", "Timestamp of when the unit last changed its is_rentable status."],
+  ["units", "occupancy_state_since", "", "Timestamp of when the unit last changed its is_leased status."],
+  ["units", "days_vacant", "", "Number of days the unit has been vacant since the last move-out."],
+  ["units", "days_unrentable", "", "Number of days the unit has been continuously in an unrentable state."],
+  ["units", "unit_keypad_zone", "", "The keypad/access control zone number assigned to this unit."],
+  ["units", "unit_time_zone", "", "Integer representing the time zone of the unit (may reference an internal code)."]
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let sortCol = -1, sortDir = 1;
+let activeTable = '';
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlight(text, query) {
+  if (!query) return escHtml(text);
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return escHtml(text).replace(re, '<mark>$1</mark>');
+}
+
+function render(rows, query) {
+  const tbody = document.getElementById('dd-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    document.getElementById('empty-state').style.display = 'block';
+    document.getElementById('dd-table').style.display = 'none';
+    updateCount(0);
+    return;
+  }
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('dd-table').style.display = '';
+
+  let html = '';
+  rows.forEach(function(r) {
+    const isTableRow = r[1] === '';
+    if (isTableRow) {
+      html += `<tr class="row-table-header">
+        <td class="cell-table">${highlight(r[0], query)}<span class="badge-table">TABLE</span></td>
+        <td class="cell-column" colspan="2"></td>
+        <td class="cell-desc">${highlight(r[3], query)}</td>
+      </tr>`;
+    } else {
+      html += `<tr>
+        <td class="cell-table">${highlight(r[0], query)}</td>
+        <td class="cell-column">${highlight(r[1], query)}</td>
+        <td class="cell-type">${highlight(r[2], query)}</td>
+        <td class="cell-desc">${highlight(r[3], query)}</td>
+      </tr>`;
+    }
+  });
+  tbody.innerHTML = html;
+  // count only column rows (not table-level rows)
+  const colCount = rows.filter(r => r[1] !== '').length;
+  updateCount(colCount, rows.length);
+}
+
+function updateCount(cols, total) {
+  const el = document.getElementById('result-count');
+  if (total === undefined) {
+    el.textContent = cols === 0 ? 'No results' : '';
+    return;
+  }
+  const tables = total - cols;
+  el.textContent = cols + ' column' + (cols !== 1 ? 's' : '') + ' across ' + tables + ' table' + (tables !== 1 ? 's' : '');
+}
+
+// ── Filter + sort ─────────────────────────────────────────────────────────────
+function applyFilters() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const tbl = document.getElementById('table-select').value;
+  const typ = document.getElementById('type-select').value;
+
+  // sync sidebar active state
+  document.querySelectorAll('.toc-link[id^="toc-"]').forEach(function(a) {
+    a.classList.remove('active');
+  });
+  if (tbl) {
+    const tocEl = document.getElementById('toc-' + tbl);
+    if (tocEl) tocEl.classList.add('active');
+  }
+
+  let rows = DATA.filter(function(r) {
+    if (tbl && r[0] !== tbl) return false;
+    if (typ && r[2] !== typ && r[1] !== '') return false; // don't filter TABLE rows by type
+    if (q) {
+      const hay = (r[0] + ' ' + r[1] + ' ' + r[2] + ' ' + r[3]).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sortCol >= 0) {
+    rows = rows.slice().sort(function(a, b) {
+      return a[sortCol].localeCompare(b[sortCol]) * sortDir;
+    });
+  }
+
+  render(rows, q);
+}
+
+function filterTable(name) {
+  document.getElementById('table-select').value = name;
+  document.getElementById('search-input').value = '';
+  applyFilters();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function sortBy(col) {
+  if (sortCol === col) {
+    sortDir *= -1;
+  } else {
+    sortCol = col;
+    sortDir = 1;
+  }
+  // update header classes
+  document.querySelectorAll('.dd-table thead th').forEach(function(th, i) {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (i === col) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    th.querySelector('.sort-icon').textContent = i === col ? (sortDir === 1 ? '↑' : '↓') : '↕';
+  });
+  applyFilters();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+applyFilters();
+</script>
+
+</body>
+</html>
