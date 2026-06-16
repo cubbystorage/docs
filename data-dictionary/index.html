@@ -6,358 +6,557 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Cubby Data Dictionary</title>
 
-  <style media="screen">
-/* ── Slate core layout (screen) ── */
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;font-size:14px;color:#333;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{background-color:#2e3136;font-family:"Helvetica Neue",Helvetica,Arial,"Microsoft YaHei","\\5FAE\8F6F\96C5\9ED1",serif;min-height:100%;padding:0 0 0 230px}
-.toc-wrapper{overflow-y:auto;overflow-x:hidden;position:fixed;z-index:30;top:0;left:0;bottom:0;width:230px;background:#1e2127;font-size:13px;font-weight:700}
-.toc-wrapper .logo{display:block;max-width:100%;padding:20px 20px 10px}
-.toc-wrapper>img{display:block;max-width:160px;padding:20px 20px 0}
-.toc-wrapper .search{position:relative;margin:10px 15px}
-.toc-wrapper .search input{background:#1a1d23;border:1px solid #444;border-radius:4px;color:#ccc;font-size:12px;outline:none;padding:6px 0 6px 20px;width:100%}
-.toc-wrapper .search:before{position:absolute;top:8px;left:0;color:#999;content:"\f002";font-family:FontAwesome;font-size:12px}
-.toc-list-h1{font-size:12px;font-weight:700;list-style:none;margin:0;padding:0 15px}
-.toc-list-h2{font-size:12px;font-weight:500;list-style:none;padding:0;margin:0 0 8px 10px}
-.toc-list-h1>li{margin:0}
-.toc-list-h2>li{margin:0}
-.toc-link{color:#999;display:block;overflow:hidden;padding:5px 0;text-decoration:none;text-overflow:ellipsis;white-space:nowrap}
-.toc-link:hover,.toc-link.active{color:#fff;text-decoration:none}
-.toc-h1.toc-link{color:#ccc;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
-.toc-h1.toc-link.active{color:#fff}
-.page-wrapper{margin-left:0;position:relative;z-index:10;min-height:100vh;background-color:#2e3136}
-.page-wrapper .dark-box{display:none}
-.content{position:relative;z-index:30;padding:0 28px;max-width:860px}
-.content:after{content:'';display:block;clear:both}
-.content>h1,.content>h2,.content>h3,.content>h4,.content>h5,.content>h6,.content>p,.content>table,.content>ul,.content>ol,.content>blockquote{padding:0 28px;box-sizing:border-box;display:block}
-.content>ul,.content>ol{padding-left:48px}
-h1,h2,h3,h4,h5,h6{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:bold;color:#fff}
-h1{font-size:25px;padding-top:0.5em;padding-bottom:0.5em;border-bottom:1px solid #3a3d42;margin-bottom:21px;margin-top:2em;background-color:#2e3136}
-h1:first-child,h1:first-child+ul,h1:first-child+ol{margin-top:0}
-h2{font-size:19px;margin-top:32px;margin-bottom:8px;border-top:1px solid #3a3d42;padding-top:1.2em}
-h3,h4,h5,h6{font-size:15px;margin-top:2.5em;margin-bottom:0.8em}
-p,li,dt,dd{line-height:1.6;color:#aaa}
-a{color:#66d9ef;text-decoration:none}
-a:hover{text-decoration:underline}
-code{background:rgba(0,0,0,.3);padding:3px 6px;border-radius:3px;font-size:.875em;font-family:Consolas,"Liberation Mono",Menlo,monospace;color:#e6db74}
-pre{background:#1e1e1e;padding:1.4em 1.8em;margin:0 28px 1.5em;overflow:auto;border-radius:4px}
-pre code{background:none;padding:0;color:#fff;font-size:12px}
-table{border-collapse:collapse;width:calc(100% - 56px);margin:0 28px 1.5em}
-table th,table td{text-align:left;padding:8px 14px;border-bottom:1px solid #3a3d42}
-table th{color:#aaa;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
-table tr:last-child td{border-bottom:none}
-blockquote{border-left:3px solid #66d9ef;color:#999;padding:0 15px;margin:0 28px 1.5em}
-hr{border:none;border-top:1px solid #3a3d42;margin:2em 0}
-ul,ol{color:#aaa}
-#nav-button{display:none}
-
-/* Syntax highlight */
-.highlight table td{padding:5px}.highlight table pre{margin:0}
-.highlight{color:#fff;background:#1e1e1e;padding:1.2em 1.5em;margin:0 28px 1.5em;border-radius:4px;overflow:auto;font-family:Consolas,"Liberation Mono",Menlo,monospace;font-size:12px;line-height:1.5}
-.highlight .cm,.highlight .cp,.highlight .c1,.highlight .cs,.highlight .c,.highlight .ch,.highlight .cd,.highlight .cpf{color:#75715e}
-.highlight .err{color:#960050}
-.highlight .k,.highlight .kv,.highlight .kn,.highlight .kp,.highlight .o,.highlight .ow,.highlight .nt{color:#f92672}
-.highlight .kc,.highlight .kd,.highlight .kr,.highlight .no,.highlight .kt{color:#66d9ef}
-.highlight .m,.highlight .mb,.highlight .mf,.highlight .mh,.highlight .il,.highlight .mi,.highlight .mo,.highlight .mx,.highlight .sc,.highlight .se,.highlight .ss{color:#ae81ff}
-.highlight .s2,.highlight .sb,.highlight .sh,.highlight .si,.highlight .sx,.highlight .s1,.highlight .s,.highlight .sa,.highlight .dl,.highlight .sd{color:#e6db74}
-.highlight .na,.highlight .nc,.highlight .nd,.highlight .ne,.highlight .nf,.highlight .fm{color:#a6e22e}
-.highlight .w,.highlight .vc,.highlight .nn,.highlight .ni,.highlight .bp,.highlight .vg,.highlight .vi,.highlight .nv,.highlight .vm,.highlight .n,.highlight .py,.highlight .nx{color:#fff}
-.highlight .nl{color:#f92672}
-
-/* ── Search (simple JS-free static version) ── */
-.search-results{display:none}
-
-/* ── Data dictionary specific ── */
-.dd-badge-dataset{display:inline-block;background:rgba(166,226,46,.12);color:#a6e22e;border:1px solid rgba(166,226,46,.3);padding:2px 8px;border-radius:3px;font-size:11px;font-family:Consolas,"Liberation Mono",Menlo,monospace;margin:0 28px 8px;vertical-align:middle}
-.dd-table-description{font-style:italic;color:#999;margin:0 28px 18px;padding:0;font-size:13.5px;line-height:1.6;display:block}
-.dd-no-columns{color:#555;font-style:italic;font-size:13px;padding:8px 0;margin:0 28px;display:block}
-.dd-intro-note{background:rgba(102,217,239,.08);border-left:3px solid #66d9ef;padding:12px 16px;border-radius:0 4px 4px 0;margin:0 28px 28px;font-size:13.5px;color:#aaa;line-height:1.6}
-.dd-intro-note code{background:rgba(0,0,0,.3);color:#e6db74}
-
-table.dd-fields{width:calc(100% - 56px);margin:0 28px 24px;border-collapse:collapse;font-size:13px}
-table.dd-fields thead tr{background:#1a1d23}
-table.dd-fields th{text-align:left;padding:9px 14px;color:#888;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #3a3d42}
-table.dd-fields td{padding:9px 14px;border-bottom:1px solid #2a2d32;vertical-align:top;line-height:1.55}
-table.dd-fields tbody tr:last-child td{border-bottom:none}
-table.dd-fields tbody tr:hover{background:rgba(255,255,255,.025)}
-.dd-col-name{font-family:Consolas,"Liberation Mono",Menlo,monospace;color:#e8e8e8;white-space:nowrap;font-size:12.5px}
-.dd-col-type{font-family:Consolas,"Liberation Mono",Menlo,monospace;color:#66d9ef;font-size:12px;white-space:nowrap}
-.dd-col-desc{color:#aaa;max-width:500px}
-  </style>
-
   <style>
-/* Simple TOC scroll-spy */
-</style>
+    *, *::before, *::after { box-sizing: border-box; }
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Simple search filter
-  var searchInput = document.getElementById('input-search');
-  if (!searchInput) return;
-  searchInput.addEventListener('input', function() {
-    var q = this.value.toLowerCase();
-    document.querySelectorAll('.toc-list-h2 li').forEach(function(li) {
-      var txt = li.textContent.toLowerCase();
-      li.style.display = (!q || txt.includes(q)) ? '' : 'none';
-    });
-  });
+    html, body {
+      margin: 0; padding: 0;
+      font-size: 14px;
+      background: #2e3136;
+      color: #aaa;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
 
-  // Scroll-spy: highlight active TOC link
-  var tocLinks = Array.from(document.querySelectorAll('.toc-link'));
-  var headings = tocLinks.map(function(a) {
-    var id = a.getAttribute('href').replace('#','');
-    return document.getElementById(id);
-  }).filter(Boolean);
+    /* ── Sidebar ── */
+    .toc-wrapper {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 230px;
+      background: #1e2127;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 20px;
+    }
+    .toc-logo {
+      padding: 20px 20px 14px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      display: block;
+    }
+    .toc-nav {
+      padding: 0 15px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .toc-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #555;
+      padding: 16px 0 6px;
+    }
+    .toc-link {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      padding: 4px 0;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+    .toc-link:hover { color: #fff; }
+    .toc-link.active { color: #66d9ef; }
+    .toc-divider {
+      border: none;
+      border-top: 1px solid #2a2d33;
+      margin: 12px 0;
+    }
+    #toc-tables { margin-top: 0; }
 
-  function onScroll() {
-    var scrollY = window.scrollY + 80;
-    var active = headings[0];
-    headings.forEach(function(h) { if (h.offsetTop <= scrollY) active = h; });
-    tocLinks.forEach(function(a) {
-      a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id));
-    });
-  }
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-});
-</script>
+    /* ── Main layout ── */
+    .page-wrapper {
+      margin-left: 230px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
+    .page-header {
+      padding: 36px 40px 0;
+      max-width: 1200px;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 8px;
+    }
+    .page-header p {
+      color: #888;
+      font-size: 13.5px;
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+
+    /* ── Controls bar ── */
+    .controls {
+      padding: 0 40px 20px;
+      max-width: 1200px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+      pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: #1a1d23;
+      border: 1px solid #3a3d42;
+      border-radius: 5px;
+      color: #ddd;
+      font-size: 13px;
+      padding: 8px 12px 8px 32px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: #66d9ef; }
+    .search-wrap input::placeholder { color: #555; }
+
+    select.filter-select {
+      background: #1a1d23;
+      border: 1px solid #3a3d42;
+      border-radius: 5px;
+      color: #ddd;
+      font-size: 13px;
+      padding: 8px 28px 8px 11px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color .15s;
+    }
+    select.filter-select:focus { border-color: #66d9ef; }
+
+    .result-count {
+      font-size: 12px;
+      color: #555;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── Loading / error states ── */
+    .status-message {
+      padding: 60px 40px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .status-message.loading { color: #555; }
+    .status-message.error { color: #f92672; }
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid #333;
+      border-top-color: #66d9ef;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Table ── */
+    .table-wrap {
+      padding: 0 40px 60px;
+      overflow-x: auto;
+    }
+
+    table.dd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.dd-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    table.dd-table thead th {
+      background: #1a1d23;
+      color: #888;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #3a3d42;
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    table.dd-table thead th:hover { color: #ccc; }
+    table.dd-table thead th.sort-asc,
+    table.dd-table thead th.sort-desc { color: #66d9ef; }
+
+    .sort-icon { margin-left: 5px; opacity: .4; font-size: 10px; }
+    th.sort-asc .sort-icon, th.sort-desc .sort-icon { opacity: 1; }
+
+    table.dd-table tbody tr {
+      border-bottom: 1px solid #272a2f;
+      transition: background .1s;
+    }
+    table.dd-table tbody tr:hover { background: rgba(255,255,255,.03); }
+
+    table.dd-table td {
+      padding: 10px 14px;
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    .cell-table {
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      color: #e0e0e0;
+      white-space: nowrap;
+    }
+    .cell-column {
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      color: #a6e22e;
+      white-space: nowrap;
+    }
+    .cell-type {
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11.5px;
+      color: #66d9ef;
+      white-space: nowrap;
+    }
+    .cell-desc { color: #999; max-width: 520px; }
+
+    .row-table-header td { background: #22252b; }
+    .row-table-header .cell-table { font-size: 13.5px; font-weight: 700; color: #fff; }
+    .row-table-header .cell-desc { color: #888; font-style: italic; }
+    .badge-table {
+      display: inline-block;
+      background: rgba(102,217,239,.1);
+      color: #66d9ef;
+      border: 1px solid rgba(102,217,239,.25);
+      border-radius: 3px;
+      font-size: 10px;
+      font-family: Consolas, monospace;
+      padding: 1px 6px;
+      vertical-align: middle;
+      margin-left: 6px;
+      font-weight: 400;
+    }
+    .empty-state {
+      padding: 60px 40px;
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+      display: none;
+    }
+    mark {
+      background: rgba(102,217,239,.25);
+      color: #fff;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+    .no-desc { color: #444; font-style: italic; }
+  </style>
 </head>
 
-<body class="index">
+<body>
 
+  <!-- Sidebar -->
   <div class="toc-wrapper">
-    <a href="../">
-      <!-- Inline SVG Cubby wordmark as fallback since we can't load the image cross-origin -->
-      <div style="padding:20px 20px 12px;font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.03em">cubby</div>
-    </a>
-
-    <div class="search">
-      <input type="text" id="input-search" placeholder="Search tables…">
+    <a href="../" class="toc-logo">cubby</a>
+    <div class="toc-nav">
+      <div class="toc-section-label">Documentation</div>
+      <a href="../api/" class="toc-link">API Reference</a>
+      <a href="../data-dictionary/" class="toc-link active">Data Dictionary</a>
+      <a href="../make-webhooks/" class="toc-link">Make.com Integration</a>
+      <hr class="toc-divider">
+      <div class="toc-section-label">Tables</div>
+      <div id="toc-tables">
+        <a class="toc-link" onclick="filterTable('');return false;">All tables</a>
+      </div>
     </div>
-    <ul class="search-results"></ul>
+  </div>
 
-    <ul id="toc" class="toc-list-h1">
-
-      <li><a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a></li>
-
-      <li>
-        <a href="#dataset-analytics" class="toc-h1 toc-link" data-title="analytics">analytics</a>
-        <ul class="toc-list-h2">
-          <li><a href="#table-access_log" class="toc-h2 toc-link">access_log</a></li>
-          <li><a href="#table-auctions" class="toc-h2 toc-link">auctions</a></li>
-          <li><a href="#table-book_entries" class="toc-h2 toc-link">book_entries</a></li>
-          <li><a href="#table-call_agent_availability" class="toc-h2 toc-link">call_agent_availability</a></li>
-          <li><a href="#table-call_child" class="toc-h2 toc-link">call_child</a></li>
-          <li><a href="#table-calls" class="toc-h2 toc-link">calls</a></li>
-          <li><a href="#table-contact" class="toc-h2 toc-link">contact</a></li>
-          <li><a href="#table-cubby_events" class="toc-h2 toc-link">cubby_events</a></li>
-          <li><a href="#table-customer_touches" class="toc-h2 toc-link">customer_touches</a></li>
-          <li><a href="#table-discount_programs" class="toc-h2 toc-link">discount_programs</a></li>
-          <li><a href="#table-discounts" class="toc-h2 toc-link">discounts</a></li>
-          <li><a href="#table-emails" class="toc-h2 toc-link">emails</a></li>
-          <li><a href="#table-facilities" class="toc-h2 toc-link">facilities</a></li>
-          <li><a href="#table-facility_groups" class="toc-h2 toc-link">facility_groups</a></li>
-          <li><a href="#table-ga_events" class="toc-h2 toc-link">ga_events</a></li>
-          <li><a href="#table-leads" class="toc-h2 toc-link">leads</a></li>
-          <li><a href="#table-lease_auctions" class="toc-h2 toc-link">lease_auctions</a></li>
-          <li><a href="#table-leases" class="toc-h2 toc-link">leases</a></li>
-          <li><a href="#table-managers" class="toc-h2 toc-link">managers</a></li>
-          <li><a href="#table-payments" class="toc-h2 toc-link">payments</a></li>
-          <li><a href="#table-pricing_group" class="toc-h2 toc-link">pricing_group</a></li>
-          <li><a href="#table-rate_changes" class="toc-h2 toc-link">rate_changes</a></li>
-          <li><a href="#table-scheduled_move_outs" class="toc-h2 toc-link">scheduled_move_outs</a></li>
-          <li><a href="#table-spaces_historical" class="toc-h2 toc-link">spaces_historical</a></li>
-          <li><a href="#table-unit_turnover" class="toc-h2 toc-link">unit_turnover</a></li>
-          <li><a href="#table-units" class="toc-h2 toc-link">units</a></li>
-        </ul>
-      </li>
-
-    </ul>
-  </div><!-- /.toc-wrapper -->
-
+  <!-- Main -->
   <div class="page-wrapper">
-    <div class="content">
 
-      <h1 id="introduction">Data Dictionary</h1>
+    <div class="page-header">
+      <h1>Data Dictionary</h1>
+      <p>
+        Tables and columns in the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> BigQuery dataset.
+        Refreshed nightly. Click a table in the sidebar to filter, or search below.
+      </p>
+    </div>
 
-      <p>This reference documents every table and column in the Cubby customer-facing analytics data warehouse. The warehouse is hosted in Google BigQuery and is refreshed daily.</p>
-
-      <div class="dd-intro-note">
-        All tables live in the <code>analytics</code> dataset. Access is granted per organization — you will only see data for facilities belonging to your organization.
+    <div class="controls" id="controls" style="display:none">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search tables, columns, descriptions…" oninput="applyFilters()">
       </div>
 
-      <p>Each table section below lists its columns, data types, and descriptions. Tables marked <em>snapshot</em> contain one row per entity per day; all others contain one row per event or entity.</p>
+      <select class="filter-select" id="table-select" onchange="applyFilters()">
+        <option value="">All tables</option>
+      </select>
 
+      <select class="filter-select" id="type-select" onchange="applyFilters()">
+        <option value="">All types</option>
+        <option>STRING</option>
+        <option>NUMERIC</option>
+        <option>INTEGER</option>
+        <option>INT64</option>
+        <option>FLOAT</option>
+        <option>FLOAT64</option>
+        <option>BOOLEAN</option>
+        <option>BOOL</option>
+        <option>TIMESTAMP</option>
+        <option>DATETIME</option>
+        <option>DATE</option>
+        <option>RECORD</option>
+      </select>
 
-      <h1 id="dataset-analytics">analytics</h1>
+      <span class="result-count" id="result-count"></span>
+    </div>
 
-      <p>The <code>analytics</code> dataset is the primary customer-facing schema. It is rebuilt nightly from the operational database and is designed for reporting and self-serve analysis.</p>
+    <div id="status" class="status-message loading">
+      <div class="spinner"></div><br>Loading schema…
+    </div>
 
-
-      <h2 id="table-access_log">access_log</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">Logs every access control event (gate/door entry attempts) at a facility.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-auctions">auctions</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per auction event held at a facility (typically lien auctions for delinquent tenants).</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-book_entries">book_entries</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per accounting ledger entry. Includes charges, payments, credits, and transfers. The pre-calculated <code>amt_*</code> columns make it easier to aggregate common financial metrics.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-call_agent_availability">call_agent_availability</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per manager per availability status per day. Tracks how long agents spent in each phone availability state.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-call_child">call_child</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per call leg within a parent call. A single inbound call may have multiple legs (e.g., IVR, transfer to agent). Use for granular call routing and agent-level analysis.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-calls">calls</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per inbound or outbound call routed through the facility phone system.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-contact">contact</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per contact (tenant, lead, or prospect). A contact may have multiple leases over time.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-cubby_events">cubby_events</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per action taken within Cubby by a manager or automated process (e.g., door locked, task changed, competitor tracked, pricing updated). Useful for operational auditing.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-customer_touches">customer_touches</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per marketing touchpoint associated with a lead or lease. Links GA session data to contacts and leases to attribute marketing source at the individual customer level.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-discount_programs">discount_programs</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per discount program defined by an organization (e.g., Military Discount, Web Special, First Month Free).</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-discounts">discounts</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per discount applied to a lease. Links a lease to the discount program it is enrolled in.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-emails">emails</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per email sent through the system (e.g., late notices, move-in confirmations, rate change letters).</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-facilities">facilities</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per facility. The primary dimension table for facility-level analysis.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-facility_groups">facility_groups</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per facility-to-group assignment. Used to roll up multiple facilities into named reporting groups.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-ga_events">ga_events</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per Google Analytics 4 event fired on the organization's website. Source data is the GA4 BigQuery export.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-leads">leads</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per lead (rental inquiry). A lead is created when a prospective tenant expresses interest in renting a unit.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-lease_auctions">lease_auctions</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per lease that has entered the lien/auction process. Links a delinquent lease to a specific auction event.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-leases">leases</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per lease. The central fact table for tenant and occupancy analysis. Many <code>contact_*</code> fields are denormalized copies of the tenant's current contact record.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-managers">managers</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per manager or staff member with access to the Cubby system.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-payments">payments</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per payment transaction. Includes payments, refunds, and reversals.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
-
-      <h2 id="table-pricing_group">pricing_group</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per pricing group (unit type) per facility. Defines the dimensions, rates, and features for a category of units.</span>
-
-      <table class="dd-fields">
+    <div class="table-wrap" id="table-wrap" style="display:none">
+      <table class="dd-table" id="dd-table">
         <thead>
           <tr>
-            <th>Column</th>
-            <th>Type</th>
-            <th>Description</th>
+            <th onclick="sortBy(0)">Table <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy(1)">Column <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy(2)">Type <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy(3)">Description <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td class="dd-col-name">pg_id</td>
-            <td class="dd-col-type">STRING</td>
-            <td class="dd-col-desc">Unique identifier for the pricing group. Primary key.</td>
-          </tr>
-          <tr>
-            <td class="dd-col-name">org_id</td>
-            <td class="dd-col-type">STRING</td>
-            <td class="dd-col-desc">The organization identifier. Common filter field.</td>
-          </tr>
-          <tr>
-            <td class="dd-col-name">name</td>
-            <td class="dd-col-type">STRING</td>
-            <td class="dd-col-desc">The name of the pricing group (e.g., "10x10 Drive-Up", "Climate Control Large").</td>
-          </tr>
-          <tr>
-            <td class="dd-col-name">standard_rate</td>
-            <td class="dd-col-type">NUMERIC</td>
-            <td class="dd-col-desc">The standard/street rental rate for this unit type.</td>
-          </tr>
-        </tbody>
+        <tbody id="dd-tbody"></tbody>
       </table>
+      <div class="empty-state" id="empty-state">No matching columns found.</div>
+    </div>
 
-      <h2 id="table-rate_changes">rate_changes</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per scheduled or applied rent rate change on a lease. Includes full tenant and lease context for operational use.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+  </div>
 
-      <h2 id="table-scheduled_move_outs">scheduled_move_outs</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per scheduled move-out notice. Created when a tenant gives notice of their intent to vacate.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const SHEET_ID = "1QMZ6uo_WnB_3JxO3uS43XtH9MYfeSY7kBeHi7jOwPiE";
+const GID      = "206444538";
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
-      <h2 id="table-spaces_historical">spaces_historical</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per unit per day. A daily snapshot of every unit's occupancy, rentability, rate, and tenant status. Use for occupancy trend analysis and historical reporting.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+// ── State ─────────────────────────────────────────────────────────────────────
+let DATA     = [];
+let sortCol  = -1;
+let sortDir  = 1;
 
-      <h2 id="table-unit_turnover">unit_turnover</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per move-in, move-out, or transfer event. Captures the full unit and lease context at the time of the move for cohort and turnover analysis.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+// ── CSV parser ────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/);
+  if (!lines.length) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    // Handle quoted fields
+    const cols = [];
+    let cur = '', inQuote = false;
+    for (let c = 0; c < lines[i].length; c++) {
+      const ch = lines[i][c];
+      if (ch === '"') { inQuote = !inQuote; }
+      else if (ch === ',' && !inQuote) { cols.push(cur); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur);
+    const row = {};
+    headers.forEach((h, idx) => row[h] = (cols[idx] || '').trim());
+    rows.push(row);
+  }
+  return rows;
+}
 
-      <h2 id="table-units">units</h2>
-      <span class="dd-badge-dataset">analytics</span>
-      <span class="dd-table-description">One row per unit. The current state of each storage unit including its dimensions, pricing, and occupancy status.</span>
-      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+// ── Load data ─────────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const resp = await fetch(CSV_URL);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    const rows = parseCSV(text);
 
-    </div><!-- /.content -->
-  </div><!-- /.page-wrapper -->
+    DATA = rows
+      .filter(r => r['Table_Name'])
+      .map(r => [
+        r['Table_Name']  || '',
+        r['Column_Name'] || '',
+        r['Data_Type']   || '',
+        r['Description'] || ''
+      ]);
+
+    // Populate table dropdown and sidebar
+    const tables = [...new Set(DATA.filter(r => r[1] === '').map(r => r[0]))].sort();
+    const tableSelect = document.getElementById('table-select');
+    const tocTables   = document.getElementById('toc-tables');
+
+    // Clear and re-add "All" option
+    tableSelect.innerHTML = '<option value="">All tables</option>';
+    tocTables.innerHTML   = '<a class="toc-link" onclick="filterTable(\'\');return false;">All tables</a>';
+
+    tables.forEach(function(t) {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t;
+      tableSelect.appendChild(opt);
+
+      const a = document.createElement('a');
+      a.className = 'toc-link';
+      a.id = 'toc-' + t;
+      a.textContent = t;
+      a.onclick = function() { filterTable(t); return false; };
+      tocTables.appendChild(a);
+    });
+
+    document.getElementById('status').style.display     = 'none';
+    document.getElementById('controls').style.display   = 'flex';
+    document.getElementById('table-wrap').style.display = '';
+    applyFilters();
+
+  } catch(err) {
+    document.getElementById('status').className = 'status-message error';
+    document.getElementById('status').innerHTML = '⚠️ Failed to load schema data.<br><small>' + err.message + '</small>';
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function highlight(text, query) {
+  if (!query) return escHtml(text);
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return escHtml(text).replace(re, '<mark>$1</mark>');
+}
+
+// ── Filter + sort ─────────────────────────────────────────────────────────────
+function applyFilters() {
+  const q   = document.getElementById('search-input').value.trim().toLowerCase();
+  const tbl = document.getElementById('table-select').value;
+  const typ = document.getElementById('type-select').value;
+
+  // Sync sidebar
+  document.querySelectorAll('.toc-link[id^="toc-"]').forEach(a => a.classList.remove('active'));
+  if (tbl) { const el = document.getElementById('toc-' + tbl); if (el) el.classList.add('active'); }
+
+  let rows = DATA.filter(function(r) {
+    if (tbl && r[0] !== tbl) return false;
+    if (typ && r[1] !== '' && r[2] !== typ) return false;
+    if (q) {
+      const hay = (r[0]+' '+r[1]+' '+r[2]+' '+r[3]).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sortCol >= 0) {
+    rows = rows.slice().sort((a,b) => a[sortCol].localeCompare(b[sortCol]) * sortDir);
+  }
+
+  render(rows, q);
+}
+
+function filterTable(name) {
+  document.getElementById('table-select').value = name;
+  document.getElementById('search-input').value = '';
+  applyFilters();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function sortBy(col) {
+  sortDir = (sortCol === col) ? sortDir * -1 : 1;
+  sortCol = col;
+  document.querySelectorAll('.dd-table thead th').forEach(function(th, i) {
+    th.classList.remove('sort-asc','sort-desc');
+    if (i === col) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    th.querySelector('.sort-icon').textContent = i === col ? (sortDir===1?'↑':'↓') : '↕';
+  });
+  applyFilters();
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(rows, query) {
+  const tbody = document.getElementById('dd-tbody');
+  const empty = document.getElementById('empty-state');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    updateCount(0, 0);
+    return;
+  }
+  empty.style.display = 'none';
+
+  let html = '';
+  rows.forEach(function(r) {
+    const isTable = r[1] === '';
+    const descHtml = r[3]
+      ? highlight(r[3], query)
+      : '<span class="no-desc">No description yet</span>';
+
+    if (isTable) {
+      html += `<tr class="row-table-header">
+        <td class="cell-table">${highlight(r[0], query)}<span class="badge-table">TABLE</span></td>
+        <td class="cell-column" colspan="2"></td>
+        <td class="cell-desc">${descHtml}</td>
+      </tr>`;
+    } else {
+      html += `<tr>
+        <td class="cell-table">${highlight(r[0], query)}</td>
+        <td class="cell-column">${highlight(r[1], query)}</td>
+        <td class="cell-type">${highlight(r[2], query)}</td>
+        <td class="cell-desc">${descHtml}</td>
+      </tr>`;
+    }
+  });
+  tbody.innerHTML = html;
+
+  const colCount = rows.filter(r => r[1] !== '').length;
+  const tblCount = rows.filter(r => r[1] === '').length;
+  updateCount(colCount, tblCount);
+}
+
+function updateCount(cols, tables) {
+  const el = document.getElementById('result-count');
+  if (cols === 0 && tables === 0) { el.textContent = 'No results'; return; }
+  el.textContent = cols + ' column' + (cols!==1?'s':'') + ' across ' + tables + ' table' + (tables!==1?'s':'');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadData();
+</script>
 
 </body>
 </html>
