@@ -1,0 +1,363 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Cubby Data Dictionary</title>
+
+  <style media="screen">
+/* ── Slate core layout (screen) ── */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-size:14px;color:#333;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background-color:#2e3136;font-family:"Helvetica Neue",Helvetica,Arial,"Microsoft YaHei","\\5FAE\8F6F\96C5\9ED1",serif;min-height:100%;padding:0 0 0 230px}
+.toc-wrapper{overflow-y:auto;overflow-x:hidden;position:fixed;z-index:30;top:0;left:0;bottom:0;width:230px;background:#1e2127;font-size:13px;font-weight:700}
+.toc-wrapper .logo{display:block;max-width:100%;padding:20px 20px 10px}
+.toc-wrapper>img{display:block;max-width:160px;padding:20px 20px 0}
+.toc-wrapper .search{position:relative;margin:10px 15px}
+.toc-wrapper .search input{background:#1a1d23;border:1px solid #444;border-radius:4px;color:#ccc;font-size:12px;outline:none;padding:6px 0 6px 20px;width:100%}
+.toc-wrapper .search:before{position:absolute;top:8px;left:0;color:#999;content:"\f002";font-family:FontAwesome;font-size:12px}
+.toc-list-h1{font-size:12px;font-weight:700;list-style:none;margin:0;padding:0 15px}
+.toc-list-h2{font-size:12px;font-weight:500;list-style:none;padding:0;margin:0 0 8px 10px}
+.toc-list-h1>li{margin:0}
+.toc-list-h2>li{margin:0}
+.toc-link{color:#999;display:block;overflow:hidden;padding:5px 0;text-decoration:none;text-overflow:ellipsis;white-space:nowrap}
+.toc-link:hover,.toc-link.active{color:#fff;text-decoration:none}
+.toc-h1.toc-link{color:#ccc;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
+.toc-h1.toc-link.active{color:#fff}
+.page-wrapper{margin-left:0;position:relative;z-index:10;min-height:100vh;background-color:#2e3136}
+.page-wrapper .dark-box{display:none}
+.content{position:relative;z-index:30;padding:0 28px;max-width:860px}
+.content:after{content:'';display:block;clear:both}
+.content>h1,.content>h2,.content>h3,.content>h4,.content>h5,.content>h6,.content>p,.content>table,.content>ul,.content>ol,.content>blockquote{padding:0 28px;box-sizing:border-box;display:block}
+.content>ul,.content>ol{padding-left:48px}
+h1,h2,h3,h4,h5,h6{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:bold;color:#fff}
+h1{font-size:25px;padding-top:0.5em;padding-bottom:0.5em;border-bottom:1px solid #3a3d42;margin-bottom:21px;margin-top:2em;background-color:#2e3136}
+h1:first-child,h1:first-child+ul,h1:first-child+ol{margin-top:0}
+h2{font-size:19px;margin-top:32px;margin-bottom:8px;border-top:1px solid #3a3d42;padding-top:1.2em}
+h3,h4,h5,h6{font-size:15px;margin-top:2.5em;margin-bottom:0.8em}
+p,li,dt,dd{line-height:1.6;color:#aaa}
+a{color:#66d9ef;text-decoration:none}
+a:hover{text-decoration:underline}
+code{background:rgba(0,0,0,.3);padding:3px 6px;border-radius:3px;font-size:.875em;font-family:Consolas,"Liberation Mono",Menlo,monospace;color:#e6db74}
+pre{background:#1e1e1e;padding:1.4em 1.8em;margin:0 28px 1.5em;overflow:auto;border-radius:4px}
+pre code{background:none;padding:0;color:#fff;font-size:12px}
+table{border-collapse:collapse;width:calc(100% - 56px);margin:0 28px 1.5em}
+table th,table td{text-align:left;padding:8px 14px;border-bottom:1px solid #3a3d42}
+table th{color:#aaa;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+table tr:last-child td{border-bottom:none}
+blockquote{border-left:3px solid #66d9ef;color:#999;padding:0 15px;margin:0 28px 1.5em}
+hr{border:none;border-top:1px solid #3a3d42;margin:2em 0}
+ul,ol{color:#aaa}
+#nav-button{display:none}
+
+/* Syntax highlight */
+.highlight table td{padding:5px}.highlight table pre{margin:0}
+.highlight{color:#fff;background:#1e1e1e;padding:1.2em 1.5em;margin:0 28px 1.5em;border-radius:4px;overflow:auto;font-family:Consolas,"Liberation Mono",Menlo,monospace;font-size:12px;line-height:1.5}
+.highlight .cm,.highlight .cp,.highlight .c1,.highlight .cs,.highlight .c,.highlight .ch,.highlight .cd,.highlight .cpf{color:#75715e}
+.highlight .err{color:#960050}
+.highlight .k,.highlight .kv,.highlight .kn,.highlight .kp,.highlight .o,.highlight .ow,.highlight .nt{color:#f92672}
+.highlight .kc,.highlight .kd,.highlight .kr,.highlight .no,.highlight .kt{color:#66d9ef}
+.highlight .m,.highlight .mb,.highlight .mf,.highlight .mh,.highlight .il,.highlight .mi,.highlight .mo,.highlight .mx,.highlight .sc,.highlight .se,.highlight .ss{color:#ae81ff}
+.highlight .s2,.highlight .sb,.highlight .sh,.highlight .si,.highlight .sx,.highlight .s1,.highlight .s,.highlight .sa,.highlight .dl,.highlight .sd{color:#e6db74}
+.highlight .na,.highlight .nc,.highlight .nd,.highlight .ne,.highlight .nf,.highlight .fm{color:#a6e22e}
+.highlight .w,.highlight .vc,.highlight .nn,.highlight .ni,.highlight .bp,.highlight .vg,.highlight .vi,.highlight .nv,.highlight .vm,.highlight .n,.highlight .py,.highlight .nx{color:#fff}
+.highlight .nl{color:#f92672}
+
+/* ── Search (simple JS-free static version) ── */
+.search-results{display:none}
+
+/* ── Data dictionary specific ── */
+.dd-badge-dataset{display:inline-block;background:rgba(166,226,46,.12);color:#a6e22e;border:1px solid rgba(166,226,46,.3);padding:2px 8px;border-radius:3px;font-size:11px;font-family:Consolas,"Liberation Mono",Menlo,monospace;margin:0 28px 8px;vertical-align:middle}
+.dd-table-description{font-style:italic;color:#999;margin:0 28px 18px;padding:0;font-size:13.5px;line-height:1.6;display:block}
+.dd-no-columns{color:#555;font-style:italic;font-size:13px;padding:8px 0;margin:0 28px;display:block}
+.dd-intro-note{background:rgba(102,217,239,.08);border-left:3px solid #66d9ef;padding:12px 16px;border-radius:0 4px 4px 0;margin:0 28px 28px;font-size:13.5px;color:#aaa;line-height:1.6}
+.dd-intro-note code{background:rgba(0,0,0,.3);color:#e6db74}
+
+table.dd-fields{width:calc(100% - 56px);margin:0 28px 24px;border-collapse:collapse;font-size:13px}
+table.dd-fields thead tr{background:#1a1d23}
+table.dd-fields th{text-align:left;padding:9px 14px;color:#888;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #3a3d42}
+table.dd-fields td{padding:9px 14px;border-bottom:1px solid #2a2d32;vertical-align:top;line-height:1.55}
+table.dd-fields tbody tr:last-child td{border-bottom:none}
+table.dd-fields tbody tr:hover{background:rgba(255,255,255,.025)}
+.dd-col-name{font-family:Consolas,"Liberation Mono",Menlo,monospace;color:#e8e8e8;white-space:nowrap;font-size:12.5px}
+.dd-col-type{font-family:Consolas,"Liberation Mono",Menlo,monospace;color:#66d9ef;font-size:12px;white-space:nowrap}
+.dd-col-desc{color:#aaa;max-width:500px}
+  </style>
+
+  <style>
+/* Simple TOC scroll-spy */
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Simple search filter
+  var searchInput = document.getElementById('input-search');
+  if (!searchInput) return;
+  searchInput.addEventListener('input', function() {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('.toc-list-h2 li').forEach(function(li) {
+      var txt = li.textContent.toLowerCase();
+      li.style.display = (!q || txt.includes(q)) ? '' : 'none';
+    });
+  });
+
+  // Scroll-spy: highlight active TOC link
+  var tocLinks = Array.from(document.querySelectorAll('.toc-link'));
+  var headings = tocLinks.map(function(a) {
+    var id = a.getAttribute('href').replace('#','');
+    return document.getElementById(id);
+  }).filter(Boolean);
+
+  function onScroll() {
+    var scrollY = window.scrollY + 80;
+    var active = headings[0];
+    headings.forEach(function(h) { if (h.offsetTop <= scrollY) active = h; });
+    tocLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id));
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+});
+</script>
+
+</head>
+
+<body class="index">
+
+  <div class="toc-wrapper">
+    <a href="../">
+      <!-- Inline SVG Cubby wordmark as fallback since we can't load the image cross-origin -->
+      <div style="padding:20px 20px 12px;font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.03em">cubby</div>
+    </a>
+
+    <div class="search">
+      <input type="text" id="input-search" placeholder="Search tables…">
+    </div>
+    <ul class="search-results"></ul>
+
+    <ul id="toc" class="toc-list-h1">
+
+      <li><a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a></li>
+
+      <li>
+        <a href="#dataset-analytics" class="toc-h1 toc-link" data-title="analytics">analytics</a>
+        <ul class="toc-list-h2">
+          <li><a href="#table-access_log" class="toc-h2 toc-link">access_log</a></li>
+          <li><a href="#table-auctions" class="toc-h2 toc-link">auctions</a></li>
+          <li><a href="#table-book_entries" class="toc-h2 toc-link">book_entries</a></li>
+          <li><a href="#table-call_agent_availability" class="toc-h2 toc-link">call_agent_availability</a></li>
+          <li><a href="#table-call_child" class="toc-h2 toc-link">call_child</a></li>
+          <li><a href="#table-calls" class="toc-h2 toc-link">calls</a></li>
+          <li><a href="#table-contact" class="toc-h2 toc-link">contact</a></li>
+          <li><a href="#table-cubby_events" class="toc-h2 toc-link">cubby_events</a></li>
+          <li><a href="#table-customer_touches" class="toc-h2 toc-link">customer_touches</a></li>
+          <li><a href="#table-discount_programs" class="toc-h2 toc-link">discount_programs</a></li>
+          <li><a href="#table-discounts" class="toc-h2 toc-link">discounts</a></li>
+          <li><a href="#table-emails" class="toc-h2 toc-link">emails</a></li>
+          <li><a href="#table-facilities" class="toc-h2 toc-link">facilities</a></li>
+          <li><a href="#table-facility_groups" class="toc-h2 toc-link">facility_groups</a></li>
+          <li><a href="#table-ga_events" class="toc-h2 toc-link">ga_events</a></li>
+          <li><a href="#table-leads" class="toc-h2 toc-link">leads</a></li>
+          <li><a href="#table-lease_auctions" class="toc-h2 toc-link">lease_auctions</a></li>
+          <li><a href="#table-leases" class="toc-h2 toc-link">leases</a></li>
+          <li><a href="#table-managers" class="toc-h2 toc-link">managers</a></li>
+          <li><a href="#table-payments" class="toc-h2 toc-link">payments</a></li>
+          <li><a href="#table-pricing_group" class="toc-h2 toc-link">pricing_group</a></li>
+          <li><a href="#table-rate_changes" class="toc-h2 toc-link">rate_changes</a></li>
+          <li><a href="#table-scheduled_move_outs" class="toc-h2 toc-link">scheduled_move_outs</a></li>
+          <li><a href="#table-spaces_historical" class="toc-h2 toc-link">spaces_historical</a></li>
+          <li><a href="#table-unit_turnover" class="toc-h2 toc-link">unit_turnover</a></li>
+          <li><a href="#table-units" class="toc-h2 toc-link">units</a></li>
+        </ul>
+      </li>
+
+    </ul>
+  </div><!-- /.toc-wrapper -->
+
+  <div class="page-wrapper">
+    <div class="content">
+
+      <h1 id="introduction">Data Dictionary</h1>
+
+      <p>This reference documents every table and column in the Cubby customer-facing analytics data warehouse. The warehouse is hosted in Google BigQuery and is refreshed daily.</p>
+
+      <div class="dd-intro-note">
+        All tables live in the <code>analytics</code> dataset. Access is granted per organization — you will only see data for facilities belonging to your organization.
+      </div>
+
+      <p>Each table section below lists its columns, data types, and descriptions. Tables marked <em>snapshot</em> contain one row per entity per day; all others contain one row per event or entity.</p>
+
+
+      <h1 id="dataset-analytics">analytics</h1>
+
+      <p>The <code>analytics</code> dataset is the primary customer-facing schema. It is rebuilt nightly from the operational database and is designed for reporting and self-serve analysis.</p>
+
+
+      <h2 id="table-access_log">access_log</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">Logs every access control event (gate/door entry attempts) at a facility.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-auctions">auctions</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per auction event held at a facility (typically lien auctions for delinquent tenants).</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-book_entries">book_entries</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per accounting ledger entry. Includes charges, payments, credits, and transfers. The pre-calculated <code>amt_*</code> columns make it easier to aggregate common financial metrics.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-call_agent_availability">call_agent_availability</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per manager per availability status per day. Tracks how long agents spent in each phone availability state.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-call_child">call_child</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per call leg within a parent call. A single inbound call may have multiple legs (e.g., IVR, transfer to agent). Use for granular call routing and agent-level analysis.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-calls">calls</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per inbound or outbound call routed through the facility phone system.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-contact">contact</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per contact (tenant, lead, or prospect). A contact may have multiple leases over time.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-cubby_events">cubby_events</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per action taken within Cubby by a manager or automated process (e.g., door locked, task changed, competitor tracked, pricing updated). Useful for operational auditing.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-customer_touches">customer_touches</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per marketing touchpoint associated with a lead or lease. Links GA session data to contacts and leases to attribute marketing source at the individual customer level.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-discount_programs">discount_programs</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per discount program defined by an organization (e.g., Military Discount, Web Special, First Month Free).</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-discounts">discounts</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per discount applied to a lease. Links a lease to the discount program it is enrolled in.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-emails">emails</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per email sent through the system (e.g., late notices, move-in confirmations, rate change letters).</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-facilities">facilities</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per facility. The primary dimension table for facility-level analysis.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-facility_groups">facility_groups</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per facility-to-group assignment. Used to roll up multiple facilities into named reporting groups.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-ga_events">ga_events</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per Google Analytics 4 event fired on the organization's website. Source data is the GA4 BigQuery export.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-leads">leads</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per lead (rental inquiry). A lead is created when a prospective tenant expresses interest in renting a unit.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-lease_auctions">lease_auctions</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per lease that has entered the lien/auction process. Links a delinquent lease to a specific auction event.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-leases">leases</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per lease. The central fact table for tenant and occupancy analysis. Many <code>contact_*</code> fields are denormalized copies of the tenant's current contact record.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-managers">managers</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per manager or staff member with access to the Cubby system.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-payments">payments</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per payment transaction. Includes payments, refunds, and reversals.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-pricing_group">pricing_group</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per pricing group (unit type) per facility. Defines the dimensions, rates, and features for a category of units.</span>
+
+      <table class="dd-fields">
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="dd-col-name">pg_id</td>
+            <td class="dd-col-type">STRING</td>
+            <td class="dd-col-desc">Unique identifier for the pricing group. Primary key.</td>
+          </tr>
+          <tr>
+            <td class="dd-col-name">org_id</td>
+            <td class="dd-col-type">STRING</td>
+            <td class="dd-col-desc">The organization identifier. Common filter field.</td>
+          </tr>
+          <tr>
+            <td class="dd-col-name">name</td>
+            <td class="dd-col-type">STRING</td>
+            <td class="dd-col-desc">The name of the pricing group (e.g., "10x10 Drive-Up", "Climate Control Large").</td>
+          </tr>
+          <tr>
+            <td class="dd-col-name">standard_rate</td>
+            <td class="dd-col-type">NUMERIC</td>
+            <td class="dd-col-desc">The standard/street rental rate for this unit type.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="table-rate_changes">rate_changes</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per scheduled or applied rent rate change on a lease. Includes full tenant and lease context for operational use.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-scheduled_move_outs">scheduled_move_outs</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per scheduled move-out notice. Created when a tenant gives notice of their intent to vacate.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-spaces_historical">spaces_historical</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per unit per day. A daily snapshot of every unit's occupancy, rentability, rate, and tenant status. Use for occupancy trend analysis and historical reporting.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-unit_turnover">unit_turnover</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per move-in, move-out, or transfer event. Captures the full unit and lease context at the time of the move for cohort and turnover analysis.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+      <h2 id="table-units">units</h2>
+      <span class="dd-badge-dataset">analytics</span>
+      <span class="dd-table-description">One row per unit. The current state of each storage unit including its dimensions, pricing, and occupancy status.</span>
+      <span class="dd-no-columns">Column-level documentation coming soon.</span>
+
+    </div><!-- /.content -->
+  </div><!-- /.page-wrapper -->
+
+</body>
+</html>
