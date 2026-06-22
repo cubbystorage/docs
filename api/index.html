@@ -611,7 +611,7 @@ Example via curl:</p>
 </tr>
 <tr>
 <td>Leases</td>
-<td><code>search</code>, <code>create</code>, <code>checkout</code>, <code>cancel-lease</code>, <code>schedule-move-out</code>, <code>get-move-in-charges</code>, <code>get-upsells</code>, <code>make-payment</code>, <code>get-payment-link</code>, <code>enable-auto-pay</code>, <code>disable-auto-pay</code>, <code>update-alternative-contacts</code>, <code>get-rent-change-schedules</code>, <code>change-rents</code>, <code>cancel-rent-changes</code>, <code>get-compliances</code></td>
+<td><code>search</code>, <code>create</code>, <code>checkout</code>, <code>cancel-lease</code>, <code>schedule-move-out</code>, <code>preview-charges</code>, <code>get-move-in-charges</code>, <code>get-upsells</code>, <code>make-payment</code>, <code>get-payment-link</code>, <code>enable-auto-pay</code>, <code>disable-auto-pay</code>, <code>update-alternative-contacts</code>, <code>get-rent-change-schedules</code>, <code>change-rents</code>, <code>cancel-rent-changes</code>, <code>get-compliances</code></td>
 </tr>
 <tr>
 <td>Ledgers</td>
@@ -695,7 +695,7 @@ Example via curl:</p>
 </tr>
 <tr>
 <td>Leases</td>
-<td><code>search</code></td>
+<td><code>search</code>, <code>preview-charges</code></td>
 </tr>
 <tr>
 <td>Ledgers</td>
@@ -811,7 +811,7 @@ Example via curl:</p>
 </tr>
 <tr>
 <td>Leases</td>
-<td><code>search</code></td>
+<td><code>search</code>, <code>preview-charges</code></td>
 </tr>
 <tr>
 <td>Ledgers</td>
@@ -886,6 +886,8 @@ Example via curl:</p>
 <hr>
 <h1 id='changelog'>Changelog</h1><h2 id='june-2026'>June 2026</h2>
 <ul>
+<li><strong>Discounts: <code>pricingGroups</code> field</strong> — Discount objects in <code>POST /v1/discounts/search</code> now include a <code>pricingGroups</code> array listing every pricing group the discount applies to, with <code>pricingGroupId</code>, <code>name</code>, and <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>). Visibility is configured per discount-and-pricing-group pairing.</li>
+<li><strong>Discounts: <code>applicationPercentage</code> field</strong> — Discount objects in <code>POST /v1/discounts/search</code> (and lease discounts) now include <code>applicationPercentage</code> for <code>PERCENT_DEDUCTED</code> discounts, expressing the percentage directly (e.g. <code>10</code> for 10%). For backward compatibility these discounts continue to populate <code>applicationAmount</code> with the percentage scaled by 100 (10% → <code>1000</code>). <strong>That <code>applicationAmount</code> value for percentage discounts is deprecated and scheduled for removal in mid-July 2026</strong></li>
 <li><strong>Get Upsells</strong> — New endpoint <code>POST /v1/leases/get-upsells</code>. Returns the optional upsell (upgrade) recurring fees available for a unit. Opt into an upsell at move-in by passing its <code>feeId</code> in the <code>upsellFeeIds</code> array of <code>POST /v1/leases/get-move-in-charges</code>, <code>POST /v1/leases/create</code>, or <code>POST /v1/leases/checkout</code>.</li>
 <li><strong>Facilities Search: <code>schedules</code> expansion</strong> — <code>POST /v1/facilities/search</code> now supports a <code>schedules</code> expansion. When requested, each facility object includes a <code>schedules</code> array describing the facility&#39;s configured schedules (office hours, phone support, etc.).</li>
 <li><strong>Facilities Search: <code>timeZone</code> field</strong> — The facility object in <code>POST /v1/facilities/search</code> now includes a <code>timeZone</code> field containing the facility&#39;s IANA time zone identifier (e.g. <code>America/New_York</code>).</li>
@@ -964,7 +966,7 @@ Example via curl:</p>
 <p><code>POST /v1/access-codes/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — access-codes/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -974,7 +976,7 @@ Example via curl:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — access-codes/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -999,7 +1001,7 @@ Example via curl:</p>
 <p><code>POST /v1/access-codes/check</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — access-codes/check</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -1007,7 +1009,7 @@ Example via curl:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — access-codes/check</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1042,7 +1044,7 @@ Example via curl:</p>
 <p><code>POST /v1/locks/register</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — locks/register</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"serial"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M9U2FK"</span><span class="p">,</span><span class="w">
@@ -1052,7 +1054,7 @@ Example via curl:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — locks/register</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1089,7 +1091,7 @@ Available locks can be associated with a location until they are attached to a u
 <p><code>POST /v1/locks/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — locks/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1098,7 +1100,7 @@ Available locks can be associated with a location until they are attached to a u
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — locks/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1168,7 +1170,7 @@ Available locks can be associated with a location until they are attached to a u
 <p><code>POST /v1/locks/disable</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — locks/disable</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -1190,7 +1192,7 @@ Available locks can be associated with a location until they are attached to a u
 <p><code>POST /v1/locks/attach</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — locks/attach</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -1220,7 +1222,7 @@ the purpose of the lock is to restrict access to the unit</li>
 <p><code>POST /v1/locks/return</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — locks/return</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -1241,7 +1243,7 @@ marking it available for re-use.</p>
 <p><code>POST /v1/locks/transfer</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — locks/transfer</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"lockId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lock_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -1263,7 +1265,7 @@ The lock must not be attached to a unit.</p>
 <p><code>POST /v1/organizations/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — organizations/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1272,7 +1274,7 @@ The lock must not be attached to a unit.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — organizations/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1301,7 +1303,7 @@ returned</li>
 <p><code>POST /v1/managers/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — managers/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1315,7 +1317,7 @@ returned</li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — managers/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1374,7 +1376,7 @@ returned</li>
 <p><code>POST /v1/facilities/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — facilities/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1388,7 +1390,7 @@ returned</li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — facilities/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1444,6 +1446,11 @@ returned</li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns metadata for all co-managed facilities</p>
+
+<p>Each facility object includes a <code>paymentServiceProvider</code> field indicating which payment gateway
+the facility is configured to use — either <code>STRIPE</code> or <code>PAYABLI</code>. Use this to determine which
+token-generation flow to follow when collecting payment details (see
+<a href="#generating-a-payment-token">Generating a Payment Token</a>).</p>
 <h3 id='required-properties-10'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to a specific facility</li>
@@ -1478,7 +1485,7 @@ example above is closed on Sunday and Saturday and open 09:00–17:00 Monday thr
 <p><code>POST /v1/units/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — units/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1490,7 +1497,7 @@ example above is closed on Sunday and Saturday and open 09:00–17:00 Monday thr
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — units/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1541,7 +1548,7 @@ example above is closed on Sunday and Saturday and open 09:00–17:00 Monday thr
 <p><code>POST /v1/units/set-rentability</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — units/set-rentability</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
@@ -1579,7 +1586,7 @@ example above is closed on Sunday and Saturday and open 09:00–17:00 Monday thr
 <p><code>POST /v1/pricing-groups/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — pricing-groups/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1590,7 +1597,7 @@ example above is closed on Sunday and Saturday and open 09:00–17:00 Monday thr
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — pricing-groups/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1651,7 +1658,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 <p><code>POST /v1/pricing-groups/change-rates</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — pricing-groups/change-rates</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"pricingGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -1679,7 +1686,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 <p><code>POST /v1/discounts/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — discounts/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1690,7 +1697,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — discounts/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1708,9 +1715,19 @@ occupancy-percentage and available-units restrictions against the pricing group&
         </span><span class="nl">"upfrontPaidMonths"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
         </span><span class="nl">"upfrontFreeMonths"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
 
-        </span><span class="c1">// Periodic discount fields</span><span class="w">
+        </span><span class="c1">// Periodic / perpetual discount fields.</span><span class="w">
         </span><span class="nl">"applicationMethod"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PERCENT_DEDUCTED | AMOUNT_DEDUCTED | AMOUNT_FIXED"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"applicationAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+        </span><span class="nl">"applicationAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">        </span><span class="c1">// AMOUNT_DEDUCTED / AMOUNT_FIXED: value in cents. PERCENT_DEDUCTED: percentage x100 (10% -&gt; 1000), DEPRECATED (see Changelog)</span><span class="w">
+        </span><span class="nl">"applicationPercentage"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">      </span><span class="c1">// PERCENT_DEDUCTED only, a percentage (0-100)</span><span class="w">
+
+        </span><span class="c1">// every pricing group the discount applies to, with its channel visibility</span><span class="w">
+        </span><span class="nl">"pricingGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Standard"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"visibility"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ALL | CUBBY_ONLY"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
@@ -1718,6 +1735,15 @@ occupancy-percentage and available-units restrictions against the pricing group&
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for discounts by pricing group or discount id</p>
+
+<p>A discount expresses its value through <code>applicationAmount</code> and/or <code>applicationPercentage</code>, depending on <code>applicationMethod</code>:</p>
+
+<ul>
+<li><code>AMOUNT_DEDUCTED</code> (a flat sum off the rent) and <code>AMOUNT_FIXED</code> (a fixed replacement rent) carry <code>applicationAmount</code>, in cents.</li>
+<li><code>PERCENT_DEDUCTED</code> (a percentage off the rent) carries <code>applicationPercentage</code>, a percentage between 0 and 100. For backward compatibility it currently also populates <code>applicationAmount</code> with the percentage scaled by 100 (10% → <code>1000</code>). That <code>applicationAmount</code> value is <strong>deprecated</strong> and scheduled for removal in mid-July 2026 — migrate to <code>applicationPercentage</code>.</li>
+</ul>
+
+<p>Each discount also carries a <code>pricingGroups</code> array listing every pricing group it applies to. Each entry has the pricing group&#39;s <code>pricingGroupId</code> and <code>name</code>, plus the <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>) configured for that discount in that pricing group — visibility is per discount-and-pricing-group pairing, so the same pricing group may show a different value on a different discount.</p>
 <h3 id='required-properties-15'>Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to discounts in a particular pricing group</li>
@@ -1726,7 +1752,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 <p><code>POST /v1/value-pricing-strategies/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — value-pricing-strategies/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1735,7 +1761,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — value-pricing-strategies/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1804,7 +1830,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 <p><code>POST /v1/customers/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — customers/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1823,7 +1849,7 @@ occupancy-percentage and available-units restrictions against the pricing group&
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — customers/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -1900,7 +1926,7 @@ endpoint are <code>leases</code> and <code>leads</code></li>
 <p><code>POST /v1/customers/update</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — customers/update</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
@@ -1948,7 +1974,7 @@ endpoint are <code>leases</code> and <code>leads</code></li>
 <p><code>POST /v1/leads/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leads/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1958,7 +1984,7 @@ endpoint are <code>leases</code> and <code>leads</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leads/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2048,7 +2074,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p><code>POST /v1/leads/create</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leads/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"organizationId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_4a2da7d271a"</span><span class="p">,</span><span class="w">
@@ -2127,6 +2153,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><a href="#leases-cancel-rent-changes">Leases Cancel Rent Changes</a></li>
 <li><a href="#lease-update-alternative-contacts">Lease Update Alternative Contacts</a></li>
 <li><a href="#get-upsells">Get Upsells</a></li>
+<li><a href="#preview-charges">Preview Charges</a></li>
 <li><a href="#get-move-in-charges">Get Move-In Charges</a></li>
 <li><a href="#create-lease">Create Lease</a></li>
 <li><a href="#checkout">Checkout</a></li>
@@ -2142,7 +2169,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p><code>POST /v1/leases/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -2154,7 +2181,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2302,7 +2329,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p><code>POST /v1/leases/get-compliances</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/get-compliances</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -2311,7 +2338,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/get-compliances</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2363,7 +2390,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p><code>POST /v1/leases/get-rent-change-schedules</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/get-rent-change-schedules</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -2372,7 +2399,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/get-rent-change-schedules</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2403,7 +2430,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <p><code>POST /v1/leases/change-rents</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/change-rents</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -2437,7 +2464,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 <p><code>POST /v1/leases/cancel-rent-changes</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/cancel-rent-changes</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -2450,7 +2477,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 <p><code>POST /v1/leases/update-alternative-contacts</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/update-alternative-contacts</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
@@ -2473,7 +2500,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 <p><code>POST /v1/leases/get-upsells</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/get-upsells</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
@@ -2481,7 +2508,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/get-upsells</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2520,11 +2547,162 @@ group&#39;s standard rate when <code>rentAmount</code> is omitted), so the previ
 <ul>
 <li><code>rentAmount</code> - the rent amount to use as the base when computing percentage-based fee amounts. Defaults to the pricing group&#39;s standard rate. Pass the same value here as on <a href="#get-move-in-charges">Get Move-In Charges</a> or <a href="#create-lease">Create Lease</a> to get a preview that matches the billed amount.</li>
 </ul>
+<h3 id='preview-charges'>Preview Charges</h3>
+<p><code>POST /v1/leases/preview-charges</code></p>
+
+<blockquote>
+<p>Request Body — leases/preview-charges</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_jOi8joH3Hu"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"prepayMonths"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"paymentMethodId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pm_V4w64pjUwVK"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Response Body — leases/preview-charges</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"subtotal"</span><span class="p">:</span><span class="w"> </span><span class="mi">16710</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"tax"</span><span class="p">:</span><span class="w"> </span><span class="mi">1545</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"totalBeforePayments"</span><span class="p">:</span><span class="w"> </span><span class="mi">18255</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"totalPaid"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"prepaidBalance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">18255</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"charges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RENT"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"displayName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Rent"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$61.00 (monthly rate) x 3 months"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-06-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-31"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">12810</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"undiscountedAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">18300</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"Summer Special"</span><span class="w"> </span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INSURANCE"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"displayName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coverage"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-06-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"accruesThrough"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-31"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">2400</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"undiscountedAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">2400</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FEES"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"displayName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Admin Fee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"undiscountedAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns a charges breakdown for an existing lease. With no <code>prepayMonths</code>, it returns the lease&#39;s current
+outstanding charges. When <code>prepayMonths</code> is provided, the response also includes the projected charges for
+prepaying that many billing periods, so <code>total</code> reflects the full cost to bring the lease current and
+prepay ahead. Any amount already paid toward the outstanding charges (<code>totalPaid</code>) and the lease&#39;s prepaid
+credit balance (<code>prepaidBalance</code>) are deducted from <code>totalBeforePayments</code> to produce <code>total</code>, so <code>total</code> is
+the amount that would actually be collected. Projected charges account for discounts applied to the specific
+months they cover (not averaged across the period), coverage premiums, recurring fees, and taxes. All
+monetary values are in cents.</p>
+
+<p>When <code>paymentMethodId</code> is supplied and resolves to a credit-card method at a facility with credit-card
+processing fees configured, the fee is added to the breakdown (as a <code>FEES</code> charge) and included in
+<code>subtotal</code>, <code>tax</code>, <code>totalBeforePayments</code>, and <code>total</code>, so <code>total</code> equals the <code>amount</code> to send to
+<a href="#make-payment">Make Payment</a> with that method to fully settle the charges. Omit <code>paymentMethodId</code> (or
+supply a non-credit method, or a facility with no fee configured) to get the fee-free charges.</p>
+<h3 id='required-properties-27'>Required Properties</h3>
+<ul>
+<li><code>leaseId</code> - the ID of the lease</li>
+</ul>
+<h3 id='optional-properties-17'>Optional Properties</h3>
+<ul>
+<li><code>prepayMonths</code> - the number of billing periods to prepay. Omit (or <code>null</code>) to return only the current
+outstanding charges. Defaults to <code>null</code>.</li>
+<li><code>paymentMethodId</code> - a saved payment method to preview the payment against. When it is a credit-card method
+and the facility has credit-card processing fees configured, the returned totals include that fee. Must
+belong to the lease&#39;s customer. Omit (or <code>null</code>) to exclude credit-card fees. Defaults to <code>null</code>.</li>
+</ul>
+<h3 id='response-parameters-8'>Response Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>subtotal</code></td>
+<td>Subtotal in cents before tax</td>
+</tr>
+<tr>
+<td><code>tax</code></td>
+<td>Tax amount in cents</td>
+</tr>
+<tr>
+<td><code>totalBeforePayments</code></td>
+<td>Charges in cents before deducting payments and prepaid balance (<code>subtotal</code> + <code>tax</code>)</td>
+</tr>
+<tr>
+<td><code>totalPaid</code></td>
+<td>Amount in cents already paid toward the outstanding charges</td>
+</tr>
+<tr>
+<td><code>prepaidBalance</code></td>
+<td>The lease&#39;s prepaid (credit) balance in cents, applied to offset the charges</td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td>Amount in cents still owed, after deducting <code>totalPaid</code> and <code>prepaidBalance</code> (floored at zero)</td>
+</tr>
+<tr>
+<td><code>charges[].type</code></td>
+<td>Charge category. One of <code>RENT</code>, <code>INSURANCE</code>, <code>FEES</code>, <code>DEPOSIT</code>. Taxes are summed into <code>tax</code> and discounts are folded into the parent charge&#39;s <code>discounts</code>, so they are not returned as separate charges</td>
+</tr>
+<tr>
+<td><code>charges[].displayName</code></td>
+<td>Human-readable name of the charge</td>
+</tr>
+<tr>
+<td><code>charges[].description</code></td>
+<td>Charge description (e.g. <code>&quot;$61.00 (monthly rate) x 3 months&quot;</code>), may be empty</td>
+</tr>
+<tr>
+<td><code>charges[].accruesOn</code></td>
+<td>Charge period start date (ISO-8601), omitted for point charges</td>
+</tr>
+<tr>
+<td><code>charges[].accruesThrough</code></td>
+<td>Charge period end date (ISO-8601), omitted for point charges</td>
+</tr>
+<tr>
+<td><code>charges[].amount</code></td>
+<td>Charge amount in cents, after discounts</td>
+</tr>
+<tr>
+<td><code>charges[].undiscountedAmount</code></td>
+<td>Charge amount in cents, before discounts</td>
+</tr>
+<tr>
+<td><code>charges[].discounts</code></td>
+<td>Names of the discount programs applied to the charge</td>
+</tr>
+</tbody></table>
+<h3 id='error-conditions-3'>Error Conditions</h3>
+<ul>
+<li><code>404</code> - the lease was not found</li>
+</ul>
 <h3 id='get-move-in-charges'>Get Move-In Charges</h3>
 <p><code>POST /v1/leases/get-move-in-charges</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/get-move-in-charges</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
@@ -2534,12 +2712,13 @@ group&#39;s standard rate when <code>rentAmount</code> is omitted), so the previ
   </span><span class="nl">"chargeDeposit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"chargeMoveInFee"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"taxExempt"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"storingVehicle"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="w"> </span><span class="p">],</span><span class="w">
   </span><span class="nl">"upsellFeeIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"fee_3kLmN2pQrSt"</span><span class="w"> </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/get-move-in-charges</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2589,18 +2768,19 @@ group&#39;s standard rate when <code>rentAmount</code> is omitted), so the previ
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Returns the charges for a lease move-in</p>
-<h3 id='required-properties-27'>Required Properties</h3>
+<h3 id='required-properties-28'>Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
 <li><code>rentAmount</code> - the rent amount</li>
 </ul>
-<h3 id='optional-properties-17'>Optional Properties</h3>
+<h3 id='optional-properties-18'>Optional Properties</h3>
 <ul>
 <li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
 <li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
 <li><code>chargeMoveInFee</code> - a boolean indicating if the move-in fee should be charged, defaults to <code>true</code></li>
 <li><code>taxExempt</code> - a boolean indicating if the charges are tax exempt, defaults to <code>false</code></li>
+<li><code>storingVehicle</code> - a boolean indicating whether the tenant is storing a vehicle. Determines which tax category applies to rent, so it should match the value sent to <a href="#create-lease">Create Lease</a> / <a href="#checkout">Checkout</a> to get a matching total. Defaults to the unit&#39;s pricing group parking setting.</li>
 <li><code>discounts</code> - an array of discount IDs, defaults to <code>[]</code></li>
 <li><code>upsellFeeIds</code> - an array of upsell fee IDs to include as recurring charges on the lease. Each ID must come from <a href="#get-upsells">Get Upsells</a> for the same <code>unitId</code>; passing a fee that is not an active optional upgrade for the unit returns a <code>400</code> error. Defaults to <code>[]</code>.</li>
 </ul>
@@ -2612,7 +2792,7 @@ separately or is not required at move-in time. To create a lease and collect pay
 single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
@@ -2622,6 +2802,7 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
   </span><span class="nl">"chargeDeposit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"chargeMoveInFee"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"taxExempt"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"storingVehicle"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="w"> </span><span class="p">],</span><span class="w">
   </span><span class="nl">"upsellFeeIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"fee_3kLmN2pQrSt"</span><span class="w"> </span><span class="p">],</span><span class="w">
   </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
@@ -2643,7 +2824,7 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2651,7 +2832,7 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
     </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h3 id='required-properties-28'>Required Properties</h3>
+</span></code></pre></div><h3 id='required-properties-29'>Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
@@ -2666,12 +2847,13 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
 <li><code>phone</code> - the phone number of the tenant</li>
 </ul></li>
 </ul>
-<h3 id='optional-properties-18'>Optional Properties</h3>
+<h3 id='optional-properties-19'>Optional Properties</h3>
 <ul>
 <li><code>coverageLevelId</code> - the ID of the coverage level, defaults to <code>null</code></li>
 <li><code>chargeDeposit</code> - a boolean indicating if the deposit should be charged, defaults to <code>true</code></li>
 <li><code>chargeMoveInFee</code> - a boolean indicating if the move-in fee should be charged, defaults to <code>true</code></li>
 <li><code>taxExempt</code> - a boolean indicating if the charges are tax exempt, defaults to <code>false</code></li>
+<li><code>storingVehicle</code> - a boolean indicating whether the tenant is storing a vehicle. When <code>true</code>, the vehicle storage addendum is attached to the lease for signing. Defaults to the unit&#39;s pricing group parking setting.</li>
 <li><code>discounts</code> - an array of discount IDs, defaults to <code>[]</code></li>
 <li><code>upsellFeeIds</code> - an array of upsell fee IDs to add as recurring charges on the lease. Each ID must come from <a href="#get-upsells">Get Upsells</a> for the same <code>unitId</code>; passing a fee that is not an active optional upgrade for the unit returns a <code>400</code> error. Defaults to <code>[]</code>.</li>
 <li><code>source</code> - the lead source, defaults to <code>OTHER</code>. One of: <code>WALK_IN</code>, <code>CALL</code>, <code>CONTACT_FORM</code>, <code>WEBSITE</code>, <code>REFERRAL</code>, <code>SEARCH_ENGINE</code>, <code>DIGITAL_AD</code>, <code>BILLBOARD</code>, <code>PHYSICAL_AD</code>, <code>AI_VOICE_AGENT</code>, <code>SPAREFOOT</code>, <code>OTHER</code></li>
@@ -2708,7 +2890,7 @@ succeeds, the response includes the <code>leaseId</code>, <code>paymentTransacti
 exactly, otherwise a 400 error is returned.</p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/checkout</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_GfNkzV4itfk"</span><span class="p">,</span><span class="w">
@@ -2718,6 +2900,7 @@ exactly, otherwise a 400 error is returned.</p>
   </span><span class="nl">"chargeDeposit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"chargeMoveInFee"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"taxExempt"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"storingVehicle"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
   </span><span class="nl">"discounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="w"> </span><span class="p">],</span><span class="w">
   </span><span class="nl">"upsellFeeIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"fee_3kLmN2pQrSt"</span><span class="w"> </span><span class="p">],</span><span class="w">
   </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
@@ -2758,7 +2941,7 @@ exactly, otherwise a 400 error is returned.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body (success)</p>
+<p>Response Body (success) — leases/checkout</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2770,7 +2953,7 @@ exactly, otherwise a 400 error is returned.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body (declined)</p>
+<p>Response Body (declined) — leases/checkout</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2783,7 +2966,7 @@ exactly, otherwise a 400 error is returned.</p>
     </span><span class="p">}</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h3 id='required-properties-29'>Required Properties</h3>
+</span></code></pre></div><h3 id='required-properties-30'>Required Properties</h3>
 <p>All properties from <a href="#create-lease">Create Lease</a>, plus:</p>
 
 <ul>
@@ -2828,14 +3011,14 @@ exactly, otherwise a 400 error is returned.</p>
 <p><code>POST /v1/leases/cancel-lease</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/cancel-lease</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Cancels a lease which has not yet started (i.e. the move-in date is in the future)</p>
-<h3 id='required-properties-30'>Required Properties</h3>
+<h3 id='required-properties-31'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to cancel</li>
 </ul>
@@ -2843,7 +3026,7 @@ exactly, otherwise a 400 error is returned.</p>
 <p><code>POST /v1/leases/schedule-move-out</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/schedule-move-out</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
@@ -2856,7 +3039,7 @@ exactly, otherwise a 400 error is returned.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Schedules a move-out for a lease</p>
-<h3 id='required-properties-31'>Required Properties</h3>
+<h3 id='required-properties-32'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to schedule the move-out for</li>
 <li><code>moveOutDate</code> - the date the tenant will move out (YYYY-MM-DD)</li>
@@ -2867,7 +3050,7 @@ exactly, otherwise a 400 error is returned.</p>
 or <code>ANYTIME</code></li>
 <li><code>disableAutoPay</code> - a boolean indicating whether to disable auto-pay for the lease</li>
 </ul>
-<h3 id='optional-properties-19'>Optional Properties</h3>
+<h3 id='optional-properties-20'>Optional Properties</h3>
 <ul>
 <li><code>customReason</code> - a custom reason for the move-out (required if <code>moveOutReason</code> is <code>OTHER</code>)</li>
 </ul>
@@ -2875,14 +3058,14 @@ or <code>ANYTIME</code></li>
 <p><code>POST /v1/leases/get-payment-link</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/get-payment-link</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseIds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lease_GfNkzV4itfk"</span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/get-payment-link</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2892,7 +3075,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a payment link which can be sent to the tenant to make a payment for one or more leases</p>
-<h3 id='required-properties-32'>Required Properties</h3>
+<h3 id='required-properties-33'>Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
 </ul>
@@ -2900,14 +3083,14 @@ or <code>ANYTIME</code></li>
 <p><code>POST /v1/leases/get-documents-link</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/get-documents-link</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — leases/get-documents-link</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -2917,7 +3100,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a link which can be sent to the tenant to view, manage, and sign documents for a lease.</p>
-<h3 id='required-properties-33'>Required Properties</h3>
+<h3 id='required-properties-34'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to generate a documents link for</li>
 </ul>
@@ -2925,7 +3108,7 @@ or <code>ANYTIME</code></li>
 <p><code>POST /v1/leases/make-payment</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/make-payment</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
@@ -2934,17 +3117,19 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
-<h3 id='required-properties-34'>Required Properties</h3>
+
+<p>When the payment method is a credit card and the facility has credit-card processing fees configured in its payment settings, the fee is deducted from <code>amount</code> — the card is charged exactly <code>amount</code>, and the remainder is applied to the lease. To fully settle a balance in this case, charge the fee-inclusive <code>total</code> returned by <a href="#preview-charges">Preview Charges</a> for the same <code>paymentMethodId</code>. Facilities without credit-card fees configured are unaffected.</p>
+<h3 id='required-properties-35'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
-<li><code>amount</code> - the amount to pay</li>
+<li><code>amount</code> - the amount in cents to charge the payment method. For credit cards at facilities with processing fees configured, the fee is included in (deducted from) this amount.</li>
 </ul>
 <h3 id='enable-autopay'>Enable AutoPay</h3>
 <p><code>POST /v1/leases/enable-auto-pay</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/enable-auto-pay</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
@@ -2952,7 +3137,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Enables AutoPay for a lease using a saved payment method.  With AutoPay enabled, the tenant will be automatically charged for the amount due on the next charge date of the lease, and on subsequent charge dates until AutoPay is disabled.</p>
-<h3 id='required-properties-35'>Required Properties</h3>
+<h3 id='required-properties-36'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to enable AutoPay for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use for AutoPay</li>
@@ -2961,7 +3146,7 @@ or <code>ANYTIME</code></li>
 <p><code>POST /v1/leases/disable-auto-pay</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — leases/disable-auto-pay</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
@@ -2978,7 +3163,7 @@ or <code>ANYTIME</code></li>
 <p><code>POST /v1/payment-methods/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — payment-methods/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -2987,7 +3172,7 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — payment-methods/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3007,19 +3192,40 @@ or <code>ANYTIME</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for saved payment methods by customer</p>
-<h3 id='required-properties-36'>Required Properties</h3>
+<h3 id='required-properties-37'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer</li>
 </ul>
 <h3 id='generating-a-payment-token'>Generating a Payment Token</h3>
-<p>Before creating a payment method in Cubby, you must first generate a token through Stripe.
-The token is then passed to the Create Payment Method endpoint below.</p>
-<h3 id='step-1-initialize-stripe'>Step 1: Initialize Stripe</h3>
+<p>Before creating a payment method in Cubby, you must first generate a single-use token through
+your organization&#39;s payment gateway. The token is then passed to the
+<a href="#create-payment-method">Create Payment Method</a> endpoint below as the <code>token</code> property.</p>
+
+<p>Cubby supports two payment gateways — <strong>Stripe</strong> and <strong>Payabli</strong> — configured per facility. A
+given facility uses exactly one of them. To determine which gateway a facility uses, call the
+<a href="#facilities-search">Facilities Search</a> endpoint and read the <code>paymentServiceProvider</code> field
+(<code>STRIPE</code> or <code>PAYABLI</code>) on the facility. Cubby provides the corresponding publishable key. Follow
+the flow for that facility&#39;s gateway below; the resulting token is sent to the Cubby API in
+exactly the same way regardless of gateway.</p>
+<h4 id='stripe'>Stripe</h4>
+<p>Use this flow for facilities whose <code>paymentServiceProvider</code> is <code>STRIPE</code>. Your Stripe publishable
+key (<code>STRIPE_PK</code>) will be provided by Cubby.</p>
+
+<p>Begin by loading the Stripe.js library on the page where you collect card details.</p>
+
 <blockquote>
-<p>Initialize Stripe</p>
+<p>Step 1a: Load Stripe.js</p>
 </blockquote>
 <div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://js.stripe.com/clover/stripe.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre></div><div class="highlight"><pre class="highlight javascript"><code><span class="kd">const</span> <span class="nx">stripe</span> <span class="o">=</span> <span class="nx">Stripe</span><span class="p">(</span><span class="nx">STRIPE_PK</span><span class="p">);</span>
+</code></pre></div>
+<p>With the library loaded, create a Stripe instance with your publishable key and an Elements group
+in <code>setup</code> mode with manual payment-method creation. This renders the card input fields your
+customer will fill in.</p>
+
+<blockquote>
+<p>Step 1b: Initialize Stripe Elements</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript"><code><span class="kd">const</span> <span class="nx">stripe</span> <span class="o">=</span> <span class="nx">Stripe</span><span class="p">(</span><span class="nx">STRIPE_PK</span><span class="p">);</span>
 <span class="kd">const</span> <span class="nx">stripeElements</span> <span class="o">=</span> <span class="nx">stripe</span><span class="p">.</span><span class="nx">elements</span><span class="p">({</span>
     <span class="na">loader</span><span class="p">:</span> <span class="dl">'</span><span class="s1">auto</span><span class="dl">'</span><span class="p">,</span>
     <span class="na">mode</span><span class="p">:</span> <span class="dl">'</span><span class="s1">setup</span><span class="dl">'</span><span class="p">,</span>
@@ -3028,11 +3234,12 @@ The token is then passed to the Create Payment Method endpoint below.</p>
     <span class="na">paymentMethodCreation</span><span class="p">:</span> <span class="dl">'</span><span class="s1">manual</span><span class="dl">'</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Load the Stripe library and initialize Stripe Elements.  Your Stripe publishable key (<code>STRIPE_PK</code>)
-will be provided by Cubby.</p>
-<h3 id='step-2-create-stripe-payment-method'>Step 2: Create Stripe Payment Method</h3>
+<p>Once the customer has entered their card details, submit the Elements form and create a payment
+method, supplying the cardholder&#39;s billing details. The resulting <code>paymentMethod.id</code> is the token
+you will pass to the Cubby API.</p>
+
 <blockquote>
-<p>Create Stripe Payment Method</p>
+<p>Step 2: Create a Stripe payment method</p>
 </blockquote>
 <div class="highlight"><pre class="highlight javascript"><code><span class="k">await</span> <span class="nx">stripeElements</span><span class="p">.</span><span class="nx">submit</span><span class="p">();</span>
 <span class="kd">const</span> <span class="p">{</span> <span class="nx">paymentMethod</span><span class="p">,</span> <span class="nx">error</span> <span class="p">}</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">stripe</span><span class="p">.</span><span class="nx">createPaymentMethod</span><span class="p">({</span>
@@ -3053,16 +3260,56 @@ will be provided by Cubby.</p>
         <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">});</span>
+</code></pre></div><h4 id='payabli'>Payabli</h4>
+<p>Use this flow for facilities whose <code>paymentServiceProvider</code> is <code>PAYABLI</code>. Payabli card capture is
+powered by <a href="https://developers.basistheory.com/">Basis Theory</a> web elements; install the
+<code>@basis-theory/web-elements</code> package to begin.</p>
+
+<p>First, add a container element to your page. Basis Theory will mount its secure card input into
+this element.</p>
+
+<blockquote>
+<p>Step 1a: Add a mount point</p>
+</blockquote>
+<div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"card-element"</span><span class="nt">&gt;&lt;/div&gt;</span>
 </code></pre></div>
-<p>Submit the Stripe Elements form and create a payment method.  The resulting <code>paymentMethod.id</code>
-is the token you will pass to the Cubby API.</p>
-<h3 id='step-3-send-to-cubby-api'>Step 3: Send to Cubby API</h3>
-<p>Use the <code>paymentMethod.id</code> as the <code>token</code> in the Create Payment Method endpoint below.</p>
+<p>Initialize Basis Theory with the publishable key (<code>BT_PK</code>) and environment (<code>test</code> or
+<code>production</code>) provided by Cubby, then create a <code>card</code> element and mount it into the container you
+just added.</p>
+
+<blockquote>
+<p>Step 1b: Initialize Basis Theory</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">basistheory</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@basis-theory/web-elements</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">bt</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">basistheory</span><span class="p">(</span><span class="nx">BT_PK</span><span class="p">,</span> <span class="p">{</span> <span class="na">environment</span><span class="p">:</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span> <span class="p">});</span>
+<span class="kd">const</span> <span class="nx">cardElement</span> <span class="o">=</span> <span class="nx">bt</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">'</span><span class="s1">card</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">autoComplete</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">number</span><span class="p">:</span> <span class="dl">'</span><span class="s1">on</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">expirationDate</span><span class="p">:</span> <span class="dl">'</span><span class="s1">on</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">csc</span><span class="p">:</span> <span class="dl">'</span><span class="s1">on</span><span class="dl">'</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+<span class="nx">cardElement</span><span class="p">.</span><span class="nx">mount</span><span class="p">(</span><span class="dl">'</span><span class="s1">#card-element</span><span class="dl">'</span><span class="p">);</span>
+</code></pre></div>
+<p>Once the customer has entered their card details, create a token intent from the card element.
+The resulting <code>token.id</code> is the token you will pass to the Cubby API.</p>
+
+<blockquote>
+<p>Step 2: Create a Basis Theory token</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript"><code><span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">bt</span><span class="p">.</span><span class="nx">tokenIntents</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+    <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">card</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">data</span><span class="p">:</span> <span class="nx">cardElement</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div><h4 id='send-the-token-to-cubby'>Send the token to Cubby</h4>
+<p>Use the token produced by your gateway — Stripe&#39;s <code>paymentMethod.id</code> or Basis Theory&#39;s <code>token.id</code>
+— as the <code>token</code> value in the <a href="#create-payment-method">Create Payment Method</a> endpoint below.</p>
 <h3 id='create-payment-method'>Create Payment Method</h3>
 <p><code>POST /v1/payment-methods/create</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — payment-methods/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tok_1Hh1XYZabc1234567890"</span><span class="p">,</span><span class="w">
@@ -3085,7 +3332,7 @@ is the token you will pass to the Cubby API.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — payment-methods/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3098,7 +3345,7 @@ is the token you will pass to the Cubby API.</p>
 
 <p>The caller must ensure the payment method has been successfully validated and authorized by the payment gateway before submission.
 Unvalidated payment methods may be rejected by the payment gateway when used for a transaction.</p>
-<h3 id='required-properties-37'>Required Properties</h3>
+<h3 id='required-properties-38'>Required Properties</h3>
 <ul>
 <li><code>methodType</code> - the type of payment method, which can be <code>CREDIT_CARD</code>, <code>ACH</code> or <code>ACSS</code></li>
 <li><code>token</code> - the token generated by the payment gateway</li>
@@ -3161,7 +3408,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <p><code>POST /v1/ledgers/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — ledgers/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3171,7 +3418,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — ledgers/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3345,7 +3592,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
-<h3 id='required-properties-38'>Required Properties</h3>
+<h3 id='required-properties-39'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
 <li>or</li>
@@ -3392,7 +3639,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <p><code>POST /v1/coverage/add-private-policy</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage/add-private-policy</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -3401,13 +3648,13 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Adds the private coverage policy number and expiration date for a lease.</p>
-<h3 id='required-properties-39'>Required Properties</h3>
+<h3 id='required-properties-40'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
 <li><code>policyNumber</code> - the policy number for the private coverage policy</li>
 <li><code>expirationDate</code> - the expiration date for the private coverage policy</li>
 </ul>
-<h3 id='error-conditions-3'>Error Conditions</h3>
+<h3 id='error-conditions-4'>Error Conditions</h3>
 <ul>
 <li>Lease must not have a private policy number already set</li>
 </ul>
@@ -3415,7 +3662,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <p><code>POST /v1/coverage/remove-private-policy</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage/remove-private-policy</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="w">
@@ -3426,7 +3673,7 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 <p><code>POST /v1/coverage/download-private-policy</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage/download-private-policy</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="w">
@@ -3438,15 +3685,15 @@ Unvalidated payment methods may be rejected by the payment gateway when used for
 Content-Type: application/pdf
 Content-Disposition: attachment; filename=&quot;private_policy.pdf&quot;
 </code>
-Response Body</p>
+Response Body — coverage/download-private-policy</p>
 </blockquote>
 
 <p>The response body contains the requested private policy file as a binary stream</p>
-<h3 id='required-properties-40'>Required Properties</h3>
+<h3 id='required-properties-41'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
 </ul>
-<h3 id='error-conditions-4'>Error Conditions</h3>
+<h3 id='error-conditions-5'>Error Conditions</h3>
 <ul>
 <li>Lease must have a private policy number already set</li>
 </ul>
@@ -3454,7 +3701,7 @@ Response Body</p>
 <p><code>POST /v1/coverage-levels/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage-levels/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3463,7 +3710,7 @@ Response Body</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — coverage-levels/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3484,7 +3731,7 @@ Response Body</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for coverage levels by facility</p>
-<h3 id='required-properties-41'>Required Properties</h3>
+<h3 id='required-properties-42'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to coverage levels in a particular facility</li>
 </ul>
@@ -3492,7 +3739,7 @@ Response Body</p>
 <p><code>POST /v1/coverage/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3504,7 +3751,7 @@ Response Body</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — coverage/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3522,13 +3769,13 @@ Response Body</p>
     </span><span class="p">]</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h3 id='required-properties-42'>Required Properties</h3>
+</span></code></pre></div><h3 id='required-properties-43'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to policies in a particular facility </li>
 <li>or</li>
 <li><code>leaseId</code> - limit results to policies for a particular lease</li>
 </ul>
-<h3 id='optional-properties-20'>Optional Properties</h3>
+<h3 id='optional-properties-21'>Optional Properties</h3>
 <ul>
 <li><code>activeOnOrAfter</code> - limits results to policies which are active on or after a specific date</li>
 <li><code>activeOnOrBefore</code> - limits results to policies which are active on or before a specific date</li>
@@ -3537,7 +3784,7 @@ Response Body</p>
 <p><code>POST /v1/coverage/enroll</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage/enroll</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"lease"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w"> 
@@ -3550,7 +3797,7 @@ automatically prorated. Any coverage which is already paid for is cancelled, wit
 account.</p>
 
 <p>If <code>immediate</code> is false, changes will take effect on the next rent date.</p>
-<h3 id='error-conditions-5'>Error Conditions</h3>
+<h3 id='error-conditions-6'>Error Conditions</h3>
 <ul>
 <li>Only leases which are active and in good standing can be enrolled</li>
 <li>Only leases where the <code>coverageAutoenrollable</code> is <code>true</code> may be enrolled</li>
@@ -3559,7 +3806,7 @@ account.</p>
 <p><code>POST /v1/coverage/unenroll</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — coverage/unenroll</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"lease"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
@@ -3570,7 +3817,7 @@ account.</p>
 with the unused portion credited to the account.</p>
 
 <p>If <code>immediate</code> is false, changes will take effect on the next rent date.</p>
-<h3 id='error-conditions-6'>Error Conditions</h3>
+<h3 id='error-conditions-7'>Error Conditions</h3>
 <ul>
 <li>Only leases which are active and have a coverage policy may be unenrolled</li>
 </ul>
@@ -3582,7 +3829,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/payments/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — payments/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3594,7 +3841,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — payments/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3616,13 +3863,13 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for payments by facility, customer, or payment date</p>
-<h3 id='required-properties-43'>Required Properties</h3>
+<h3 id='required-properties-44'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to payments in a particular facility</li>
 <li>or</li>
 <li><code>customerId</code> - limits results to payments for a particular customer</li>
 </ul>
-<h3 id='optional-properties-21'>Optional Properties</h3>
+<h3 id='optional-properties-22'>Optional Properties</h3>
 <ul>
 <li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific date</li>
 <li><code>paymentDateOnOrBefore</code> - limits results to payments which were made on or before a specific date</li>
@@ -3638,7 +3885,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/auctions/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — auctions/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3649,7 +3896,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — auctions/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3698,7 +3945,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for auctions by facility or auction ID</p>
-<h3 id='required-properties-44'>Required Properties</h3>
+<h3 id='required-properties-45'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to auctions in a particular facility</li>
 <li>or</li>
@@ -3709,7 +3956,7 @@ with the unused portion credited to the account.</p>
 * <code>winningBidders</code> - includes information about the winning bidders for each auctioned lease
 * <code>leases</code> - includes information about the leases being auctioned
 * <code>units</code> - includes information about the units being auctioned</p>
-<h3 id='response-parameters-8'>Response Parameters</h3>
+<h3 id='response-parameters-9'>Response Parameters</h3>
 <ul>
 <li><code>auctionId</code> - the ID of the auction</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -3736,7 +3983,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/auctions/create</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — auctions/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
@@ -3745,7 +3992,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — auctions/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3755,7 +4002,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new auction for a facility</p>
-<h3 id='required-properties-45'>Required Properties</h3>
+<h3 id='required-properties-46'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the auction for</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -3765,7 +4012,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/auctions/start-lien</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — auctions/start-lien</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="p">,</span><span class="w">
@@ -3775,12 +4022,12 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Starts the lien process for a lease, which may include sending lien notices to the tenant and alternative contacts</p>
-<h3 id='required-properties-46'>Required Properties</h3>
+<h3 id='required-properties-47'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
 <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
 </ul>
-<h3 id='optional-properties-22'>Optional Properties</h3>
+<h3 id='optional-properties-23'>Optional Properties</h3>
 <ul>
 <li><code>sendEmailAndSms</code> - a boolean indicating if email and SMS notices should be sent, defaults to <code>false</code></li>
 <li><code>sendToAlternativeContacts</code> - a boolean indicating if alternative contacts should be notified, defaults to <code>false</code></li>
@@ -3789,7 +4036,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/auctions/cancel-lien</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — auctions/cancel-lien</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"leaseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lease_V4w64pjUwVK"</span><span class="w">
@@ -3805,7 +4052,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/notes/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — notes/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3818,7 +4065,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — notes/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3834,7 +4081,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for notes related to leases, customers, leads, units, or pricing groups.</p>
-<h3 id='required-properties-47'>Required Properties</h3>
+<h3 id='required-properties-48'>Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to notes for a specific lease</li>
 <li>or</li>
@@ -3856,7 +4103,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/notes/create</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — notes/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Customer requested a larger unit"</span><span class="p">,</span><span class="w">
@@ -3868,7 +4115,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new note related to a lease, customer, lead, unit, or pricing group.</p>
-<h3 id='required-properties-48'>Required Properties</h3>
+<h3 id='required-properties-49'>Required Properties</h3>
 <ul>
 <li><code>text</code> - the text of the note</li>
 <li>and one of</li>
@@ -3891,7 +4138,7 @@ with the unused portion credited to the account.</p>
 <p><code>POST /v1/tasks/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — tasks/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3906,7 +4153,7 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — tasks/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -3937,13 +4184,13 @@ with the unused portion credited to the account.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for tasks by facility, organization, unit, customer, status, or due date</p>
-<h3 id='required-properties-49'>Required Properties</h3>
+<h3 id='required-properties-50'>Required Properties</h3>
 <p>At least one of the following:
 * <code>organizationId</code> - limits results to tasks in a specific organization
 * <code>facilityId</code> - limits results to tasks in a specific facility
 * <code>unitId</code> - limits results to tasks for a specific unit
 * <code>customerId</code> - limits results to tasks for a specific customer</p>
-<h3 id='optional-properties-23'>Optional Properties</h3>
+<h3 id='optional-properties-24'>Optional Properties</h3>
 <ul>
 <li><code>status</code> - filters tasks by status; one of <code>OPEN</code>, <code>COMPLETED</code>, or <code>ARCHIVED</code></li>
 <li><code>due</code> - when <code>true</code>, filters to overdue tasks only</li>
@@ -3954,7 +4201,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>POST /v1/tasks/create</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — tasks/create</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span class="p">,</span><span class="w">
@@ -3967,12 +4214,12 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Creates a new task at the specified facility</p>
-<h3 id='required-properties-50'>Required Properties</h3>
+<h3 id='required-properties-51'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the task in</li>
 <li><code>title</code> - the title of the task</li>
 </ul>
-<h3 id='optional-properties-24'>Optional Properties</h3>
+<h3 id='optional-properties-25'>Optional Properties</h3>
 <ul>
 <li><code>description</code> - a description of the task</li>
 <li><code>dueDate</code> - the due date of the task (YYYY-MM-DD)</li>
@@ -3992,7 +4239,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>POST /v1/reports/general-ledger/cash</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — reports/general-ledger/cash</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4003,7 +4250,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — reports/general-ledger/cash</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4124,7 +4371,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-<h3 id='required-properties-51'>Required Properties</h3>
+<h3 id='required-properties-52'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -4135,7 +4382,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>M</code> - one month</li>
 </ul></li>
 </ul>
-<h3 id='response-parameters-9'>Response Parameters</h3>
+<h3 id='response-parameters-10'>Response Parameters</h3>
 <p>The response contains an array of journal entries, each of which contains the following fields:</p>
 
 <ul>
@@ -4202,7 +4449,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>POST /v1/reports/general-ledger/accrual</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — reports/general-ledger/accrual</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4213,7 +4460,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — reports/general-ledger/accrual</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4426,7 +4673,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates an accrual basis general ledger report for a facility over a specified time period.</p>
-<h3 id='required-properties-52'>Required Properties</h3>
+<h3 id='required-properties-53'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -4437,7 +4684,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>M</code> - one month</li>
 </ul></li>
 </ul>
-<h3 id='response-parameters-10'>Response Parameters</h3>
+<h3 id='response-parameters-11'>Response Parameters</h3>
 <p>The response contains an array of journal entry line items, each of which contains the following fields:</p>
 
 <ul>
@@ -4516,7 +4763,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>throughDate</code> is optional and defaults to the facility&#39;s current date. When provided, aging buckets are computed as of the end of that date.</p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — reports/aged-receivables</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4528,7 +4775,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — reports/aged-receivables</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4577,11 +4824,11 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates an aged receivables report for one or more facilities.</p>
-<h3 id='required-properties-53'>Required Properties</h3>
+<h3 id='required-properties-54'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 </ul>
-<h3 id='response-parameters-11'>Response Parameters</h3>
+<h3 id='response-parameters-12'>Response Parameters</h3>
 <p>The response contains an array of aged receivable entries, one for each lease with an outstanding balance, each of which contains the following fields:</p>
 
 <ul>
@@ -4612,7 +4859,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>POST /v1/reports/rent-roll</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — reports/rent-roll</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4624,7 +4871,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — reports/rent-roll</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4678,12 +4925,12 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a rent roll report for one or more facilities.</p>
-<h3 id='required-properties-54'>Required Properties</h3>
+<h3 id='required-properties-55'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>throughDate</code> - the date through which to calculate rent due in <code>YYYY-MM-DD</code> format</li>
 </ul>
-<h3 id='response-parameters-12'>Response Parameters</h3>
+<h3 id='response-parameters-13'>Response Parameters</h3>
 <p>The response contains an array of rent roll entries, one for each unit, each of which contains the following fields:</p>
 
 <ul>
@@ -4740,7 +4987,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>POST /v1/reports/merchant-services-disbursements</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — reports/merchant-services-disbursements</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4753,7 +5000,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — reports/merchant-services-disbursements</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4795,7 +5042,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Generates a merchant services disbursements report for one or more facilities over a specified time period. The report includes batch-level settlement summaries and individual transaction details from configured payment providers (Stripe, Payabli).</p>
-<h3 id='required-properties-55'>Required Properties</h3>
+<h3 id='required-properties-56'>Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -4806,7 +5053,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>M</code> - one month</li>
 </ul></li>
 </ul>
-<h3 id='response-parameters-13'>Response Parameters</h3>
+<h3 id='response-parameters-14'>Response Parameters</h3>
 <p>The response contains two arrays: <code>batches</code> and <code>transactions</code>. Fields that are not applicable are omitted from the response.</p>
 <h4 id='batches'>Batches</h4>
 <p>Each batch entry represents a settlement batch from a payment provider:</p>
@@ -4864,7 +5111,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <p><code>POST /v1/storefront/facilities/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — storefront/facilities/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4875,7 +5122,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — storefront/facilities/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4915,13 +5162,13 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for storefront-visible facilities by facility or organization</p>
-<h3 id='required-properties-56'>Required Properties</h3>
+<h3 id='required-properties-57'>Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to a specific facility</li>
 <li>or</li>
 <li><code>organizationId</code> - limits results to facilities in a specific organization</li>
 </ul>
-<h3 id='optional-properties-25'>Optional Properties</h3>
+<h3 id='optional-properties-26'>Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>organization</code> and <code>schedules</code></li>
@@ -4930,7 +5177,7 @@ endpoint are <code>organization</code> and <code>schedules</code></li>
 <p><code>POST /v1/storefront/pricing-groups/search</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — storefront/pricing-groups/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -4941,7 +5188,7 @@ endpoint are <code>organization</code> and <code>schedules</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <blockquote>
-<p>Response Body</p>
+<p>Response Body — storefront/pricing-groups/search</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
@@ -4978,18 +5225,18 @@ endpoint are <code>organization</code> and <code>schedules</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Search for storefront-visible pricing groups by facility or pricing group ID</p>
-<h3 id='required-properties-57'>Required Properties</h3>
+<h3 id='required-properties-58'>Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to a specific pricing group</li>
 <li>or</li>
 <li><code>facilityId</code> - limits results to pricing groups in a particular facility</li>
 </ul>
-<h3 id='optional-properties-26'>Optional Properties</h3>
+<h3 id='optional-properties-27'>Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>discounts</code></li>
 </ul>
-<h3 id='response-parameters-14'>Response Parameters</h3>
+<h3 id='response-parameters-15'>Response Parameters</h3>
 <ul>
 <li><code>price</code> - the price in cents (integer)</li>
 <li><code>strikethroughPrice</code> - the original/comparison price in cents (integer)</li>
@@ -5009,7 +5256,7 @@ endpoint are <code>discounts</code></li>
 <p><code>POST /v1/messages/sms/send</code></p>
 
 <blockquote>
-<p>Request Body</p>
+<p>Request Body — messages/sms/send</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"customerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cust_BqaN6zApXCH"</span><span class="p">,</span><span class="w">
@@ -5018,7 +5265,7 @@ endpoint are <code>discounts</code></li>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Sends an SMS message to a customer</p>
-<h3 id='required-properties-58'>Required Properties</h3>
+<h3 id='required-properties-59'>Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -5085,7 +5332,7 @@ endpoint are <code>discounts</code></li>
     };type=application/json'</span> <span class="se">\</span>
   <span class="nt">--form</span> <span class="s1">'attachments=@invoice.pdf'</span> <span class="se">\</span>
   <span class="nt">--form</span> <span class="s1">'attachments=@receipt.pdf'</span>
-</code></pre></div><h3 id='required-properties-59'>Required Properties</h3>
+</code></pre></div><h3 id='required-properties-60'>Required Properties</h3>
 <p>The following fields belong inside the JSON <code>request</code> part:</p>
 
 <ul>
