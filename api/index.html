@@ -289,6 +289,16 @@
     <script>
       $(function() { setupCodeCopy(); });
     </script>
+
+    <style media="screen">
+      /* Cross-doc navigation in the sidebar, matching the other Cubby docs pages */
+      a.docnav-logo { display: block; text-decoration: none; }
+      .docnav { padding: 0 28px 14px; }
+      .docnav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #555; padding: 16px 0 6px; }
+      .docnav-link { display: block; color: #888; font-size: 13px; padding: 5px 0; text-decoration: none; white-space: nowrap; }
+      .docnav-link:hover { color: #fff; }
+      .docnav-link.active { color: #66d9ef; }
+    </style>
   </head>
 
   <body class="index" data-languages="[]">
@@ -299,8 +309,13 @@
       </span>
     </a>
     <div class="toc-wrapper">
-      <a href="../" class="back-to-docs" style="display:block;padding:14px 22px 0;color:#b3b3b3;font-size:12px;font-weight:600;text-decoration:none;">&#8592; Cubby Developer Docs</a>
-      <img src="../images/logo-95c97c83.png" class="logo" alt="" />
+      <a href="../" class="docnav-logo"><img src="../images/logo-95c97c83.png" class="logo" alt="" /></a>
+      <div class="docnav">
+        <div class="docnav-label">Documentation</div>
+        <a href="../api/" class="docnav-link active">API Reference</a>
+        <a href="../data-dictionary/" class="docnav-link">Data Dictionary</a>
+        <a href="../make-webhooks/" class="docnav-link">Make.com Integration</a>
+      </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
         </div>
