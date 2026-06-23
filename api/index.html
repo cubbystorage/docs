@@ -299,6 +299,7 @@
       </span>
     </a>
     <div class="toc-wrapper">
+      <a href="../" class="back-to-docs" style="display:block;padding:14px 22px 0;color:#b3b3b3;font-size:12px;font-weight:600;text-decoration:none;">&#8592; Cubby Developer Docs</a>
       <img src="../images/logo-95c97c83.png" class="logo" alt="" />
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -340,6 +341,9 @@
           <li>
             <a href="#changelog" class="toc-h1 toc-link" data-title="Changelog">Changelog</a>
               <ul class="toc-list-h2">
+                  <li>
+                    <a href="#july-2026" class="toc-h2 toc-link" data-title="July 2026">July 2026</a>
+                  </li>
                   <li>
                     <a href="#june-2026" class="toc-h2 toc-link" data-title="June 2026">June 2026</a>
                   </li>
@@ -884,7 +888,11 @@ Example via curl:</p>
 </tbody></table>
 
 <hr>
-<h1 id='changelog'>Changelog</h1><h2 id='june-2026'>June 2026</h2>
+<h1 id='changelog'>Changelog</h1><h2 id='july-2026'>July 2026</h2>
+<ul>
+<li><strong>Communication preferences</strong> — <code>POST /v1/customers/update</code>, <code>POST /v1/leads/create</code>, <code>POST /v1/leases/create</code>, and <code>POST /v1/leases/checkout</code> now accept an optional <code>communicationPreferences</code> object with per-channel marketing opt-in flags (<code>smsMarketing</code>, <code>emailMarketing</code>). On the create/checkout endpoints it lives inside the <code>customer</code> object. Each flag is optional — <code>true</code> opts the channel in to promotions, <code>false</code> restricts it to transactional messages, and an omitted flag leaves that channel unchanged.</li>
+</ul>
+<h2 id='june-2026'>June 2026</h2>
 <ul>
 <li><strong>Discounts: <code>pricingGroups</code> field</strong> — Discount objects in <code>POST /v1/discounts/search</code> now include a <code>pricingGroups</code> array listing every pricing group the discount applies to, with <code>pricingGroupId</code>, <code>name</code>, and <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>). Visibility is configured per discount-and-pricing-group pairing.</li>
 <li><strong>Discounts: <code>applicationPercentage</code> field</strong> — Discount objects in <code>POST /v1/discounts/search</code> (and lease discounts) now include <code>applicationPercentage</code> for <code>PERCENT_DEDUCTED</code> discounts, expressing the percentage directly (e.g. <code>10</code> for 10%). For backward compatibility these discounts continue to populate <code>applicationAmount</code> with the percentage scaled by 100 (10% → <code>1000</code>). <strong>That <code>applicationAmount</code> value for percentage discounts is deprecated and scheduled for removal in mid-July 2026</strong></li>
@@ -1936,6 +1944,10 @@ endpoint are <code>leases</code> and <code>leads</code></li>
     </span><span class="nl">"address2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apt. 805"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Johnston"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"communicationPreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"smsMarketing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"emailMarketing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
@@ -1964,6 +1976,12 @@ endpoint are <code>leases</code> and <code>leads</code></li>
 <li><code>military</code> - a boolean indicating if the customer is military</li>
 <li><code>idType</code> - the type of ID the customer has</li>
 <li><code>idNumber</code> - the number of the ID the customer has</li>
+<li><code>communicationPreferences</code> - an object controlling the customer&#39;s marketing opt-in per channel. Each flag is optional; omit a flag to leave that channel&#39;s current preference unchanged:
+
+<ul>
+<li><code>smsMarketing</code> - a boolean; <code>true</code> opts in to promotional SMS, <code>false</code> restricts SMS to transactional messages only</li>
+<li><code>emailMarketing</code> - a boolean; <code>true</code> opts in to promotional email, <code>false</code> restricts email to transactional messages only</li>
+</ul></li>
 </ul>
 <h2 id='leads'>Leads</h2>
 <ul>
@@ -2100,6 +2118,10 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
         </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
         </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+15943590263"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"communicationPreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"smsMarketing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"emailMarketing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -2143,6 +2165,12 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><code>message</code> - a free text message about the lead</li>
 <li><code>targetMoveInDate</code> - the target move-in date for the lead</li>
 <li><code>reservation</code> - a boolean indicating if the lead has a reservation, defaults to <code>false</code>. If <code>true</code>, <code>pricingGroupId</code> and <code>targetMoveInDate</code> must be provided</li>
+<li><code>customer.communicationPreferences</code> - when creating a new customer, an object controlling the customer&#39;s marketing opt-in per channel. Each flag is optional; omit a flag to leave that channel at its default:
+
+<ul>
+<li><code>smsMarketing</code> - a boolean; <code>true</code> opts in to promotional SMS, <code>false</code> restricts SMS to transactional messages only</li>
+<li><code>emailMarketing</code> - a boolean; <code>true</code> opts in to promotional email, <code>false</code> restricts email to transactional messages only</li>
+</ul></li>
 </ul>
 <h2 id='leases'>Leases</h2>
 <ul>
@@ -2817,6 +2845,10 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
         </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15219"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bebe.flatley@example.org"</span><span class="p">,</span><span class="w">
         </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+15943590263"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"communicationPreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"smsMarketing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"emailMarketing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
    </span><span class="p">},</span><span class="w">
    </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WEBSITE"</span><span class="p">,</span><span class="w">
@@ -2872,6 +2904,9 @@ single step, use the <a href="#checkout">Checkout</a> endpoint instead.</p>
 <li>* * <code>zip</code> - the zip code of the tenant</li>
 <li>* * <code>email</code> - the email address of the tenant</li>
 <li>* * <code>phone</code> - the phone number of the tenant</li>
+<li>* <code>communicationPreferences</code> - an object controlling the new customer&#39;s marketing opt-in per channel. Each flag is optional; omit a flag to leave that channel at its default:</li>
+<li>* * <code>smsMarketing</code> - a boolean; <code>true</code> opts in to promotional SMS, <code>false</code> restricts SMS to transactional messages only</li>
+<li>* * <code>emailMarketing</code> - a boolean; <code>true</code> opts in to promotional email, <code>false</code> restricts email to transactional messages only</li>
 </ul>
 <h3 id='checkout'>Checkout</h3>
 <p><code>POST /v1/leases/checkout</code></p>
