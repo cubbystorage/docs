@@ -281,6 +281,34 @@
       padding: 0 1px;
     }
     .no-desc { color: #444; font-style: italic; }
+
+    /* ── Schema diagram view ── */
+    #erd-wrap { position: relative; height: calc(100vh - 210px); min-height: 460px; margin: 0 16px 28px; background: #1a1d23; border: 1px solid #3a3d42; border-radius: 6px; overflow: hidden; }
+    .erd-toolbar { position: absolute; z-index: 6; top: 12px; left: 12px; display: flex; gap: 6px; align-items: center; }
+    .erd-btn { background: #22252b; border: 1px solid #3a3d42; color: #ccc; border-radius: 5px; height: 30px; padding: 0 11px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+    .erd-btn:hover { background: #2b2f36; color: #fff; }
+    .erd-btn svg { width: 13px; height: 13px; }
+    #erd-q { height: 30px; width: 160px; background: #1a1d23; border: 1px solid #3a3d42; color: #ddd; border-radius: 5px; padding: 0 11px; font-size: 12px; outline: none; }
+    #erd-q:focus { border-color: #66d9ef; }
+    #erd-legend { position: absolute; z-index: 6; bottom: 12px; left: 12px; display: flex; flex-wrap: wrap; gap: 5px 12px; background: rgba(26,29,35,.85); padding: 7px 10px; border: 1px solid #3a3d42; border-radius: 6px; font-size: 11px; color: #aaa; max-width: 440px; }
+    #erd-hint { position: absolute; z-index: 6; bottom: 12px; right: 12px; font-size: 11px; color: #555; background: rgba(26,29,35,.85); padding: 6px 10px; border: 1px solid #3a3d42; border-radius: 6px; }
+    #erd-view { position: absolute; inset: 0; cursor: grab; }
+    #erd-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+    .erd-node { position: absolute; width: 218px; background: #22252b; border: 1px solid #3a3d42; border-radius: 6px; overflow: hidden; }
+    .erd-hd { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; cursor: move; font-size: 12.5px; font-weight: 700; color: #fff; user-select: none; font-family: Consolas, "Liberation Mono", Menlo, monospace; }
+    .erd-hd .cnt { font-size: 10px; opacity: .55; font-weight: 400; }
+    .erd-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 10px; font-size: 11.5px; line-height: 16px; border-top: 1px solid #2a2d33; white-space: nowrap; font-family: Consolas, "Liberation Mono", Menlo, monospace; }
+    .erd-row .nm { display: flex; align-items: center; gap: 5px; overflow: hidden; text-overflow: ellipsis; color: #a6e22e; }
+    .erd-row .ty { color: #66d9ef; font-size: 10.5px; }
+    .erd-pk .nm { color: #e6db74; font-weight: 700; }
+    .erd-fk .nm { color: #7fb6ec; }
+    .kb { font-size: 8.5px; font-weight: 700; padding: 0 3px; border-radius: 2px; letter-spacing: .03em; }
+    .kb.pk { background: rgba(230,219,116,.16); color: #e6db74; border: 1px solid rgba(230,219,116,.35); }
+    .kb.fk { background: rgba(127,182,236,.14); color: #7fb6ec; border: 1px solid rgba(127,182,236,.32); }
+    path.edge { fill: none; stroke: #4a5160; stroke-width: 1; opacity: .6; }
+    path.edge.hot { stroke: #66d9ef; stroke-width: 2; opacity: 1; }
+    .erd-node.dim { opacity: .15; }
+    .erd-node.hit { box-shadow: 0 0 0 2px #66d9ef; }
   </style>
 </head>
 
@@ -294,8 +322,9 @@
     <div class="toc-nav">
       <div class="toc-section-label">Documentation</div>
       <a href="../api/" class="toc-link">API Reference</a>
-      <a href="../data-dictionary/" class="toc-link active">Data Dictionary</a>
+      <a href="../data-dictionary/" id="nav-dict" class="toc-link active" onclick="showDict();return false;">Data Dictionary</a>
       <a href="../make-webhooks/" class="toc-link">Make.com Integration</a>
+      <a id="nav-erd" class="toc-link" onclick="showDiagram();return false;">Schema Diagram</a>
       <hr class="toc-divider">
       <div class="toc-section-label">Tables</div>
       <div id="toc-tables">
@@ -308,8 +337,8 @@
   <div class="page-wrapper">
 
     <div class="page-header">
-      <h1>Data Dictionary</h1>
-      <p>
+      <h1 id="page-title">Data Dictionary</h1>
+      <p id="page-sub">
         Tables and columns in the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> BigQuery dataset.
         Refreshed nightly. Click a table in the sidebar to filter, or search below.
       </p>
@@ -363,6 +392,18 @@
         <tbody id="dd-tbody"></tbody>
       </table>
       <div class="empty-state" id="empty-state">No matching columns found.</div>
+    </div>
+
+    <div id="erd-wrap" style="display:none">
+      <div class="erd-toolbar">
+        <button class="erd-btn" id="erd-fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Fit</button>
+        <button class="erd-btn" id="erd-zin" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="erd-btn" id="erd-zout" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
+        <input id="erd-q" placeholder="Find a table&hellip;">
+      </div>
+      <div id="erd-legend"></div>
+      <div id="erd-hint">scroll = zoom &middot; drag = pan</div>
+      <div id="erd-view"><div id="erd-world"><svg id="erd-edges" style="position:absolute;left:0;top:0;width:10px;height:10px;overflow:visible"></svg></div></div>
     </div>
 
   </div>
@@ -491,6 +532,7 @@ function applyFilters() {
 }
 
 function filterTable(name) {
+  if (typeof showDict === 'function') showDict();
   document.getElementById('table-select').value = name;
   document.getElementById('search-input').value = '';
   applyFilters();
@@ -558,6 +600,132 @@ function updateCount(cols, tables) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadData();
+</script>
+
+<script>
+// ── Schema diagram view ─────────────────────────────────────────────────────────
+var DICT_SUB = document.getElementById('page-sub').innerHTML;
+var ERD_SUB  = 'Entity-relationship map of the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> dataset &mdash; every table, its columns, and the foreign keys that join them. Drag a table to rearrange, scroll to zoom, drag the canvas to pan, hover a table to highlight its relationships, and search to locate one.';
+var __erdInit = false;
+
+function showDiagram() {
+  document.getElementById('erd-wrap').style.display    = 'block';
+  document.getElementById('controls').style.display    = 'none';
+  document.getElementById('status').style.display      = 'none';
+  document.getElementById('table-wrap').style.display  = 'none';
+  initERD();
+  document.getElementById('nav-dict').classList.remove('active');
+  document.getElementById('nav-erd').classList.add('active');
+  document.getElementById('page-title').textContent = 'Schema Diagram';
+  document.getElementById('page-sub').innerHTML = ERD_SUB;
+  window.scrollTo(0, 0);
+  if (window.__erdFit) window.__erdFit();
+}
+function showDict() {
+  document.getElementById('erd-wrap').style.display   = 'none';
+  document.getElementById('controls').style.display   = 'flex';
+  document.getElementById('table-wrap').style.display = '';
+  document.getElementById('nav-erd').classList.remove('active');
+  document.getElementById('nav-dict').classList.add('active');
+  document.getElementById('page-title').textContent = 'Data Dictionary';
+  document.getElementById('page-sub').innerHTML = DICT_SUB;
+}
+
+function initERD() {
+ if (__erdInit) return; __erdInit = true;
+ var TY={S:'STRING',I:'INTEGER',N:'NUMERIC',DT:'DATETIME',D:'DATE',B:'BOOLEAN',J:'JSON',FL:'FLOAT'};
+ var GC={dim:['#1d3a52','#5b9bd5','dimensions'],crm:['#14463d','#2fb9a6','customer / web'],lease:['#3a2c5c','#a98fe0','leasing'],fin:['#4a3a18','#dba63f','financial'],lien:['#4d232c','#e07a86','lien / auction'],comm:['#48253f','#dd79bd','comms / activity']};
+ var D={
+facilities:{g:'dim',c:'org_id|S|;facility_id|S|p;facility_name|S|;legal_name|S|;internal_name|S|;time_zone|S|;address|S|;latitude|S|;longitude|S|;facility_phone|S|;created_at|DT|;updated_at|DT|;lease_anniversary|S|;jump_day|I|'},
+facility_groups:{g:'dim',c:'org_id|S|;facility_id|S|f|facilities;facility_name|S|;facility_group_name|S|'},
+units:{g:'dim',c:'facility_id|S|f|facilities;facility_name|S|;org_id|S|;unit_id|S|p;unit_id_int|I|;unit_name|S|;created_at|DT|;unit_type|S|;unit_features|J|;pg_id|S|f|pricing_group;pricing_group|S|;rate_managed|N|;pricing_strategy_name|S|;web_rate|N|;walk_in_rate|N|;strikethrough_rate|N|;web_rate_override|N|;strikethrough_price_override|N|;walk_in_rate_override|N|;unit_floor_num|I|;unit_building_name|S|;unit_width|N|;unit_depth|N|;unit_height|N|;is_active|I|;is_leased|I|;is_insurable|I|;is_rentable|I|;is_overlocked|I|;unit_unrentable_reason|S|;unit_unrentable_note|S|;rentability_state_since|DT|;occupancy_state_since|DT|;days_vacant|I|;days_unrentable|I|;unit_keypad_zone|I|;unit_time_zone|I|'},
+pricing_group:{g:'dim',c:'pg_id|S|p;org_id|S|;name|S|;standard_rate|N|;web_rate|N|;walk_in_rate|N|;show_strikethrough_rate|I|;strikethrough_rate|N|;pricing_strategy_name|S|;web_rate_override|N|;strikethrough_price_override|N|;walk_in_rate_override|N|;facility_id|S|f|facilities;width|N|;height|N|;depth|N|;features|J|'},
+managers:{g:'dim',c:'manager_id|S|p;org_id|S|;manager_name|S|;manager_username|S|;manager_email|S|;manager_phone|S|;manager_permissions|I|'},
+stor_track:{g:'dim',c:'facility_id|S|f|facilities;competitor_weight|S|;store_name|S|;address|S|;city|S|;state|S|;zip|S|;owned_by|S|;operated_by|S|;class_type|S|;date_collected|D|;space_type|S|;size|S|;width|N|;length|N|;climate_controlled|I|;has_elevator|I|;drive_up|I|;regular_price|N|;online_price|N|;promo_price|N|;promo|S|;org_id|S|'},
+date_dim:{g:'dim',c:'date|D|p;date_int|I|;year|I|;month_num|I|;day_of_month|I|;month_name|S|;month_name_short|S|;day_name|S|;day_name_short|S|;day_of_week|I|;year_month|S|;year_quarter|S|;day_of_year|I|;week_of_year|I|;quarter_num|I|;quarter_name|S|;first_day_of_week|D|;last_day_of_week|D|;first_day_of_month|D|;last_day_of_month|D|;first_day_of_quarter|D|;last_day_of_quarter|D|;first_day_of_year|D|;last_day_of_year|D|;is_weekend|B|;is_weekday|B|;is_first_day_of_month|B|;is_last_day_of_month|B|;is_first_day_of_year|B|;is_last_day_of_year|B|;is_today|B|'},
+contacts:{g:'crm',c:'contact_id|S|p;org_id|S|;name|S|;address|S|;address2|S|;company_name|S|;city|S|;state|S|;country|S|;zip|S|;email|S|;phone|S|;secondary_phone|S|;created_at|DT|;updated_at|DT|;date_of_birth|D|;is_military|B|;email_comm_preference|S|;sms_comm_preference|S|;lead_status|S|;lead_source|S|'},
+leads:{g:'crm',c:'org_id|S|;lead_id|S|p;created_at|DT|;updated_at|DT|;target_move_in_date|D|;age_of_lead_minutes|I|;status|S|;contact_id|S|f|contacts;contact_name|S|;value_pricing_tier|S|;facility_id|S|f|facilities;facility_name|S|;pg_id|S|f|pricing_group;pg_name|S|;pg_features|J|;rate_quoted|N|;unit_id|S|f|units;created_by|S|;converted_by|S|;converted_datetime|DT|;time_to_convert|I|;time_to_unqualified|I|;converted_lease_id|S|f|leases;lead_source|S|;first_touch_source|S|;ga_source|S|;source|S|;origin|S|;marketing_source|S|;phone_call_child_id|I|f|call_child;first_touch_action|S|;ga_session|S|f|ga_events;ga_session_id|S|'},
+customer_touches:{g:'crm',c:'org_id|S|;ga_session|S|f|ga_events;source|S|;gclid|S|;action|S|;created_at|DT|;contact_id|S|f|contacts;lease_id|S|f|leases;lead_id|S|f|leads'},
+ga_events:{g:'crm',c:'ga_event_id|S|p;org_id|S|;ga_session_id|I|;event_date|D|;event_name|S|;event_timestamp|I|;hostname|S|;device_category|S|;geo_city|S|;geo_country|S|;geo_continent|S|;geo_region|S|;geo_metro|S|;traffic_source_name|S|;traffic_source_source|S|;traffic_source_medium|S|;ecommerce_transaction_id|S|;ecommerce_purchase_revenue|FL|'},
+leases:{g:'lease',c:'facility_id|S|f|facilities;facility_name|S|;org_id|S|;lease_id|S|p;lease_id_int|I|;unit_name|S|;unit_id|S|f|units;is_active|I|;lease_created_by|S|;lease_started|D|;created_at|DT|;lease_ended|D|;lease_rent_original|N|;lease_rent_current|N|;lease_rent_next|N|;lease_rent_next_chg_date|D|;lease_rent_last_chg_date|D|;lease_all_discounts|S|;is_lease_paid|I|;status_late_since_date|D|;status_paid_through_date|D|;status_paid_on_date|D|;is_needs_overlock|I|;is_in_auction|I|;is_autopay_enabled|B|;alternative_contacts|S|;autopay_method_type|S|;autopay_card_brand|S|;autopay_card_expiration|S|;value_pricing_tier|S|;ins_premium|N|;ins_coverage_level|N|;access_code|S|;is_access_code_enabled|I|;contact_id|S|f|contacts;contact_pinned_note|S|;is_military|I|;contact_name|S|;contact_company_name|S|;contact_email|S|;contact_phone|S|;contact_address_1|S|;contact_address_2|S|;contact_city|S|;contact_state|S|;contact_zip|S|;storing_vehicle|I|;vehicle_country|S|;vehicle_state|S|;vehicle_plate|S|;vehicle_type|S|;lease_lifetime_payments|N|;balance_ar|N|;balance_deposit|N|;balance_prepaid|N|'},
+rate_changes:{g:'lease',c:'org_id|S|;rent_change_amount|N|;rent_change_scheduled_date|D|;rent_change_status|S|;rent_change_created_at|DT|;lease_rent_current|N|;lease_rent_previous|N|;street_rate|N|;facility_id|S|f|facilities;facility_name|S|;unit_name|S|;unit_id|S|f|units;lease_id|S|f|leases;is_autopay_enabled|B|;is_lease_paid|I|;contact_id|S|f|contacts;contact_pinned_note|S|;is_military|I|;contact_name|S|;contact_company_name|S|;contact_email|S|;contact_phone|S|;contact_address_1|S|;contact_address_2|S|;contact_city|S|;contact_state|S|;contact_zip|S|'},
+scheduled_move_outs:{g:'lease',c:'org_id|S|;move_out_date|D|;move_out_time|S|;move_out_reason|S|;notice_given_date|D|;created_by|S|;created_at|DT|;updated_at|DT|;custom_reason|S|;lease_id|S|f|leases;facility_id|S|f|facilities'},
+recurring_fees:{g:'lease',c:'org_id|S|;name|S|;display_name|S|;fee_id|S|p;amount|N|;percentage|N|;tax_category|S|;active|I|;lease_id|S|f|leases;created_at|DT|;updated_at|DT|'},
+discounts:{g:'lease',c:'org_id|S|;active|I|;created_at|DT|;updated_at|DT|;start_date|D|;end_date|D|;start_after_periods|I|;discounted_periods|I|;facility_name|S|;discount_program_id|S|f|discount_programs;facility_id|S|f|facilities;lease_id|S|f|leases'},
+discount_programs:{g:'lease',c:'org_id|S|;organisation_name|S|;discount_program_name|S|;discount_program_id|S|p;created_at|DT|;updated_at|DT|;active|I|;type|S|;application_method|S|;application_amount|N|;upfront_strict_full_month|I|;upfront_paid_months|N|;upfront_free_months|N|;charge_type|S|;discount_start|S|;start_after_months|I|;discounted_months|I|'},
+spaces_historical:{g:'lease',c:'date|D|p;org_id|S|;unit_id|S|f|units;unit_name|S|;unit_description|S|;facility_name|S|;facility_id|S|f|facilities;facility_address|S|;building_name|S|;is_active|I|;is_occupied|I|;is_unrentable|B|;unrentable_reason|S|;unrentable_reason_note|S|;width|N|;depth|N|;height|N|;is_overlocked|B|;pricing_group_name|S|;street_rate|N|;pg_id|S|f|pricing_group;strikethrough_rate|N|;walk_in_rate|N|;web_rate|N|;lease_id|S|f|leases;occ_rate|N|;occ_start_dt|D|;occ_tenant_id|I|;is_autopay_enabled|I|;is_insurance_active|I|;ins_premium|N|;ins_coverage_level|N|;contact_id|S|f|contacts;occ_tenant_name|S|'},
+unit_turnover:{g:'lease',c:'move_type|S|;move_date|D|;org_id|S|;facility_id|S|f|facilities;facility_name|S|;unit_id|S|f|units;unit_name|S|;unit_type|S|;unit_features|J|;unit_floor_num|I|;unit_building_name|S|;unit_width|N|;unit_depth|N|;unit_height|N|;lease_id|S|f|leases;lease_created_by|S|;lease_rent|N|;lease_created_date|DT|;lease_start_date|D|;lease_end_date|D|;lease_created_by_transfer|B|;transferred_from_lease_id|S|f|leases;lease_terminated_by_transfer|B|;transferred_to_lease_id|S|f|leases;transferred_to_unit_id|S|f|units;lease_days_rented|I|;lease_discounts_applied|S|;lead_source|S|;ins_premium|N|;ins_coverage_level|N|;contact_id|S|f|contacts;contact_name|S|;contact_email|S|;contact_phone|S|;pg_id|S|f|pricing_group;pg_name|S|;pg_standard_rate|N|;web_rate|N|;walk_in_rate|N|;strikethrough_rate|N|;web_rate_override|N|;strikethrough_price_override|N|;walk_in_rate_override|N|'},
+unit_walkthrough:{g:'lease',c:'facility_id|S|f|facilities;unit_id|S|f|units;created_at|DT|;updated_at|DT|;viewed|I|;viewed_at|DT|;org_id|S|'},
+payments:{g:'fin',c:'payment_id|S|p;org_id|S|;facility_id|S|f|facilities;facility_name|S|;contact_id|S|f|contacts;contact_name|S|;payment_date|D|;payment_datetime|DT|;payment_amount|N|;payment_type|S|;payment_status|S|;payment_method|S|;payment_card_brand|S|;payment_card_last_four|S|;payment_check_number|S|;payment_channel|S|'},
+book_entries:{g:'fin',c:'book_entry_id|S|p;org_id|S|;facility|S|;facility_id|S|f|facilities;entry_date_time|DT|;txn_id|I|;type|S|;amount|N|;book|S|;lease_id|S|f|leases;unit|S|;unit_id|S|f|units;contact_id|S|f|contacts;contact_name|S|;accrual_start|D|;explanation_text|S|;entry_num|I|;applies_to|I|;ar_entry_category|S|;explanation|S|;tax_category|S|;tax_exempt|I|;amt_revenue|N|;amt_payment|N|;amt_asset|N|;amt_liability|N|;amt_transfer|N|'},
+auctions:{g:'lien',c:'org_id|S|;auction_id|S|p;facility_name|S|;date_time|DT|;advert_deadline|D|;created_at|DT|;updated_at|DT|;facility_id|S|f|facilities'},
+lease_auctions:{g:'lien',c:'org_id|S|;lease_id|S|f|leases;auction_id|S|f|auctions;lien_start_date|D|;lien_end_date|D|;status|S|;winner_id|S|;bid|N|;deposit|N|;created_at|DT|;updated_at|DT|;tax_exempt|I|;imported|I|;facility_name|S|;facility_id|S|f|facilities'},
+calls:{g:'comm',c:'org_id|S|;call_id|I|p;caller_phone|S|;recipient_phone|S|;status|S|;communication_direction|S|;support_phone|S|;forwarded_from|S|;option_selected_type|S|;started_at|DT|;created_at|DT|;updated_at|DT|;ended_at|DT|;facility_id|S|f|facilities;facility_name|S|'},
+call_child:{g:'comm',c:'org_id|S|;call_child_id|I|p;call_id|I|f|calls;facility_id|S|f|facilities;facility_name|S|;communication_direction|S|;abandoned|B|;agent_type|S|;wait_time|I|;duration|I|;status|S|;manager_id|S|f|managers;manager_name|S|;answered_at|DT|;parent_started_at|DT|;started_at|DT|;scores|J|;transcription|J|'},
+call_agent_availability:{g:'comm',c:'manager_id|S|f|managers;manager_name|S|;org_id|S|;day|D|;status_raw|S|;status_name|S|;total_duration_seconds|I|'},
+emails:{g:'comm',c:'org_id|S|;status|S|;tag|S|;recipient_name|S|;recipient_email|S|;subject|S|;body|S|;created_by|S|;created_at|DT|;sent_at|DT|;delivered_at|DT|;bounced_at|DT|;opened_at|DT|;clicked_at|DT|;failed_at|DT|;bounce_reason|S|;failure_reason|S|;unit|S|;unit_id|S|f|units;lease_id|S|f|leases;facility_id|S|f|facilities;facility_name|S|;org_name|S|'},
+sms:{g:'comm',c:'org_id|S|;status|S|;tag|S|;contact_name|S|;contact_phone|S|;body|S|;direction|S|;created_by|S|;created_at|DT|;sent_at|DT|;delivered_at|DT|;failed_at|DT|;error_code|S|;unit|S|;unit_id|S|f|units;lease_id|S|f|leases;facility_id|S|f|facilities;facility_name|S|;org_name|S|'},
+cubby_events:{g:'comm',c:'org_id|S|;facility_id|S|f|facilities;type|S|;data|S|;unit_id|S|f|units;pg_id|S|f|pricing_group;contact_id|S|f|contacts;created_at|DT|;updated_at|DT|;lease_id|S|f|leases;manager_name|S|;manager_id|S|f|managers;last_login_at|DT|'},
+access_log:{g:'comm',c:'org_id|S|;id|S|p;contact_id|S|f|contacts;device_name|S|;code|S|;event|S|;occurred_at|DT|;result|S|;reason|S|;created_at|DT|;updated_at|DT|;facility_name|S|;facility_id|S|f|facilities;org_name|S|'}
+ };
+ var COLS=[
+['contacts','leads','customer_touches','ga_events'],
+['payments','book_entries','recurring_fees','discounts','discount_programs'],
+['leases','rate_changes','scheduled_move_outs','access_log'],
+['facilities','facility_groups','pricing_group'],
+['units','spaces_historical','unit_walkthrough'],
+['unit_turnover','stor_track','managers','call_agent_availability'],
+['calls','call_child','auctions','lease_auctions'],
+['emails','sms','cubby_events','date_dim']
+ ];
+ var world=document.getElementById('erd-world'),svg=document.getElementById('erd-edges'),view=document.getElementById('erd-view'),wrap=document.getElementById('erd-wrap');
+ var nodes={},edges=[];
+ for(var id in D){D[id].c.split(';').forEach(function(tok){var p=tok.split('|');if(p[2]==='f'&&p[3]&&D[p[3]])edges.push({s:id,sc:p[0],t:p[3]});});}
+ function pkOf(id){var r=null;D[id].c.split(';').forEach(function(z){var q=z.split('|');if(q[2]==='p')r=q[0];});return r;}
+ function colCount(id){return D[id].c.split(';').length;}
+ function makeNode(id){
+  var t=D[id],col=GC[t.g],el=document.createElement('div');el.className='erd-node';el.style.borderColor=col[1];
+  var h='<div class="erd-hd" style="background:'+col[0]+';border-bottom:1px solid '+col[1]+'"><span>'+id+'</span><span class="cnt">'+colCount(id)+'</span></div>';
+  t.c.split(';').forEach(function(tok){var p=tok.split('|');var cls='erd-row'+(p[2]==='p'?' erd-pk':p[2]==='f'?' erd-fk':'');var ic=p[2]==='p'?'<span class="kb pk">PK</span>':p[2]==='f'?'<span class="kb fk">FK</span>':'';h+='<div class="'+cls+'" data-c="'+p[0]+'"><span class="nm">'+ic+p[0]+'</span><span class="ty">'+(TY[p[1]]||p[1])+'</span></div>';});
+  el.innerHTML=h;world.appendChild(el);
+  var n={el:el,id:id,rows:{},pk:pkOf(id)};nodes[id]=n;
+  el.querySelector('.erd-hd').addEventListener('mousedown',function(e){startNodeDrag(e,n);});
+  el.addEventListener('mouseenter',function(){hot(id,true);});
+  el.addEventListener('mouseleave',function(){hot(id,false);});
+  return n;
+ }
+ COLS.forEach(function(col){col.forEach(makeNode);});
+ function place(n){n.el.style.left=n.x+'px';n.el.style.top=n.y+'px';}
+ function measure(){for(var id in nodes){var n=nodes[id];n.w=n.el.offsetWidth;n.h=n.el.offsetHeight;n.el.querySelectorAll('.erd-row').forEach(function(r){n.rows[r.getAttribute('data-c')]=r.offsetTop+r.offsetHeight/2;});}}
+ function layout(){var cw=218,gx=46,gy=28;COLS.forEach(function(col,ci){var y=20;col.forEach(function(id){var n=nodes[id];n.x=20+ci*(cw+gx);n.y=y;place(n);y+=n.el.offsetHeight+gy;});});measure();draw();}
+ function draw(){
+  var s='';edges.forEach(function(e){var sn=nodes[e.s],tn=nodes[e.t];if(!sn||!tn)return;
+  var sc1=sn.x+sn.w/2,tc=tn.x+tn.w/2;var right=tc>=sc1;
+  var ax=right?sn.x+sn.w:sn.x;var ay=sn.y+(sn.rows[e.sc]||16);
+  var bx=right?tn.x:tn.x+tn.w;var by=tn.y+(tn.rows[tn.pk]||16);
+  var d1=right?70:-70,d2=right?-70:70;
+  s+='<path class="edge" data-s="'+e.s+'" data-t="'+e.t+'" d="M'+ax+','+ay+' C'+(ax+d1)+','+ay+' '+(bx+d2)+','+by+' '+bx+','+by+'"/>';});
+  svg.innerHTML=s;
+ }
+ function hot(id,on){svg.querySelectorAll('path.edge').forEach(function(p){if(p.getAttribute('data-s')===id||p.getAttribute('data-t')===id)p.classList.toggle('hot',on);});}
+ var sc=1,ox=0,oy=0;
+ function apply(){world.style.transform='translate('+ox+'px,'+oy+'px) scale('+sc+')';}
+ function fit(){var minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;for(var id in nodes){var n=nodes[id];minx=Math.min(minx,n.x);miny=Math.min(miny,n.y);maxx=Math.max(maxx,n.x+n.w);maxy=Math.max(maxy,n.y+n.h);}var W=wrap.clientWidth,H=wrap.clientHeight,bw=maxx-minx,bh=maxy-miny;sc=Math.max(.12,Math.min((W-40)/bw,(H-40)/bh,1));ox=(W-bw*sc)/2-minx*sc;oy=(H-bh*sc)/2-miny*sc;apply();}
+ var pan=null,nd=null;
+ view.addEventListener('mousedown',function(e){if(e.target.closest('.erd-node'))return;pan={x:e.clientX,y:e.clientY,ox:ox,oy:oy};view.style.cursor='grabbing';});
+ window.addEventListener('mousemove',function(e){if(pan){ox=pan.ox+(e.clientX-pan.x);oy=pan.oy+(e.clientY-pan.y);apply();}if(nd){nd.n.x=nd.nx+(e.clientX-nd.x)/sc;nd.n.y=nd.ny+(e.clientY-nd.y)/sc;place(nd.n);draw();}});
+ window.addEventListener('mouseup',function(){pan=null;nd=null;view.style.cursor='grab';});
+ function startNodeDrag(e,n){e.stopPropagation();nd={n:n,x:e.clientX,y:e.clientY,nx:n.x,ny:n.y};}
+ wrap.addEventListener('wheel',function(e){e.preventDefault();var r=wrap.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,f=e.deltaY<0?1.12:1/1.12,ns=Math.max(.12,Math.min(sc*f,2.4)),wx=(mx-ox)/sc,wy=(my-oy)/sc;ox=mx-wx*ns;oy=my-wy*ns;sc=ns;apply();},{passive:false});
+ document.getElementById('erd-fit').onclick=fit;
+ document.getElementById('erd-zin').onclick=function(){sc=Math.min(sc*1.2,2.4);apply();};
+ document.getElementById('erd-zout').onclick=function(){sc=Math.max(sc/1.2,.12);apply();};
+ document.getElementById('erd-q').addEventListener('input',function(e){var q=e.target.value.trim().toLowerCase();for(var id in nodes){var m=!q||id.indexOf(q)>=0;nodes[id].el.classList.toggle('dim',!!q&&!m);nodes[id].el.classList.toggle('hit',!!q&&m);}});
+ var lg=document.getElementById('erd-legend');for(var k in GC){lg.innerHTML+='<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:11px;height:11px;border-radius:3px;background:'+GC[k][0]+';border:1px solid '+GC[k][1]+'"></span>'+GC[k][2]+'</span>';}
+ layout();fit();
+ window.__erdFit=fit;
+ window.addEventListener('resize',function(){if(document.getElementById('erd-wrap').style.display!=='none')fit();});
+}
 </script>
 
 </body>
