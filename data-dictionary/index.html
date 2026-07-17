@@ -291,6 +291,7 @@
       transition: color .15s;
     }
     .toc-accordion:hover { color: #999; }
+    .toc-accordion.active { color: #66d9ef; }
     .acc-caret { font-size: 9px; transition: transform .15s; }
 
     /* ── Introduction view ── */
@@ -369,7 +370,7 @@
     <div class="toc-nav">
       <div class="toc-section-label">Documentation</div>
       <a href="../api/" class="toc-link">API Reference</a>
-      <a href="../data-dictionary/" id="nav-dict" class="toc-link active" onclick="showDict();return false;">Data Warehouse</a>
+      <a href="../data-dictionary/" id="nav-dict" class="toc-link" onclick="showIntro();return false;">Data Warehouse</a>
       <a href="../make-webhooks/" class="toc-link">Make.com Integration</a>
       <hr class="toc-divider">
       <a id="nav-intro" class="toc-link" onclick="showIntro();return false;">Introduction</a>
@@ -488,6 +489,8 @@ const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?form
 let DATA     = [];
 let sortCol  = -1;
 let sortDir  = 1;
+var currentView = 'intro';
+var dataLoaded  = false;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
 function parseCSV(text) {
@@ -553,9 +556,12 @@ async function loadData() {
       tocTables.appendChild(a);
     });
 
-    document.getElementById('status').style.display     = 'none';
-    document.getElementById('controls').style.display   = 'flex';
-    document.getElementById('table-wrap').style.display = '';
+    dataLoaded = true;
+    document.getElementById('status').style.display = 'none';
+    if (currentView === 'dict') {
+      document.getElementById('controls').style.display   = 'flex';
+      document.getElementById('table-wrap').style.display = '';
+    }
     applyFilters();
 
   } catch(err) {
@@ -683,9 +689,11 @@ function clearNav() {
   document.getElementById('nav-dict').classList.remove('active');
   document.getElementById('nav-erd').classList.remove('active');
   document.getElementById('nav-intro').classList.remove('active');
+  document.getElementById('tables-toggle').classList.remove('active');
 }
 
 function showDiagram() {
+  currentView = 'diagram';
   document.getElementById('erd-wrap').style.display    = 'block';
   document.getElementById('intro-wrap').style.display  = 'none';
   document.getElementById('controls').style.display    = 'none';
@@ -700,16 +708,25 @@ function showDiagram() {
   if (window.__erdFit) window.__erdFit();
 }
 function showDict() {
+  currentView = 'dict';
   document.getElementById('erd-wrap').style.display   = 'none';
   document.getElementById('intro-wrap').style.display = 'none';
-  document.getElementById('controls').style.display   = 'flex';
-  document.getElementById('table-wrap').style.display = '';
+  if (dataLoaded) {
+    document.getElementById('status').style.display     = 'none';
+    document.getElementById('controls').style.display   = 'flex';
+    document.getElementById('table-wrap').style.display = '';
+  } else {
+    document.getElementById('status').style.display     = 'block';
+    document.getElementById('controls').style.display   = 'none';
+    document.getElementById('table-wrap').style.display = 'none';
+  }
   clearNav();
-  document.getElementById('nav-dict').classList.add('active');
+  document.getElementById('tables-toggle').classList.add('active');
   document.getElementById('page-title').textContent = 'Data Warehouse';
   document.getElementById('page-sub').innerHTML = DICT_SUB;
 }
 function showIntro() {
+  currentView = 'intro';
   document.getElementById('erd-wrap').style.display   = 'none';
   document.getElementById('table-wrap').style.display = 'none';
   document.getElementById('controls').style.display   = 'none';
@@ -729,6 +746,9 @@ function toggleTables() {
   box.style.display = open ? 'none' : 'block';
   if (caret) caret.innerHTML = open ? '&#9656;' : '&#9662;';
 }
+
+// Default landing view is the Introduction.
+showIntro();
 
 function initERD() {
  if (__erdInit) return; __erdInit = true;
