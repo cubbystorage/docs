@@ -471,9 +471,8 @@
       </ul>
       <h2>Getting around</h2>
       <p>
-        Open <strong>Data Warehouse</strong> to browse every table and column, or
-        <strong>Schema Diagram</strong> to explore how the tables relate. Use the
-        <strong>Tables</strong> list in the sidebar to jump straight to a specific table.
+        Open <strong>Tables</strong> to browse every table and column, or
+        <strong>Schema Diagram</strong> to explore how the tables relate.
       </p>
     </div>
 
@@ -723,6 +722,7 @@ function showIntro() {
   window.scrollTo(0, 0);
 }
 function toggleTables() {
+  showDict();
   var box   = document.getElementById('toc-tables');
   var caret = document.querySelector('#tables-toggle .acc-caret');
   var open  = box.style.display !== 'none';
