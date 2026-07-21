@@ -843,7 +843,7 @@ quote_IJf03jNjKuf
             </tr>
             <tr>
                 <td>Pricing Groups</td>
-                <td><code>search</code>, <code>change-rates</code></td>
+                <td><code>search</code>, <code>change-rates</code>, <code>find-unit-for-tier</code></td>
             </tr>
             <tr>
                 <td>Reports</td>
@@ -936,7 +936,7 @@ quote_IJf03jNjKuf
             </tr>
             <tr>
                 <td>Pricing Groups</td>
-                <td><code>search</code></td>
+                <td><code>search</code>, <code>find-unit-for-tier</code></td>
             </tr>
             <tr>
                 <td>Tasks</td>
@@ -1062,7 +1062,7 @@ quote_IJf03jNjKuf
             </tr>
             <tr>
                 <td>Pricing Groups</td>
-                <td><code>search</code></td>
+                <td><code>search</code>, <code>find-unit-for-tier</code></td>
             </tr>
             <tr>
                 <td>Units</td>
@@ -1138,6 +1138,14 @@ quote_IJf03jNjKuf
         <h1 id='changelog'>Changelog</h1>
         <h2 id='july-2026'>July 2026</h2>
         <ul>
+            <li><strong>Pricing Groups: value-pricing tiers</strong> — <code>POST /v1/pricing-groups/search</code> now
+                returns <code>valuePricingStatus</code> (<code>NOT_CONFIGURED</code>, <code>REVIEW_REQUIRED</code>, or
+                <code>APPROVED</code>) on every pricing group, plus an <code>availableTiers</code> array on each <code>APPROVED</code>
+                group — the subset of <code>LOWEST</code>, <code>MEDIUM</code>, <code>HIGHEST</code> currently offered,
+                based on how many units are available. New endpoint <code>POST
+                    /v1/pricing-groups/find-unit-for-tier</code> resolves a selected tier to the concrete unit a renter
+                would be assigned, using the same ranking the storefront applies.
+            </li>
             <li><strong>Leads Update</strong> — New endpoint <code>POST /v1/leads/update</code>. Modifies an existing
                 lead&#39;s unit, pricing group, coverage, discounts, rate, status, source, and target move-in date:
                 omitted fields are left unchanged and an explicit <code>null</code> clears the value. Validation matches
@@ -2399,6 +2407,7 @@ quote_IJf03jNjKuf
         <ul>
             <li><a href="#pricing-group-search">Pricing Group Search</a></li>
             <li><a href="#pricing-groups-change-rates">Pricing Groups Change Rates</a></li>
+            <li><a href="#pricing-groups-find-unit-for-tier">Pricing Groups Find Unit For Tier</a></li>
             <li><a href="#discounts-search">Discounts Search</a></li>
             <li><a href="#value-pricing-strategies-search">Value Pricing Strategies Search</a></li>
         </ul>
@@ -2449,6 +2458,8 @@ quote_IJf03jNjKuf
                 class="p">,</span><span class="w">
         </span><span class="nl">"height"</span><span class="p">:</span><span class="w"> </span><span
                 class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"area"</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span
+                class="p">,</span><span class="w">
         </span><span class="nl">"vehicleStorage"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span
                 class="p">,</span><span class="w">
         </span><span class="nl">"parking"</span><span class="p">:</span><span class="w"> </span><span
@@ -2476,8 +2487,16 @@ quote_IJf03jNjKuf
                 class="p">[</span><span class="w">
           </span><span class="s2">"discount_JgNkzV4itfk"</span><span class="w">
         </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"availableUnits"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span
+                class="p">,</span><span class="w">
         </span><span class="nl">"valuePricingStrategyId"</span><span class="p">:</span><span class="w"> </span><span
-                class="s2">"vps_4a2da7d271a"</span><span class="w">
+                class="s2">"vps_4a2da7d271a"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"valuePricingStatus"</span><span class="p">:</span><span class="w"> </span><span
+                class="s2">"APPROVED"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"availableTiers"</span><span class="p">:</span><span class="w"> </span><span
+                class="p">[</span><span class="w"> </span><span class="s2">"LOWEST"</span><span class="p">,</span><span
+                class="w"> </span><span class="s2">"MEDIUM"</span><span class="p">,</span><span class="w"> </span><span
+                class="s2">"HIGHEST"</span><span class="w"> </span><span class="p">]</span><span class="w">
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="c">/* ... */</span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
@@ -2505,6 +2524,25 @@ quote_IJf03jNjKuf
                 after filtering each program&#39;s
                 occupancy-percentage and available-units restrictions against the pricing group&#39;s current unit
                 counts
+            </li>
+            <li><code>area</code> - the floor area of units in the pricing group, in square feet (<code>width</code> ×
+                <code>depth</code>)
+            </li>
+            <li><code>availableUnits</code> - the number of units in the pricing group currently available for rent</li>
+            <li><code>valuePricingStatus</code> - the unit-ranking state of the pricing group&#39;s value-pricing
+                configuration: <code>NOT_CONFIGURED</code>
+                (no strategy assigned), <code>REVIEW_REQUIRED</code> (a strategy is assigned but one or more active
+                units are unranked), or
+                <code>APPROVED</code> (a strategy is assigned and every active unit is ranked). Tier pricing is live
+                only when <code>APPROVED</code>.
+            </li>
+            <li><code>availableTiers</code> - the value-pricing tiers currently offered for this pricing group, a subset
+                of <code>LOWEST</code>, <code>MEDIUM</code>,
+                <code>HIGHEST</code> that depends on how many units are available (<code>LOWEST</code> needs at least
+                one available unit, <code>MEDIUM</code> at least
+                two, <code>HIGHEST</code> at least three). Only present when <code>valuePricingStatus</code> is <code>APPROVED</code>;
+                omitted otherwise. Resolve a
+                chosen tier to a concrete unit with <code>find-unit-for-tier</code>.
             </li>
         </ul>
         <h3 id='pricing-groups-change-rates'>Pricing Groups Change Rates</h3>
@@ -2548,6 +2586,57 @@ quote_IJf03jNjKuf
             <li><code>strikethroughRate</code> - the strikethrough price to display on the storefront. If
                 <code>null</code>, the strikethrough price is disabled. Even when enabled, the strikethrough price won&#39;t
                 display on your storefront when it&#39;s less than or equal to the web rate.
+            </li>
+        </ul>
+        <h3 id='pricing-groups-find-unit-for-tier'>Pricing Groups Find Unit For Tier</h3>
+        <p><code>POST /v1/pricing-groups/find-unit-for-tier</code></p>
+
+        <blockquote>
+            <p>Request Body — pricing-groups/find-unit-for-tier</p>
+        </blockquote>
+        <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span
+                class="w">
+  </span><span class="nl">"pricingGroupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_4a2da7d271a"</span><span
+                class="p">,</span><span class="w">
+  </span><span class="nl">"tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LOWEST | MEDIUM | HIGHEST"</span><span
+                class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+        </div>
+        <blockquote>
+            <p>Response Body — pricing-groups/find-unit-for-tier</p>
+        </blockquote>
+        <div class="highlight"><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span
+                class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span
+                class="mi">200</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span
+                class="w">
+    </span><span class="nl">"unitId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unit_4a2da7d271a"</span><span
+                class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+        </div>
+        <p>Resolves a value-pricing tier to the concrete unit a renter would be assigned, using the same ranking the
+            storefront
+            applies: <code>HIGHEST</code> maps to the best-ranked available unit, <code>LOWEST</code> to the
+            lowest-ranked, and <code>MEDIUM</code> to the unit
+            closest to the middle of the ranking. Call <a href="#pricing-group-search">Pricing Group Search</a> first
+            and offer only the
+            tiers listed in <code>availableTiers</code>.</p>
+        <h3 id='required-properties-16'>Required Properties</h3>
+        <ul>
+            <li><code>pricingGroupId</code> - the pricing group to resolve the unit within</li>
+            <li><code>tier</code> - the selected value-pricing tier, one of <code>LOWEST</code>, <code>MEDIUM</code>,
+                <code>HIGHEST</code></li>
+        </ul>
+        <h3 id='response-parameters-5'>Response Parameters</h3>
+        <ul>
+            <li><code>unitId</code> - the ID of the resolved unit. Omitted when the pricing group has no unit available
+                to rent, or when the
+                requested <code>tier</code> is not currently offered for the group (i.e. not present in the group&#39;s
+                <code>availableTiers</code>).
             </li>
         </ul>
         <h3 id='discounts-search'>Discounts Search</h3>
@@ -2653,7 +2742,7 @@ quote_IJf03jNjKuf
             (<code>ALL</code> or <code>CUBBY_ONLY</code>) configured for that discount in that pricing group —
             visibility is per discount-and-pricing-group pairing, so the same pricing group may show a different value
             on a different discount.</p>
-        <h3 id='required-properties-16'>Required Properties</h3>
+        <h3 id='required-properties-17'>Required Properties</h3>
         <ul>
             <li><code>pricingGroupId</code> - limits results to discounts in a particular pricing group</li>
         </ul>
@@ -2755,7 +2844,7 @@ quote_IJf03jNjKuf
         <p>Each non-<code>LOWEST</code> tier carries exactly one of <code>increaseAmount</code> or <code>increasePercentage</code>,
             matching its <code>increaseType</code>. The <code>LOWEST</code> tier never carries <code>increaseType</code>,
             <code>increaseAmount</code>, or <code>increasePercentage</code> — by definition it has no increase.</p>
-        <h3 id='required-properties-17'>Required Properties</h3>
+        <h3 id='required-properties-18'>Required Properties</h3>
         <ul>
             <li><code>valuePricingStrategyId</code> — returns the strategy with this id</li>
             <li>or <code>facilityId</code> — returns the distinct set of strategies assigned to any pricing group in the
@@ -2894,7 +2983,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for customers</p>
-        <h3 id='required-properties-18'>Required Properties</h3>
+        <h3 id='required-properties-19'>Required Properties</h3>
         <ul>
             <li><code>customerId</code> - limits results to a specific customer</li>
             <li>or</li>
@@ -2959,7 +3048,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Updates customer information. Only the fields that are to be updated need to be included in the request.</p>
-        <h3 id='required-properties-19'>Required Properties</h3>
+        <h3 id='required-properties-20'>Required Properties</h3>
         <ul>
             <li><code>customerId</code> - the ID of the tenant to update</li>
         </ul>
@@ -3084,7 +3173,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for leads by facility</p>
-        <h3 id='required-properties-20'>Required Properties</h3>
+        <h3 id='required-properties-21'>Required Properties</h3>
         <p>One of the following must be provided:
             * <code>organizationId</code> - limits results to leads in a particular organization
             * <code>facilityId</code> - limits results to leads in a particular facility
@@ -3107,7 +3196,7 @@ quote_IJf03jNjKuf
                 endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code> and
                 <code>customer</code></li>
         </ul>
-        <h3 id='response-parameters-5'>Response Parameters</h3>
+        <h3 id='response-parameters-6'>Response Parameters</h3>
         <ul>
             <li><code>leadId</code> - the ID of the lead</li>
             <li><code>createdAt</code> - the date and time the lead was created, as an ISO-8601 UTC timestamp (e.g.
@@ -3288,7 +3377,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Creates a new lead. If <code>customerId</code> is not provided, a new customer will be created.</p>
-        <h3 id='required-properties-21'>Required Properties</h3>
+        <h3 id='required-properties-22'>Required Properties</h3>
         <ul>
             <li><code>organizationId</code> - the ID of the organization the lead belongs to. At least one of <code>organizationId</code>
                 or <code>facilityId</code> must be provided
@@ -3403,7 +3492,7 @@ quote_IJf03jNjKuf
 
         <p>To keep the endpoint predictable it does not perform reservation transitions: a lead that is already a
             reservation cannot be updated here, and <code>status</code> cannot be set to <code>RESERVATION</code>.</p>
-        <h3 id='required-properties-22'>Required Properties</h3>
+        <h3 id='required-properties-23'>Required Properties</h3>
         <ul>
             <li><code>leadId</code> - the ID of the lead to update</li>
         </ul>
@@ -3651,7 +3740,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Returns metadata for leases at co-managed facilities</p>
-        <h3 id='required-properties-23'>Required Properties</h3>
+        <h3 id='required-properties-24'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - limits results to a specific lease</li>
             <li>or</li>
@@ -3787,11 +3876,11 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Returns the compliance status for leases</p>
-        <h3 id='required-properties-24'>Required Properties</h3>
+        <h3 id='required-properties-25'>Required Properties</h3>
         <ul>
             <li><code>leaseIds</code> - an array of lease IDs to get compliance status for</li>
         </ul>
-        <h3 id='response-parameters-6'>Response Parameters</h3>
+        <h3 id='response-parameters-7'>Response Parameters</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease</li>
             <li><code>documents</code> - an array of documents required for the lease to be compliant, each containing
@@ -3858,11 +3947,11 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Returns the next possible rent change schedule for leases</p>
-        <h3 id='required-properties-25'>Required Properties</h3>
+        <h3 id='required-properties-26'>Required Properties</h3>
         <ul>
             <li><code>leaseIds</code> - an array of lease IDs to get rent change schedules for</li>
         </ul>
-        <h3 id='response-parameters-7'>Response Parameters</h3>
+        <h3 id='response-parameters-8'>Response Parameters</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease</li>
             <li><code>rentChangeDate</code> - the date the rent change will take effect</li>
@@ -3894,7 +3983,7 @@ quote_IJf03jNjKuf
         </div>
         <p>Schedules rent changes for leases, which will take effect on the next possible rent change date for each
             lease</p>
-        <h3 id='required-properties-26'>Required Properties</h3>
+        <h3 id='required-properties-27'>Required Properties</h3>
         <ul>
             <li><code>leases</code> - an array of lease rent change objects, each containing:
 
@@ -3956,7 +4045,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Updates the alternative contacts for a lease</p>
-        <h3 id='required-properties-27'>Required Properties</h3>
+        <h3 id='required-properties-28'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to update</li>
             <li><code>alternativeContacts</code> - an array of alternative contacts</li>
@@ -4021,7 +4110,7 @@ quote_IJf03jNjKuf
             group&#39;s standard rate when <code>rentAmount</code> is omitted), so the preview matches what the same
             <code>rentAmount</code> will be billed in <a href="#get-move-in-charges">Get Move-In Charges</a> and
             <a href="#create-lease">Create Lease</a>.</p>
-        <h3 id='required-properties-28'>Required Properties</h3>
+        <h3 id='required-properties-29'>Required Properties</h3>
         <ul>
             <li><code>unitId</code> - the ID of the unit</li>
         </ul>
@@ -4152,7 +4241,7 @@ quote_IJf03jNjKuf
             <a href="#make-payment">Make Payment</a> with that method to fully settle the charges. Omit <code>paymentMethodId</code>
             (or
             supply a non-credit method, or a facility with no fee configured) to get the fee-free charges.</p>
-        <h3 id='required-properties-29'>Required Properties</h3>
+        <h3 id='required-properties-30'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease</li>
         </ul>
@@ -4169,7 +4258,7 @@ quote_IJf03jNjKuf
                 <code>null</code>.
             </li>
         </ul>
-        <h3 id='response-parameters-8'>Response Parameters</h3>
+        <h3 id='response-parameters-9'>Response Parameters</h3>
         <table>
             <thead>
             <tr>
@@ -4368,7 +4457,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Returns the charges for a lease move-in</p>
-        <h3 id='required-properties-30'>Required Properties</h3>
+        <h3 id='required-properties-31'>Required Properties</h3>
         <ul>
             <li><code>unitId</code> - the ID of the unit</li>
             <li><code>moveInDate</code> - the date the tenant is moving in</li>
@@ -4484,7 +4573,7 @@ quote_IJf03jNjKuf
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
         </div>
-        <h3 id='required-properties-31'>Required Properties</h3>
+        <h3 id='required-properties-32'>Required Properties</h3>
         <ul>
             <li><code>unitId</code> - the ID of the unit</li>
             <li><code>moveInDate</code> - the date the tenant is moving in</li>
@@ -4709,7 +4798,7 @@ quote_IJf03jNjKuf
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
         </div>
-        <h3 id='required-properties-32'>Required Properties</h3>
+        <h3 id='required-properties-33'>Required Properties</h3>
         <p>All properties from <a href="#create-lease">Create Lease</a>, plus:</p>
 
         <ul>
@@ -4769,7 +4858,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Cancels a lease which has not yet started (i.e. the move-in date is in the future)</p>
-        <h3 id='required-properties-33'>Required Properties</h3>
+        <h3 id='required-properties-34'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to cancel</li>
         </ul>
@@ -4799,7 +4888,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Schedules a move-out for a lease</p>
-        <h3 id='required-properties-34'>Required Properties</h3>
+        <h3 id='required-properties-35'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to schedule the move-out for</li>
             <li><code>moveOutDate</code> - the date the tenant will move out (YYYY-MM-DD)</li>
@@ -4848,7 +4937,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Generates a payment link which can be sent to the tenant to make a payment for one or more leases</p>
-        <h3 id='required-properties-35'>Required Properties</h3>
+        <h3 id='required-properties-36'>Required Properties</h3>
         <ul>
             <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
         </ul>
@@ -4881,7 +4970,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Generates a link which can be sent to the tenant to view, manage, and sign documents for a lease.</p>
-        <h3 id='required-properties-36'>Required Properties</h3>
+        <h3 id='required-properties-37'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to generate a documents link for</li>
         </ul>
@@ -4910,7 +4999,7 @@ quote_IJf03jNjKuf
             <code>amount</code>, and the remainder is applied to the lease. To fully settle a balance in this case,
             charge the fee-inclusive <code>total</code> returned by <a href="#preview-charges">Preview Charges</a> for
             the same <code>paymentMethodId</code>. Facilities without credit-card fees configured are unaffected.</p>
-        <h3 id='required-properties-37'>Required Properties</h3>
+        <h3 id='required-properties-38'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
             <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
@@ -4936,7 +5025,7 @@ quote_IJf03jNjKuf
         <p>Enables AutoPay for a lease using a saved payment method. With AutoPay enabled, the tenant will be
             automatically charged for the amount due on the next charge date of the lease, and on subsequent charge
             dates until AutoPay is disabled.</p>
-        <h3 id='required-properties-38'>Required Properties</h3>
+        <h3 id='required-properties-39'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to enable AutoPay for</li>
             <li><code>paymentMethodId</code> - the ID of the payment method to use for AutoPay</li>
@@ -5010,7 +5099,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for saved payment methods by customer</p>
-        <h3 id='required-properties-39'>Required Properties</h3>
+        <h3 id='required-properties-40'>Required Properties</h3>
         <ul>
             <li><code>customerId</code> - the ID of the customer</li>
         </ul>
@@ -5249,7 +5338,7 @@ quote_IJf03jNjKuf
         <p>The caller must ensure the payment method has been successfully validated and authorized by the payment
             gateway before submission.
             Unvalidated payment methods may be rejected by the payment gateway when used for a transaction.</p>
-        <h3 id='required-properties-40'>Required Properties</h3>
+        <h3 id='required-properties-41'>Required Properties</h3>
         <ul>
             <li><code>methodType</code> - the type of payment method, which can be <code>CREDIT_CARD</code>,
                 <code>ACH</code> or <code>ACSS</code></li>
@@ -5633,7 +5722,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
-        <h3 id='required-properties-41'>Required Properties</h3>
+        <h3 id='required-properties-42'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
             <li>or</li>
@@ -5705,7 +5794,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Adds the private coverage policy number and expiration date for a lease.</p>
-        <h3 id='required-properties-42'>Required Properties</h3>
+        <h3 id='required-properties-43'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
             <li><code>policyNumber</code> - the policy number for the private coverage policy</li>
@@ -5752,7 +5841,7 @@ quote_IJf03jNjKuf
         </blockquote>
 
         <p>The response body contains the requested private policy file as a binary stream</p>
-        <h3 id='required-properties-43'>Required Properties</h3>
+        <h3 id='required-properties-44'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
         </ul>
@@ -5772,7 +5861,10 @@ quote_IJf03jNjKuf
                 class="w">
     </span><span class="nl">"facilityId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fac_C7bSZyPT6fp"</span><span
                 class="w">
-  </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"expansions"</span><span class="p">:</span><span class="w"> </span><span
+                class="p">[</span><span class="w"> </span><span class="s2">"coverageProgram"</span><span
+                class="w"> </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
         </div>
@@ -5790,13 +5882,18 @@ quote_IJf03jNjKuf
       </span><span class="p">{</span><span class="w">
         </span><span class="nl">"coverageLevelId"</span><span class="p">:</span><span class="w"> </span><span
                 class="s2">"covlevel_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span
-                class="s2">"Standard"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XYZ Insurance"</span><span
-                class="p">,</span><span class="w">
+        </span><span class="nl">"coverageProgramId"</span><span class="p">:</span><span class="w"> </span><span
+                class="s2">"covprogram_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAFELEASE"</span><span
+                class="p">,</span><span class="w"> </span><span class="c1">// Deprecated. Use provider from the coverageProgram expansion</span><span
+                class="w">
         </span><span class="nl">"policyNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456"</span><span
-                class="p">,</span><span class="w">
+                class="p">,</span><span class="w">  </span><span class="c1">// Deprecated. Use policyNumber from the coverageProgram expansion </span><span
+                class="w">
         </span><span class="nl">"active"</span><span class="p">:</span><span class="w"> </span><span
+                class="kc">true</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span
+                class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"default"</span><span class="p">:</span><span class="w"> </span><span
                 class="kc">true</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span
                 class="kc">false</span><span class="p">,</span><span class="w">
         </span><span class="nl">"coverageAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span
@@ -5806,15 +5903,90 @@ quote_IJf03jNjKuf
       </span><span class="p">},</span><span class="w">
       </span><span class="p">{</span><span class="w"> </span><span class="c">/* ... */</span><span
                 class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"coveragePrograms"</span><span class="p">:</span><span class="w"> </span><span
+                class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"coverageProgramId"</span><span class="p">:</span><span class="w"> </span><span
+                class="s2">"covprogram_&lt;ID&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAFELEASE"</span><span
+                class="p">,</span><span class="w">
+        </span><span class="nl">"policyNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456"</span><span
+                class="p">,</span><span class="w">
+        </span><span class="nl">"coverageOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span
+                class="w">
+          </span><span class="nl">"allowTenantOwnInsurance"</span><span class="p">:</span><span class="w"> </span><span
+                class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"hideTenantOwnInsuranceOnStorefront"</span><span class="p">:</span><span
+                class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"allowWaiveInsurance"</span><span class="p">:</span><span class="w"> </span><span
+                class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"hideWaiveInsuranceOnStorefront"</span><span class="p">:</span><span
+                class="w"> </span><span class="kc">false</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
         </div>
-        <p>Search for coverage levels by facility</p>
-        <h3 id='required-properties-44'>Required Properties</h3>
+        <p>Search for coverage levels by facility. Each coverage level belongs to a coverage program (the facility&#39;s
+            insurance
+            program), identified by <code>coverageProgramId</code>. Request the <code>coverageProgram</code> expansion
+            to also receive the program
+            object(s) — returned as the <code>coveragePrograms</code> array — which carry the program-wide <code>coverageOptions</code>.
+        </p>
+        <h3 id='required-properties-45'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - limits results to coverage levels in a particular facility</li>
+        </ul>
+        <h3 id='optional-properties-23'>Optional Properties</h3>
+        <ul>
+            <li><code>expansions</code> - an array of strings which can be used to include additional data in the
+                response; the only supported
+                value for this endpoint is <code>coverageProgram</code></li>
+        </ul>
+        <h3 id='response-parameters-10'>Response Parameters</h3>
+        <ul>
+            <li><code>coverageProgramId</code> - the ID of the coverage program this level belongs to; use it to
+                associate a level with an
+                entry in the <code>coveragePrograms</code> expansion
+            </li>
+            <li><code>default</code> - whether this coverage level is the program&#39;s default (the level preselected
+                on Cubby storefronts)
+            </li>
+            <li><code>provider</code> / <code>policyNumber</code> - the coverage provider and policy number. These are
+                attributes of the coverage program
+                and are duplicated onto each level for convenience so they remain available when the <code>coverageProgram</code>
+                expansion is
+                not requested. The <code>coverageProgram</code> object is the source of truth; the level-level copies
+                may be removed in a
+                future major version.
+            </li>
+        </ul>
+        <h3 id='expansions-2'>Expansions</h3>
+        <ul>
+            <li><code>coverageProgram</code> - returns the distinct coverage program(s) for the matched levels as the
+                <code>coveragePrograms</code> array.
+                Join each level to its program via <code>coverageProgramId</code>. Each program entry carries:
+
+                <ul>
+                    <li><code>coverageProgramId</code> - the program ID (join key with <code>coverageLevel.coverageProgramId</code>)
+                    </li>
+                    <li><code>provider</code> - the coverage provider</li>
+                    <li><code>policyNumber</code> - the program&#39;s policy number</li>
+                    <li><code>coverageOptions</code> - the program&#39;s additional options governing the coverage step:
+                    </li>
+                    <li><code>allowTenantOwnInsurance</code> - tenants may use their own insurance coverage (with proof
+                        of insurance)
+                    </li>
+                    <li><code>hideTenantOwnInsuranceOnStorefront</code> - hide the own-insurance option from online
+                        booking
+                    </li>
+                    <li><code>allowWaiveInsurance</code> - tenants may opt out of coverage</li>
+                    <li><code>hideWaiveInsuranceOnStorefront</code> - hide the opt-out option from online booking</li>
+                </ul>
+            </li>
         </ul>
         <h3 id='coverage-policies-search'>Coverage Policies Search</h3>
         <p><code>POST /v1/coverage/search</code></p>
@@ -5869,13 +6041,13 @@ quote_IJf03jNjKuf
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
         </div>
-        <h3 id='required-properties-45'>Required Properties</h3>
+        <h3 id='required-properties-46'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - limits results to policies in a particular facility</li>
             <li>or</li>
             <li><code>leaseId</code> - limit results to policies for a particular lease</li>
         </ul>
-        <h3 id='optional-properties-23'>Optional Properties</h3>
+        <h3 id='optional-properties-24'>Optional Properties</h3>
         <ul>
             <li><code>activeOnOrAfter</code> - limits results to policies which are active on or after a specific date
             </li>
@@ -6022,13 +6194,13 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for payments by facility, customer, or payment date</p>
-        <h3 id='required-properties-46'>Required Properties</h3>
+        <h3 id='required-properties-47'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - limits results to payments in a particular facility</li>
             <li>or</li>
             <li><code>customerId</code> - limits results to payments for a particular customer</li>
         </ul>
-        <h3 id='optional-properties-24'>Optional Properties</h3>
+        <h3 id='optional-properties-25'>Optional Properties</h3>
         <ul>
             <li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific
                 date
@@ -6158,7 +6330,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for auctions by facility or auction ID</p>
-        <h3 id='required-properties-47'>Required Properties</h3>
+        <h3 id='required-properties-48'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - limits results to auctions in a particular facility</li>
             <li>or</li>
@@ -6169,7 +6341,7 @@ quote_IJf03jNjKuf
             * <code>winningBidders</code> - includes information about the winning bidders for each auctioned lease
             * <code>leases</code> - includes information about the leases being auctioned
             * <code>units</code> - includes information about the units being auctioned</p>
-        <h3 id='response-parameters-9'>Response Parameters</h3>
+        <h3 id='response-parameters-11'>Response Parameters</h3>
         <ul>
             <li><code>auctionId</code> - the ID of the auction</li>
             <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -6228,7 +6400,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Creates a new auction for a facility</p>
-        <h3 id='required-properties-48'>Required Properties</h3>
+        <h3 id='required-properties-49'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - the ID of the facility to create the auction for</li>
             <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -6257,12 +6429,12 @@ quote_IJf03jNjKuf
         </div>
         <p>Starts the lien process for a lease, which may include sending lien notices to the tenant and alternative
             contacts</p>
-        <h3 id='required-properties-49'>Required Properties</h3>
+        <h3 id='required-properties-50'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
             <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
         </ul>
-        <h3 id='optional-properties-25'>Optional Properties</h3>
+        <h3 id='optional-properties-26'>Optional Properties</h3>
         <ul>
             <li><code>sendEmailAndSms</code> - a boolean indicating if email and SMS notices should be sent, defaults to
                 <code>false</code></li>
@@ -6338,7 +6510,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for notes related to leases, customers, leads, units, or pricing groups.</p>
-        <h3 id='required-properties-50'>Required Properties</h3>
+        <h3 id='required-properties-51'>Required Properties</h3>
         <ul>
             <li><code>leaseId</code> - limits results to notes for a specific lease</li>
             <li>or</li>
@@ -6382,7 +6554,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Creates a new note related to a lease, customer, lead, unit, or pricing group.</p>
-        <h3 id='required-properties-51'>Required Properties</h3>
+        <h3 id='required-properties-52'>Required Properties</h3>
         <ul>
             <li><code>text</code> - the text of the note</li>
             <li>and one of</li>
@@ -6479,13 +6651,13 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for tasks by facility, organization, unit, customer, status, or due date</p>
-        <h3 id='required-properties-52'>Required Properties</h3>
+        <h3 id='required-properties-53'>Required Properties</h3>
         <p>At least one of the following:
             * <code>organizationId</code> - limits results to tasks in a specific organization
             * <code>facilityId</code> - limits results to tasks in a specific facility
             * <code>unitId</code> - limits results to tasks for a specific unit
             * <code>customerId</code> - limits results to tasks for a specific customer</p>
-        <h3 id='optional-properties-26'>Optional Properties</h3>
+        <h3 id='optional-properties-27'>Optional Properties</h3>
         <ul>
             <li><code>status</code> - filters tasks by status; one of <code>OPEN</code>, <code>COMPLETED</code>, or
                 <code>ARCHIVED</code></li>
@@ -6520,12 +6692,12 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Creates a new task at the specified facility</p>
-        <h3 id='required-properties-53'>Required Properties</h3>
+        <h3 id='required-properties-54'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - the ID of the facility to create the task in</li>
             <li><code>title</code> - the title of the task</li>
         </ul>
-        <h3 id='optional-properties-27'>Optional Properties</h3>
+        <h3 id='optional-properties-28'>Optional Properties</h3>
         <ul>
             <li><code>description</code> - a description of the task</li>
             <li><code>dueDate</code> - the due date of the task (YYYY-MM-DD)</li>
@@ -6777,7 +6949,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-        <h3 id='required-properties-54'>Required Properties</h3>
+        <h3 id='required-properties-55'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
             <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -6790,7 +6962,7 @@ quote_IJf03jNjKuf
                 </ul>
             </li>
         </ul>
-        <h3 id='response-parameters-10'>Response Parameters</h3>
+        <h3 id='response-parameters-12'>Response Parameters</h3>
         <p>The response contains an array of journal entries, each of which contains the following fields:</p>
 
         <ul>
@@ -7283,7 +7455,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Generates an accrual basis general ledger report for a facility over a specified time period.</p>
-        <h3 id='required-properties-55'>Required Properties</h3>
+        <h3 id='required-properties-56'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
             <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -7296,7 +7468,7 @@ quote_IJf03jNjKuf
                 </ul>
             </li>
         </ul>
-        <h3 id='response-parameters-11'>Response Parameters</h3>
+        <h3 id='response-parameters-13'>Response Parameters</h3>
         <p>The response contains an array of journal entry line items, each of which contains the following fields:</p>
 
         <ul>
@@ -7477,11 +7649,11 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Generates an aged receivables report for one or more facilities.</p>
-        <h3 id='required-properties-56'>Required Properties</h3>
+        <h3 id='required-properties-57'>Required Properties</h3>
         <ul>
             <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
         </ul>
-        <h3 id='response-parameters-12'>Response Parameters</h3>
+        <h3 id='response-parameters-14'>Response Parameters</h3>
         <p>The response contains an array of aged receivable entries, one for each lease with an outstanding balance,
             each of which contains the following fields:</p>
 
@@ -7630,14 +7802,14 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Generates a rent roll report for one or more facilities.</p>
-        <h3 id='required-properties-57'>Required Properties</h3>
+        <h3 id='required-properties-58'>Required Properties</h3>
         <ul>
             <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
             <li><code>throughDate</code> - the date through which to calculate rent due in <code>YYYY-MM-DD</code>
                 format
             </li>
         </ul>
-        <h3 id='response-parameters-13'>Response Parameters</h3>
+        <h3 id='response-parameters-15'>Response Parameters</h3>
         <p>The response contains an array of rent roll entries, one for each unit, each of which contains the following
             fields:</p>
 
@@ -7791,7 +7963,7 @@ quote_IJf03jNjKuf
         <p>Generates a merchant services disbursements report for one or more facilities over a specified time period.
             The report includes batch-level settlement summaries and individual transaction details from configured
             payment providers (Stripe, Payabli).</p>
-        <h3 id='required-properties-58'>Required Properties</h3>
+        <h3 id='required-properties-59'>Required Properties</h3>
         <ul>
             <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
             <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -7804,7 +7976,7 @@ quote_IJf03jNjKuf
                 </ul>
             </li>
         </ul>
-        <h3 id='response-parameters-14'>Response Parameters</h3>
+        <h3 id='response-parameters-16'>Response Parameters</h3>
         <p>The response contains two arrays: <code>batches</code> and <code>transactions</code>. Fields that are not
             applicable are omitted from the response.</p>
         <h4 id='batches'>Batches</h4>
@@ -7961,13 +8133,13 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for storefront-visible facilities by facility or organization</p>
-        <h3 id='required-properties-59'>Required Properties</h3>
+        <h3 id='required-properties-60'>Required Properties</h3>
         <ul>
             <li><code>facilityId</code> - limits results to a specific facility</li>
             <li>or</li>
             <li><code>organizationId</code> - limits results to facilities in a specific organization</li>
         </ul>
-        <h3 id='optional-properties-28'>Optional Properties</h3>
+        <h3 id='optional-properties-29'>Optional Properties</h3>
         <ul>
             <li><code>expansions</code> - an array of strings which can be used to include additional data in the
                 response; supported for this
@@ -8058,19 +8230,19 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Search for storefront-visible pricing groups by facility or pricing group ID</p>
-        <h3 id='required-properties-60'>Required Properties</h3>
+        <h3 id='required-properties-61'>Required Properties</h3>
         <ul>
             <li><code>pricingGroupId</code> - limits results to a specific pricing group</li>
             <li>or</li>
             <li><code>facilityId</code> - limits results to pricing groups in a particular facility</li>
         </ul>
-        <h3 id='optional-properties-29'>Optional Properties</h3>
+        <h3 id='optional-properties-30'>Optional Properties</h3>
         <ul>
             <li><code>expansions</code> - an array of strings which can be used to include additional data in the
                 response; supported for this
                 endpoint are <code>discounts</code></li>
         </ul>
-        <h3 id='response-parameters-15'>Response Parameters</h3>
+        <h3 id='response-parameters-17'>Response Parameters</h3>
         <ul>
             <li><code>price</code> - the price in cents (integer)</li>
             <li><code>strikethroughPrice</code> - the original/comparison price in cents (integer)</li>
@@ -8106,7 +8278,7 @@ quote_IJf03jNjKuf
 </span></code></pre>
         </div>
         <p>Sends an SMS message to a customer</p>
-        <h3 id='required-properties-61'>Required Properties</h3>
+        <h3 id='required-properties-62'>Required Properties</h3>
         <ul>
             <li><code>customerId</code> - the ID of the customer to send the message to</li>
             <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -8194,7 +8366,7 @@ quote_IJf03jNjKuf
   <span class="nt">--form</span> <span class="s1">'attachments=@receipt.pdf'</span>
 </code></pre>
         </div>
-        <h3 id='required-properties-62'>Required Properties</h3>
+        <h3 id='required-properties-63'>Required Properties</h3>
         <p>The following fields belong inside the JSON <code>request</code> part:</p>
 
         <ul>
