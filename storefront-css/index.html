@@ -1,0 +1,374 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Cubby Storefront CSS</title>
+
+    <link href="../stylesheets/screen-9c19b03a.css" rel="stylesheet" media="screen" />
+    <link href="../stylesheets/print-966d6edc.css" rel="stylesheet" media="print" />
+    <script src="../javascripts/all-b12a2749.js"></script>
+
+    <script>
+      $(function() { setupCodeCopy(); });
+    </script>
+
+    <style media="screen">
+      /* Cross-doc navigation in the sidebar, matching the other Cubby docs pages */
+      a.docnav-logo { display: block; text-decoration: none; }
+      .docnav { padding: 0 28px 14px; }
+      .docnav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #555; padding: 16px 0 6px; }
+      .docnav-link { display: block; color: #888; font-size: 13px; padding: 5px 0; text-decoration: none; white-space: nowrap; }
+      .docnav-link:hover { color: #fff; }
+      .docnav-link.active { color: #66d9ef; }
+
+      /* Part reference tables */
+      .content table th:first-child,
+      .content table td:first-child { white-space: nowrap; }
+    </style>
+  </head>
+
+  <body class="index" data-languages="[]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="../images/navbar.png" alt="" />
+      </span>
+    </a>
+    <div class="toc-wrapper">
+      <a href="../" class="docnav-logo"><img src="../images/logo-95c97c83.png" class="logo" alt="" /></a>
+      <div class="docnav">
+        <div class="docnav-label">Documentation</div>
+        <a href="../api/" class="docnav-link">API Reference</a>
+        <a href="../data-dictionary/" class="docnav-link">Data Warehouse</a>
+        <a href="../make-webhooks/" class="docnav-link">Make.com Integration</a>
+        <a href="../storefront-css/" class="docnav-link active">Storefront CSS</a>
+      </div>
+      <div class="search">
+        <input type="text" class="search" id="input-search" placeholder="Search">
+      </div>
+      <ul class="search-results"></ul>
+      <ul id="toc" class="toc-list-h1">
+        <li>
+          <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+          <ul class="toc-list-h2">
+            <li><a href="#styling-a-part" class="toc-h2 toc-link" data-title="Styling a part">Styling a part</a></li>
+            <li><a href="#forwarded-parts" class="toc-h2 toc-link" data-title="Forwarded parts">Forwarded parts</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#css-variables" class="toc-h1 toc-link" data-title="CSS variables">CSS variables</a>
+          <ul class="toc-list-h2">
+            <li><a href="#color-variables" class="toc-h2 toc-link" data-title="Colors">Colors</a></li>
+            <li><a href="#shape-variables" class="toc-h2 toc-link" data-title="Border &amp; shape">Border &amp; shape</a></li>
+            <li><a href="#typography-variables" class="toc-h2 toc-link" data-title="Typography">Typography</a></li>
+          </ul>
+        </li>
+        <li><a href="#facility" class="toc-h1 toc-link" data-title="Facility">Facility</a></li>
+        <li><a href="#facility-info" class="toc-h1 toc-link" data-title="Facility Info">Facility Info</a></li>
+        <li><a href="#portfolio" class="toc-h1 toc-link" data-title="Portfolio">Portfolio</a></li>
+        <li><a href="#checkout" class="toc-h1 toc-link" data-title="Checkout">Checkout</a></li>
+        <li><a href="#search" class="toc-h1 toc-link" data-title="Search">Search</a></li>
+        <li><a href="#contact-form" class="toc-h1 toc-link" data-title="Contact Form">Contact Form</a></li>
+        <li>
+          <a href="#pricing-cards-tiers" class="toc-h1 toc-link" data-title="Pricing cards &amp; tiers">Pricing cards &amp; tiers</a>
+          <ul class="toc-list-h2">
+            <li><a href="#pricing-group-card-parts" class="toc-h2 toc-link" data-title="Pricing group card parts">Pricing group card parts</a></li>
+            <li><a href="#pricing-tier-parts" class="toc-h2 toc-link" data-title="Pricing tier parts">Pricing tier parts</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+
+        <h1 id="introduction">Introduction</h1>
+        <p>
+          The Cubby Storefront components (<code>cubby-facility</code>, <code>cubby-search</code>, and so on)
+          are <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components">Web Components</a> built
+          with <a href="https://lit.dev">Lit</a>. Their markup lives inside a
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM">shadow DOM</a>,
+          which means the elements inside a component are not reachable with ordinary CSS selectors and are not
+          affected by your page's global styles.
+        </p>
+        <p>
+          To let you theme them, each component exposes a set of
+          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/::part">CSS Shadow Parts</a>. A part is a named
+          hook on an internal element (declared with the <code>part="..."</code> attribute) that you can target from
+          your own stylesheet using the <code>::part()</code> pseudo-element. This page lists the parts exposed by
+          every public storefront component.
+        </p>
+        <aside class="notice">
+          Parts are the <strong>only</strong> supported way to style the internals of these components. Anything not
+          listed here is an implementation detail and may change without notice.
+        </aside>
+
+        <h2 id="styling-a-part">Styling a part</h2>
+        <p>
+          Target a part with <code>&lt;tag-name&gt;::part(&lt;part-name&gt;)</code> from any stylesheet on the host page.
+          For example, to round the corners of the pricing cards rendered by <code>cubby-facility</code> and restyle
+          their call-to-action button:
+        </p>
+        <pre class="highlight css"><code>cubby-facility::part(card) {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+cubby-facility::part(card-button) {
+  background: #1e88e5;
+  color: #fff;
+}</code></pre>
+        <p>
+          Parts also support pseudo-classes and can be combined, so
+          <code>cubby-facility::part(tab):hover</code> and <code>cubby-search::part(result):first-child</code> both work.
+        </p>
+
+        <h2 id="forwarded-parts">Forwarded parts</h2>
+        <p>
+          Some components render other components inside their shadow DOM &mdash; for instance, each card inside
+          <code>cubby-facility</code> is itself a component. Those inner parts are <em>forwarded</em> up to the
+          outer element (via <code>exportparts</code>), so you style them on the top-level tag exactly like the
+          element's own parts. You do not need to reference the internal element.
+        </p>
+        <p>
+          The forwarded part sets &mdash; the <a href="#pricing-group-card-parts">pricing group card parts</a> and the
+          <a href="#pricing-tier-parts">pricing tier parts</a> &mdash; are documented once at the bottom of this page and
+          referenced from the components that expose them.
+        </p>
+
+        <h1 id="css-variables">CSS variables</h1>
+        <p>
+          Alongside the per-element <a href="#styling-a-part">parts</a>, every storefront component reads a set of
+          global <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/--*">CSS custom properties</a> prefixed
+          <code>--cubby-</code>. These are the coarse theming knobs: colors, border and shape, and typography. Set them
+          on a component or on any ancestor (for example <code>:root</code>) and they cascade into every component's
+          shadow DOM at once.
+        </p>
+        <p>
+          Use variables to retheme the whole storefront consistently, and reach for
+          <a href="#styling-a-part">parts</a> when you need to tweak one specific element. Each variable is read with a
+          fallback &mdash; <code>var(--cubby-primary-color, &lt;default&gt;)</code> &mdash; so any value you set wins over
+          the theme configured in the storefront builder.
+        </p>
+        <pre class="highlight css"><code>:root {
+  --cubby-primary-color: #1e88e5;
+  --cubby-surface-color: #ffffff;
+  --cubby-radius: 16px;
+  --cubby-body-font: 'Inter';
+}</code></pre>
+
+        <h2 id="color-variables">Colors</h2>
+        <table>
+          <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>--cubby-primary-color</code></td><td><code>#000000</code></td><td>The primary brand color (buttons, accents).</td></tr>
+            <tr><td><code>--cubby-on-primary-color</code></td><td><code>#ffffff</code></td><td>Text/icon color shown on top of the primary color.</td></tr>
+            <tr><td><code>--cubby-secondary-color</code></td><td><code>#000000</code></td><td>The secondary color.</td></tr>
+            <tr><td><code>--cubby-on-secondary-color</code></td><td><code>#ffffff</code></td><td>Text/icon color shown on top of the secondary color.</td></tr>
+            <tr><td><code>--cubby-surface-color</code></td><td><code>#ffffff</code></td><td>Component surface/background color.</td></tr>
+            <tr><td><code>--cubby-on-surface-color</code></td><td><code>#000000</code></td><td>Text/icon color shown on top of the surface color.</td></tr>
+            <tr><td><code>--cubby-success-color</code></td><td><code>#007F5F</code></td><td>Success state color.</td></tr>
+            <tr><td><code>--cubby-error-color</code></td><td><code>#D72C0D</code></td><td>Error state color.</td></tr>
+            <tr><td><code>--cubby-outline-color</code></td><td><code>#aaaaaa</code></td><td>Border/outline color.</td></tr>
+            <tr><td><code>--cubby-divider-color</code></td><td><code>#aaaaaa</code></td><td>Divider line color.</td></tr>
+            <tr><td><code>--cubby-shadow-color</code></td><td><code>#000000</code></td><td>Color used for component shadows.</td></tr>
+          </tbody>
+        </table>
+        <aside class="notice">
+          The <code>on-*</code> colors are automatically derived for contrast from the matching base color, so you
+          usually only need to set the base color &mdash; but you can override an <code>on-*</code> color individually
+          when you want to.
+        </aside>
+
+        <h2 id="shape-variables">Border &amp; shape</h2>
+        <table>
+          <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>--cubby-outline-width</code></td><td><code>0px</code></td><td>Width of element outlines/borders.</td></tr>
+            <tr><td><code>--cubby-divider-width</code></td><td><code>1px</code></td><td>Width of divider lines.</td></tr>
+            <tr><td><code>--cubby-shadow</code></td><td><code>none</code></td><td>The full <code>box-shadow</code> applied to raised surfaces.</td></tr>
+            <tr><td><code>--cubby-radius</code></td><td><code>8px</code></td><td>Corner radius for cards, inputs, and buttons.</td></tr>
+            <tr><td><code>--cubby-density</code></td><td><code>8px</code></td><td>Inner padding density of components.</td></tr>
+            <tr><td><code>--cubby-spacing</code></td><td><code>8px</code></td><td>Gap/spacing between items in a layout.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="typography-variables">Typography</h2>
+        <table>
+          <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>--cubby-body-font</code></td><td><code>inherit</code></td><td>Font family for body text.</td></tr>
+            <tr><td><code>--cubby-heading-font</code></td><td><code>inherit</code></td><td>Font family for headings. Falls back to the body font when unset.</td></tr>
+          </tbody>
+        </table>
+        <aside class="notice">
+          The components append <code>, sans-serif, system-ui</code> to whatever font you provide, so a single family
+          name (e.g. <code>'Inter'</code>) is enough &mdash; make sure the font itself is loaded on your page.
+          <code>--cubby-success-color</code>, <code>--cubby-error-color</code>, <code>--cubby-divider-color</code>, and
+          <code>--cubby-divider-width</code> are not surfaced in the storefront builder UI but can still be overridden
+          here via CSS.
+        </aside>
+
+        <h1 id="facility">Facility</h1>
+        <p>
+          <code>&lt;cubby-facility&gt;</code> displays the pricing groups for a single facility, optionally split into
+          collection tabs. In addition to its own parts below, it forwards the full
+          <a href="#pricing-group-card-parts">pricing group card parts</a> and
+          <a href="#pricing-tier-parts">pricing tier parts</a> for the cards it renders.
+        </p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>tabs</code></td><td>The collection tab-navigation container.</td></tr>
+            <tr><td><code>tab</code></td><td>An individual collection tab.</td></tr>
+            <tr><td><code>card</code></td><td>A pricing group card.</td></tr>
+          </tbody>
+        </table>
+        <pre class="highlight css"><code>cubby-facility::part(tab) { font-weight: 600; }
+cubby-facility::part(card-price-amount) { color: #1e88e5; }</code></pre>
+
+        <h1 id="facility-info">Facility Info</h1>
+        <p>
+          <code>&lt;cubby-facility-info&gt;</code> shows a facility's location, map, and office-hours schedule.
+        </p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>card-title</code></td><td>The facility title heading.</td></tr>
+            <tr><td><code>card-body</code></td><td>A body text block (address, description, etc.).</td></tr>
+            <tr><td><code>card-map</code></td><td>The embedded map container.</td></tr>
+            <tr><td><code>card-schedule-name</code></td><td>The schedule label (e.g. &ldquo;Office hours&rdquo;).</td></tr>
+            <tr><td><code>card-schedule-hours</code></td><td>The schedule hours text.</td></tr>
+          </tbody>
+        </table>
+        <aside class="notice">
+          The title and body also carry a per-field variant part named after their source, e.g.
+          <code>card-name</code> or <code>card-address</code>, so you can target an individual field with
+          <code>cubby-facility-info::part(card-address)</code>.
+        </aside>
+
+        <h1 id="portfolio">Portfolio</h1>
+        <p>
+          <code>&lt;cubby-portfolio&gt;</code> renders a grid of facility cards linking to each facility.
+        </p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>card</code></td><td>A facility card.</td></tr>
+            <tr><td><code>card-image</code></td><td>The facility card image.</td></tr>
+            <tr><td><code>card-title</code></td><td>The facility card title.</td></tr>
+            <tr><td><code>card-body</code></td><td>The facility card body.</td></tr>
+          </tbody>
+        </table>
+        <aside class="notice">
+          Each body field is additionally exposed as <code>card-body-&lt;source&gt;</code> (for example
+          <code>card-body-address</code>), letting you style one field at a time.
+        </aside>
+
+        <h1 id="checkout">Checkout</h1>
+        <p>
+          <code>&lt;cubby-checkout&gt;</code> renders the order summary and payment form for a reservation or rental.
+        </p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>summary-container</code></td><td>The wrapper around the order summary.</td></tr>
+            <tr><td><code>summary</code></td><td>The order summary block.</td></tr>
+            <tr><td><code>features</code></td><td>The features list.</td></tr>
+            <tr><td><code>feature</code></td><td>A single feature row.</td></tr>
+            <tr><td><code>feature-icon</code></td><td>The icon of a feature row.</td></tr>
+            <tr><td><code>form-container</code></td><td>The wrapper around the checkout form.</td></tr>
+            <tr><td><code>form</code></td><td>The checkout form.</td></tr>
+            <tr><td><code>reserve-button</code></td><td>The reserve call-to-action button.</td></tr>
+            <tr><td><code>pay-button</code></td><td>The pay call-to-action button.</td></tr>
+          </tbody>
+        </table>
+
+        <h1 id="search">Search</h1>
+        <p>
+          <code>&lt;cubby-search&gt;</code> renders a multi-facility search experience with a form, a map, and a list of
+          results. It also forwards the <a href="#pricing-tier-parts">pricing tier parts</a> for the tiers shown on a result.
+        </p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>form</code></td><td>The search form.</td></tr>
+            <tr><td><code>map</code></td><td>The results map container.</td></tr>
+            <tr><td><code>results</code></td><td>The results list container.</td></tr>
+            <tr><td><code>result</code></td><td>A single search result.</td></tr>
+            <tr><td><code>result-image</code></td><td>A result's image.</td></tr>
+            <tr><td><code>result-pricing-group</code></td><td>A result's pricing group block.</td></tr>
+            <tr><td><code>result-action</code></td><td>A result's action button (base part shared by the three buttons below).</td></tr>
+            <tr><td><code>rent-button</code></td><td>A result's <em>Rent</em> action button.</td></tr>
+            <tr><td><code>reserve-button</code></td><td>A result's <em>Reserve</em> action button.</td></tr>
+            <tr><td><code>waitlist-button</code></td><td>A result's <em>Join waitlist</em> action button.</td></tr>
+            <tr><td><code>result-view-all-button</code></td><td>A result's <em>View all</em> button.</td></tr>
+            <tr><td><code>search-button</code></td><td>The search-submit button.</td></tr>
+          </tbody>
+        </table>
+        <aside class="notice">
+          <code>result-action</code> is applied to every action button alongside its specific part, so
+          <code>cubby-search::part(result-action)</code> styles all three at once while
+          <code>cubby-search::part(rent-button)</code> targets just one.
+        </aside>
+
+        <h1 id="contact-form">Contact Form</h1>
+        <p>
+          <code>&lt;cubby-contact-form&gt;</code> renders a contact form for a facility. It does <strong>not</strong>
+          expose any CSS parts at this time &mdash; there is currently no supported way to style its internals.
+        </p>
+
+        <h1 id="pricing-cards-tiers">Pricing cards &amp; tiers</h1>
+        <p>
+          The two part sets below are rendered by internal components and forwarded to the public components that use
+          them. Style them on the outer tag &mdash; e.g. <code>cubby-facility::part(card-price-amount)</code>. See each
+          component above for which sets it forwards.
+        </p>
+
+        <h2 id="pricing-group-card-parts">Pricing group card parts</h2>
+        <p>Forwarded by <a href="#facility">Facility</a>.</p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>card-image</code></td><td>The card image.</td></tr>
+            <tr><td><code>card-body</code></td><td>The card body.</td></tr>
+            <tr><td><code>card-title</code></td><td>The card title.</td></tr>
+            <tr><td><code>card-description</code></td><td>The card description.</td></tr>
+            <tr><td><code>card-features</code></td><td>The features list.</td></tr>
+            <tr><td><code>card-feature</code></td><td>A single feature row.</td></tr>
+            <tr><td><code>card-feature-icon</code></td><td>The icon of a feature row.</td></tr>
+            <tr><td><code>card-actions</code></td><td>The actions container.</td></tr>
+            <tr><td><code>card-price</code></td><td>The price container.</td></tr>
+            <tr><td><code>card-price-strike-amount</code></td><td>The struck-through original price.</td></tr>
+            <tr><td><code>card-price-amount</code></td><td>The price amount.</td></tr>
+            <tr><td><code>card-price-period</code></td><td>The price period (e.g. <code>/mo</code>).</td></tr>
+            <tr><td><code>card-alerts</code></td><td>The alerts container.</td></tr>
+            <tr><td><code>card-alert</code></td><td>A single alert.</td></tr>
+            <tr><td><code>card-button</code></td><td>The call-to-action button.</td></tr>
+            <tr><td><code>pricing-group_price_description</code></td><td>The supplementary price description text.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="pricing-tier-parts">Pricing tier parts</h2>
+        <p>Forwarded by <a href="#facility">Facility</a> and <a href="#search">Search</a>.</p>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>pricing-tier</code></td><td>A single pricing tier.</td></tr>
+            <tr><td><code>pricing-tier_name</code></td><td>The tier name.</td></tr>
+            <tr><td><code>pricing-tier_rate</code></td><td>The tier rate.</td></tr>
+            <tr><td><code>pricing-tier_benefits</code></td><td>The tier benefits list.</td></tr>
+            <tr><td><code>pricing-tier_benefit</code></td><td>A single tier benefit.</td></tr>
+            <tr><td><code>pricing-tiers_rent-button</code></td><td>The tier's rent button.</td></tr>
+            <tr><td><code>pricing-tier_details</code></td><td>The tier details block.</td></tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+  </body>
+</html>
