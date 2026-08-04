@@ -753,12 +753,12 @@ showIntro();
 
 function initERD() {
  if (__erdInit) return; __erdInit = true;
- var TY={S:'STRING',I:'INTEGER',N:'NUMERIC',DT:'DATETIME',D:'DATE',B:'BOOLEAN',J:'JSON',FL:'FLOAT'};
+ var TY={S:'STRING',I:'INTEGER',N:'NUMERIC',DT:'DATETIME',D:'DATE',B:'BOOLEAN',J:'JSON',FL:'FLOAT',AS:'STRING[]'};
  var GC={dim:['#1d3a52','#5b9bd5','dimensions'],crm:['#14463d','#2fb9a6','customer / web'],lease:['#3a2c5c','#a98fe0','leasing'],fin:['#4a3a18','#dba63f','financial'],lien:['#4d232c','#e07a86','lien / auction'],comm:['#48253f','#dd79bd','comms / activity']};
  var D={
 facilities:{g:'dim',c:'org_id|S|;facility_id|S|p;facility_name|S|;legal_name|S|;internal_name|S|;time_zone|S|;address|S|;latitude|S|;longitude|S|;facility_phone|S|;created_at|DT|;updated_at|DT|;lease_anniversary|S|;jump_day|I|'},
 facility_groups:{g:'dim',c:'org_id|S|;facility_id|S|f|facilities;facility_name|S|;facility_group_name|S|'},
-units:{g:'dim',c:'facility_id|S|f|facilities;facility_name|S|;org_id|S|;unit_id|S|p;unit_id_int|I|;unit_name|S|;created_at|DT|;unit_type|S|;unit_features|J|;pg_id|S|f|pricing_group;pricing_group|S|;rate_managed|N|;pricing_strategy_name|S|;web_rate|N|;walk_in_rate|N|;strikethrough_rate|N|;web_rate_override|N|;strikethrough_price_override|N|;walk_in_rate_override|N|;unit_floor_num|I|;unit_building_name|S|;unit_width|N|;unit_depth|N|;unit_height|N|;is_active|I|;is_leased|I|;is_insurable|I|;is_rentable|I|;is_overlocked|I|;unit_unrentable_reason|S|;unit_unrentable_note|S|;rentability_state_since|DT|;occupancy_state_since|DT|;days_vacant|I|;days_unrentable|I|;unit_keypad_zone|I|;unit_time_zone|I|'},
+units:{g:'dim',c:'facility_id|S|f|facilities;facility_name|S|;org_id|S|;unit_id|S|p;unit_id_int|I|;unit_name|S|;created_at|DT|;unit_type|S|;unit_features|J|;pg_id|S|f|pricing_group;pricing_group|S|;rate_managed|N|;pricing_strategy_name|S|;web_rate|N|;walk_in_rate|N|;strikethrough_rate|N|;web_rate_override|N|;strikethrough_price_override|N|;walk_in_rate_override|N|;unit_floor_num|I|;unit_building_name|S|;unit_width|N|;unit_depth|N|;unit_height|N|;sitemap_x|FL|;sitemap_y|FL|;sitemap_rotation|FL|;is_active|I|;is_leased|I|;is_insurable|I|;is_rentable|I|;is_overlocked|I|;unit_unrentable_reason|S|;unit_unrentable_note|S|;rentability_state_since|DT|;occupancy_state_since|DT|;days_vacant|I|;days_unrentable|I|;unit_keypad_zone|I|;unit_time_zone|I|'},
 pricing_group:{g:'dim',c:'pg_id|S|p;org_id|S|;name|S|;standard_rate|N|;web_rate|N|;walk_in_rate|N|;show_strikethrough_rate|I|;strikethrough_rate|N|;pricing_strategy_name|S|;web_rate_override|N|;strikethrough_price_override|N|;walk_in_rate_override|N|;facility_id|S|f|facilities;width|N|;height|N|;depth|N|;features|J|'},
 managers:{g:'dim',c:'manager_id|S|p;org_id|S|;manager_name|S|;manager_username|S|;manager_email|S|;manager_phone|S|;manager_permissions|I|'},
 stor_track:{g:'dim',c:'facility_id|S|f|facilities;competitor_weight|S|;store_name|S|;address|S|;city|S|;state|S|;zip|S|;owned_by|S|;operated_by|S|;class_type|S|;date_collected|D|;space_type|S|;size|S|;width|N|;length|N|;climate_controlled|I|;has_elevator|I|;drive_up|I|;regular_price|N|;online_price|N|;promo_price|N|;promo|S|;org_id|S|'},
@@ -785,16 +785,19 @@ call_child:{g:'comm',c:'org_id|S|;call_child_id|I|p;call_id|I|f|calls;facility_i
 call_agent_availability:{g:'comm',c:'manager_id|S|f|managers;manager_name|S|;org_id|S|;day|D|;status_raw|S|;status_name|S|;total_duration_seconds|I|'},
 emails:{g:'comm',c:'org_id|S|;status|S|;tag|S|;recipient_name|S|;recipient_email|S|;subject|S|;body|S|;created_by|S|;created_at|DT|;sent_at|DT|;delivered_at|DT|;bounced_at|DT|;opened_at|DT|;clicked_at|DT|;failed_at|DT|;bounce_reason|S|;failure_reason|S|;unit|S|;unit_id|S|f|units;lease_id|S|f|leases;facility_id|S|f|facilities;facility_name|S|;org_name|S|'},
 sms:{g:'comm',c:'org_id|S|;status|S|;tag|S|;contact_name|S|;contact_phone|S|;body|S|;direction|S|;created_by|S|;created_at|DT|;sent_at|DT|;delivered_at|DT|;failed_at|DT|;error_code|S|;unit|S|;unit_id|S|f|units;lease_id|S|f|leases;facility_id|S|f|facilities;facility_name|S|;org_name|S|'},
-cubby_events:{g:'comm',c:'org_id|S|;facility_id|S|f|facilities;type|S|;data|S|;unit_id|S|f|units;pg_id|S|f|pricing_group;contact_id|S|f|contacts;created_at|DT|;updated_at|DT|;lease_id|S|f|leases;manager_name|S|;manager_id|S|f|managers;last_login_at|DT|'},
-access_log:{g:'comm',c:'org_id|S|;id|S|p;contact_id|S|f|contacts;device_name|S|;code|S|;event|S|;occurred_at|DT|;result|S|;reason|S|;created_at|DT|;updated_at|DT|;facility_name|S|;facility_id|S|f|facilities;org_name|S|'}
+cubby_events:{g:'comm',c:'org_id|S|;facility_id|S|f|facilities;type|S|;data|S|;product_id|S|f|product;unit_id|S|f|units;pg_id|S|f|pricing_group;contact_id|S|f|contacts;created_at|DT|;updated_at|DT|;lease_id|S|f|leases;manager_name|S|;manager_id|S|f|managers;last_login_at|DT|'},
+access_log:{g:'comm',c:'org_id|S|;id|S|p;contact_id|S|f|contacts;device_name|S|;code|S|;event|S|;occurred_at|DT|;result|S|;reason|S|;created_at|DT|;updated_at|DT|;facility_name|S|;facility_id|S|f|facilities;org_name|S|'},
+product:{g:'dim',c:'org_id|S|;product_id|S|p;product_name|S|;is_active|I|;category|S|;created_at|DT|;default_cost_price|N|;default_retail_price|N|;updated_at|DT|'},
+tasks:{g:'comm',c:'org_id|S|;task_id|S|p;facility_id|S|f|facilities;title|S|;description|S|;status|S|;assignee|AS|;manager_created_by|S|;created_at|DT|;due_date|DT|;completed_at|DT|;archived_at|DT|'},
+manager_notes:{g:'comm',c:'org_id|S|;created_at|DT|;updated_at|DT|;contact_name|S|;unit_name|S|;facility_name|S|;note|S|;manager_name|S|'}
  };
  var COLS=[
 ['contacts','leads','customer_touches','ga_events'],
 ['payments','book_entries','recurring_fees','discounts','discount_programs'],
-['leases','rate_changes','scheduled_move_outs','access_log'],
-['facilities','facility_groups','pricing_group'],
+['leases','rate_changes','scheduled_move_outs','access_log','tasks'],
+['facilities','facility_groups','pricing_group','product'],
 ['units','spaces_historical','unit_walkthrough'],
-['unit_turnover','stor_track','managers','call_agent_availability'],
+['unit_turnover','stor_track','managers','call_agent_availability','manager_notes'],
 ['calls','call_child','auctions','lease_auctions'],
 ['emails','sms','cubby_events','date_dim']
  ];
