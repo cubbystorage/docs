@@ -794,11 +794,11 @@ manager_notes:{g:'comm',c:'org_id|S|;created_at|DT|;updated_at|DT|;contact_name|
  var COLS=[
 ['contacts','leads','customer_touches','ga_events'],
 ['payments','book_entries','recurring_fees','discounts','discount_programs'],
-['leases','rate_changes','scheduled_move_outs','access_log','tasks'],
-['facilities','facility_groups','pricing_group','product'],
+['leases','scheduled_move_outs','access_log'],
+['facilities','facility_groups','pricing_group','product','rate_changes'],
 ['units','spaces_historical','unit_walkthrough'],
-['unit_turnover','stor_track','managers','call_agent_availability','manager_notes'],
-['calls','call_child','auctions','lease_auctions'],
+['unit_turnover','stor_track','managers','call_agent_availability'],
+['calls','call_child','auctions','lease_auctions','tasks','manager_notes'],
 ['emails','sms','cubby_events','date_dim']
  ];
  var world=document.getElementById('erd-world'),svg=document.getElementById('erd-edges'),view=document.getElementById('erd-view'),wrap=document.getElementById('erd-wrap');
