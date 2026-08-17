@@ -330,6 +330,219 @@
       font-size: 12.5px;
     }
 
+    /* ── Sample queries view ── */
+    .q-wrap {
+      padding: 0 40px 60px;
+      max-width: 900px;
+    }
+    .q-wrap h2 {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      margin: 26px 0 10px;
+    }
+    .q-wrap h2:first-child { margin-top: 4px; }
+    .q-wrap p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 0 0 14px;
+    }
+    .q-wrap ul, .q-wrap ol {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 0 0 14px;
+      padding-left: 20px;
+    }
+    .q-wrap li { margin-bottom: 6px; }
+    .q-wrap strong { color: #ddd; }
+    .q-wrap code {
+      background: rgba(0,0,0,.3);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #e6db74;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      /* long identifiers like rate_changes.rent_change_amount must not widen the page */
+      overflow-wrap: anywhere;
+    }
+
+    /* Contents list at the top of the page */
+    .q-toc {
+      background: #22252b;
+      border: 1px solid #3a3d42;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 0 0 30px;
+      counter-reset: qtoc -1;
+    }
+    .q-toc-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .q-toc ol { margin: 0; padding: 0; list-style: none; }
+    .q-toc li {
+      margin: 0;
+      padding: 3px 0 3px 32px;
+      position: relative;
+      counter-increment: qtoc;
+    }
+    .q-toc li::before {
+      content: counter(qtoc);
+      position: absolute;
+      left: 0;
+      width: 22px;
+      text-align: right;
+      color: #555;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+    }
+    .q-toc li.q-toc-zero::before { content: "0"; }
+    .q-toc a { color: #9aa4b2; font-size: 13.5px; text-decoration: none; }
+    .q-toc a:hover { color: #66d9ef; }
+
+    /* Individual query block */
+    .q-item {
+      border-top: 1px solid #2a2d33;
+      padding-top: 26px;
+      margin-top: 30px;
+    }
+    .q-item:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .q-item h3 {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      scroll-margin-top: 20px;
+    }
+    .q-num {
+      color: #66d9ef;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-weight: 400;
+      margin-right: 8px;
+    }
+    .q-purpose {
+      color: #888;
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin: 0 0 14px;
+    }
+
+    /* Code block */
+    .q-code {
+      position: relative;
+      background: #1a1d23;
+      border: 1px solid #3a3d42;
+      border-radius: 6px;
+      margin: 0 0 16px;
+    }
+    .q-code pre {
+      margin: 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #f8f8f2;
+      tab-size: 2;
+    }
+    .q-copy {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #22252b;
+      border: 1px solid #3a3d42;
+      color: #999;
+      border-radius: 5px;
+      height: 26px;
+      padding: 0 10px;
+      font-size: 11px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .12s;
+      font-family: inherit;
+    }
+    .q-code:hover .q-copy { opacity: 1; }
+    .q-copy:hover { background: #2b2f36; color: #fff; }
+    .q-copy.copied { color: #a6e22e; border-color: rgba(166,226,46,.4); opacity: 1; }
+
+    /* SQL syntax colors (Monokai, matching the schema diagram) */
+    .sql-kw  { color: #f92672; }
+    .sql-fn  { color: #66d9ef; }
+    .sql-str { color: #e6db74; }
+    .sql-num { color: #ae81ff; }
+    .sql-com { color: #75715e; font-style: italic; }
+    .sql-id  { color: #a6e22e; }
+
+    /* Notes under each query */
+    .q-notes {
+      background: rgba(102,217,239,.04);
+      border-left: 2px solid #3f4855;
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px 12px 18px;
+      margin: 0;
+    }
+    .q-notes-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .q-notes ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.65; }
+    .q-notes li { margin-bottom: 7px; }
+    .q-notes li:last-child { margin-bottom: 0; }
+
+    /* Callout for the gotchas section */
+    .q-callout {
+      background: #22252b;
+      border: 1px solid #3a3d42;
+      border-radius: 6px;
+      padding: 4px 20px 16px;
+      margin: 0 0 30px;
+    }
+    .q-callout h2 { font-size: 14px; }
+
+    /* Small reference tables inside notes.
+       Wrapped in .q-table-wrap so a wide table scrolls itself instead of
+       stretching the page on narrow screens. */
+    .q-table-wrap {
+      overflow-x: auto;
+      margin: 10px 0 4px;
+    }
+    .q-table {
+      width: 100%;
+      min-width: 320px;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .q-table th, .q-table td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid #2a2d33;
+      vertical-align: top;
+    }
+    .q-table th {
+      color: #888;
+      font-weight: 700;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .q-table td { color: #aaa; line-height: 1.55; }
+    .q-table td code { font-size: 12px; }
+
+    @media (max-width: 700px) {
+      .q-wrap { padding: 0 20px 40px; }
+      .q-copy { opacity: 1; }
+    }
+
     /* ── Schema diagram view ── */
     #erd-wrap { position: relative; height: calc(100vh - 210px); min-height: 460px; margin: 0 16px 28px; background: #1a1d23; border: 1px solid #3a3d42; border-radius: 6px; overflow: hidden; }
     .erd-toolbar { position: absolute; z-index: 6; top: 12px; left: 12px; display: flex; gap: 6px; align-items: center; }
@@ -376,6 +589,7 @@
       <hr class="toc-divider">
       <a id="nav-intro" class="toc-link" onclick="showIntro();return false;">Introduction</a>
       <a id="nav-erd" class="toc-link" onclick="showDiagram();return false;">Schema Diagram</a>
+      <a id="nav-queries" class="toc-link" onclick="showQueries();return false;">Sample queries</a>
       <a class="toc-section-label toc-accordion" id="tables-toggle" onclick="toggleTables();return false;">Tables <span class="acc-caret">&#9656;</span></a>
       <div id="toc-tables" style="display:none">
         <a class="toc-link" onclick="filterTable('');return false;">All tables</a>
@@ -473,9 +687,922 @@
       </ul>
       <h2>Getting around</h2>
       <p>
-        Open <strong>Tables</strong> to browse every table and column, or
-        <strong>Schema Diagram</strong> to explore how the tables relate.
+        Open <strong>Tables</strong> to browse every table and column,
+        <strong>Schema Diagram</strong> to explore how the tables relate, or
+        <strong>Sample queries</strong> for worked examples you can copy and run.
       </p>
+    </div>
+
+    <div class="q-wrap" id="queries-wrap" style="display:none">
+
+      <p>
+        Eleven worked examples covering occupancy, leasing velocity, marketing attribution,
+        tenure, collections, and revenue management. Every query here has been run against
+        production data. Each one opens with <code>DECLARE</code> statements &mdash; set
+        <code>target_org</code> to your <code>org_id</code> (query 0 finds it) and adjust the
+        dates, then run.
+      </p>
+
+      <div class="q-toc">
+        <div class="q-toc-label">On this page</div>
+        <ol>
+          <li class="q-toc-zero"><a href="#q-org-id">Find your own <code>org_id</code></a></li>
+          <li><a href="#q-occupancy-month">Occupancy by facility by month</a></li>
+          <li><a href="#q-occupancy-type">Occupancy by unit type and facility</a></li>
+          <li><a href="#q-los">Median length of stay by move-in month</a></li>
+          <li><a href="#q-moveins-source">Move-ins by lead source and rental channel</a></li>
+          <li><a href="#q-absorption">Move-ins, move-outs, and net absorption</a></li>
+          <li><a href="#q-lead-aging">Open lead aging by source</a></li>
+          <li><a href="#q-conversion">Lead conversion rate by source</a></li>
+          <li><a href="#q-delinquency">Delinquency and AR aging by facility</a></li>
+          <li><a href="#q-ecri">Rent increase (ECRI) execution by month</a></li>
+          <li><a href="#q-revenue">Revenue collected by month by facility</a></li>
+        </ol>
+      </div>
+
+      <div class="q-callout">
+        <h2>Before you start</h2>
+        <p>Six things about this data that are easy to get wrong.</p>
+        <ul>
+          <li>
+            <strong>Filter <code>org_id</code>, and filter <code>date</code> on
+            <code>spaces_historical</code>.</strong> Every table is clustered on
+            <code>org_id</code>; <code>spaces_historical</code> and <code>ga_events</code> are
+            also date-partitioned. Your access is already scoped to your organization, so these
+            filters do not change your results &mdash; they cut the data scanned, which makes
+            queries faster and cheaper.
+          </li>
+          <li>
+            <strong><code>spaces_historical</code> is a daily snapshot</strong> &mdash; one row
+            per unit per day, with no missing days. Use it for anything historical or trended.
+            <code>units</code> holds current state only.
+          </li>
+          <li>
+            <strong>Occupancy flags:</strong> <code>is_active = 1</code> means the unit is in
+            inventory (<code>0</code> is retired &mdash; exclude it from denominators);
+            <code>is_occupied = 1</code> is exactly equivalent to
+            <code>lease_id IS NOT NULL</code>; and <code>is_unrentable</code> means the unit
+            cannot be rented right now. A unit can be both occupied and unrentable, so
+            unrentable is not the same as vacant.
+          </li>
+          <li>
+            <strong>Square footage is <code>width * depth</code>, and parking breaks it.</strong>
+            Parking spaces usually store <code>width = 0</code>, so their area computes to zero.
+            Every square-foot query below returns a <code>units_missing_dimensions</code> column
+            so you can see how much of the site is affected before trusting the percentage.
+          </li>
+          <li>
+            <strong>Pre-go-live history is survivorship-biased.</strong> When a facility migrates
+            to Cubby, only leases still active at cutover come across, so move-outs from before
+            then are absent. Query 3 shows how to detect the earliest month your move-out data
+            actually supports. There are also junk dates in the raw lease fields (years
+            <code>0001</code>, <code>2108</code>, <code>5026</code>), so always bound date ranges
+            explicitly.
+          </li>
+          <li>
+            <strong>Two fields do not mean what their names suggest.</strong>
+            <code>rate_changes.rent_change_amount</code> is the <em>new rent</em>, not the size of
+            the increase. <code>leads.age_of_lead_minutes</code> is <em>now minus
+            created_at</em>, recomputed on every load &mdash; not time to resolution, and it keeps
+            growing after a lead closes.
+          </li>
+        </ul>
+      </div>
+
+      <!-- 0 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-org-id"><span class="q-num">0</span>Find your own org_id</h3>
+        <p class="q-purpose">
+          Every other query on this page needs your <code>org_id</code>. This is the quickest way
+          to get it.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>SELECT DISTINCT org_id
+FROM `cubby-partner-data.analytics.facilities`
+ORDER BY org_id;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong>Your results are already limited to your own organization.</strong> Access to
+              the warehouse is row-filtered, so this returns just your <code>org_id</code> &mdash;
+              or a small handful if you manage several organizations. You are not seeing anyone
+              else's data, and you do not need the filter for privacy.
+            </li>
+            <li>
+              <strong>Filter on it anyway, in every query.</strong> Every table in the dataset is
+              clustered on <code>org_id</code>. Adding <code>WHERE org_id = '&hellip;'</code> lets
+              BigQuery skip the blocks belonging to other organizations instead of reading and then
+              discarding them. Same rows out, far less data processed, and noticeably faster on the
+              large tables.
+            </li>
+            <li>
+              <code>facilities</code> is one of the smallest tables in the dataset, which makes it
+              the cheapest place to look this up.
+            </li>
+            <li>
+              To confirm you have the right value and see your portfolio at a glance, group instead:
+              <code>SELECT org_id, COUNT(*) AS facilities FROM &hellip; GROUP BY org_id</code>.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 1 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-occupancy-month"><span class="q-num">1</span>Occupancy by facility by month</h3>
+        <p class="q-purpose">
+          Month-end physical occupancy on both a unit and a square-foot basis.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE start_date DATE DEFAULT DATE '2025-01-01';
+DECLARE end_date   DATE DEFAULT CURRENT_DATE();
+
+WITH snap AS (
+  SELECT
+    sh.date,
+    DATE_TRUNC(sh.date, MONTH) AS month,
+    sh.facility_id,
+    sh.facility_name,
+    sh.is_occupied,
+    sh.is_unrentable,
+    sh.width * sh.depth AS sqft
+  FROM `cubby-partner-data.analytics.spaces_historical` sh
+  WHERE sh.org_id = target_org
+    AND sh.date BETWEEN start_date AND end_date
+    AND sh.is_active = 1                 -- exclude retired units
+),
+month_end AS (
+  -- Latest snapshot in each month, so a partial current month uses the most recent day
+  SELECT month, MAX(date) AS as_of_date
+  FROM snap
+  GROUP BY month
+),
+eom AS (
+  SELECT s.*
+  FROM snap s
+  JOIN month_end m ON s.month = m.month AND s.date = m.as_of_date
+)
+SELECT
+  month,
+  MAX(date) AS as_of_date,
+  facility_name,
+  COUNT(*)                    AS units_total,
+  COUNTIF(is_occupied = 1)    AS units_occupied,
+  ROUND(SAFE_DIVIDE(COUNTIF(is_occupied = 1), COUNT(*)) * 100, 1) AS unit_occupancy_pct,
+  -- Denominator excludes units that are vacant AND unrentable
+  ROUND(SAFE_DIVIDE(COUNTIF(is_occupied = 1),
+                    COUNTIF(is_occupied = 1 OR NOT is_unrentable)) * 100, 1)
+    AS rentable_unit_occupancy_pct,
+  ROUND(SUM(sqft), 0)                          AS sqft_total,
+  ROUND(SUM(IF(is_occupied = 1, sqft, 0)), 0)  AS sqft_occupied,
+  ROUND(SAFE_DIVIDE(SUM(IF(is_occupied = 1, sqft, 0)), SUM(sqft)) * 100, 1) AS sqft_occupancy_pct,
+  COUNTIF(sqft IS NULL OR sqft = 0)            AS units_missing_dimensions
+FROM eom
+GROUP BY month, facility_name
+ORDER BY month DESC, facility_name;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              Two occupancy measures are returned on purpose.
+              <code>unit_occupancy_pct</code> covers all units in inventory &mdash; the standard
+              external-reporting number. <code>rentable_unit_occupancy_pct</code> removes
+              vacant-and-unrentable units from the denominator, which is the fairer read on how
+              the site is actually selling.
+            </li>
+            <li>
+              Check <code>units_missing_dimensions</code> before quoting
+              <code>sqft_occupancy_pct</code>. If it is a large share of
+              <code>units_total</code>, the square-foot figure only describes part of the site.
+            </li>
+            <li>
+              This uses a month-end snapshot. For average daily occupancy instead &mdash;
+              smoother, better for trending &mdash; drop the <code>month_end</code> and
+              <code>eom</code> CTEs and group <code>snap</code> directly by <code>month</code>,
+              so every day contributes equally.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-occupancy-type"><span class="q-num">2</span>Occupancy by unit type and facility</h3>
+        <p class="q-purpose">
+          Current occupancy and pricing by sellable unit type, with in-place rent against street
+          rate.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE as_of DATE DEFAULT (
+  SELECT MAX(date) FROM `cubby-partner-data.analytics.spaces_historical`
+);
+
+SELECT
+  sh.facility_name,
+  sh.pricing_group_name AS unit_type,
+  CONCAT(CAST(sh.width AS STRING), 'x', CAST(sh.depth AS STRING)) AS size,
+  COUNT(*)                                              AS units_total,
+  COUNTIF(sh.is_occupied = 1)                           AS units_occupied,
+  COUNTIF(sh.is_occupied = 0 AND NOT sh.is_unrentable)  AS units_vacant_rentable,
+  COUNTIF(sh.is_occupied = 0 AND sh.is_unrentable)      AS units_vacant_unrentable,
+  ROUND(SAFE_DIVIDE(COUNTIF(sh.is_occupied = 1), COUNT(*)) * 100, 1) AS unit_occupancy_pct,
+  ROUND(AVG(sh.street_rate), 2)                              AS avg_street_rate,
+  ROUND(AVG(IF(sh.is_occupied = 1, sh.occ_rate, NULL)), 2)   AS avg_in_place_rate,
+  ROUND(SAFE_DIVIDE(AVG(IF(sh.is_occupied = 1, sh.occ_rate, NULL)),
+                    AVG(sh.street_rate)) * 100, 1)           AS in_place_vs_street_pct
+FROM `cubby-partner-data.analytics.spaces_historical` sh
+WHERE sh.org_id = target_org
+  AND sh.date = as_of
+  AND sh.is_active = 1
+GROUP BY 1, 2, 3
+HAVING units_total &gt;= 5          -- suppress thin cells
+ORDER BY facility_name, units_total DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong><code>pricing_group_name</code> is the unit type you want</strong>
+              (<code>Drive-up 10x20</code>, <code>Climate-Controlled 5x10</code>,
+              <code>Parking - Uncovered 30'</code>). The <code>units.unit_type</code> column has
+              only three values &mdash; <code>RENT_ENCLOSED_STORAGE</code>,
+              <code>RENT_PARKING_SPACE</code>, <code>RENT_MOBILE_STORAGE</code> &mdash; and is not
+              reliably maintained; parking pricing groups are sometimes tagged as enclosed
+              storage. Treat it as a rough category at best.
+            </li>
+            <li>
+              <code>in_place_vs_street_pct</code> above 100% means existing tenants pay more than
+              the current asking rate, which is normal for a site with a mature rate-increase
+              program. Below 100% is loss to lease: sustained readings there, especially on a type
+              sitting near full, usually mean street rates are set too low.
+            </li>
+            <li>
+              A type at 100% occupancy with in-place rent well above street is the clearest
+              pricing-upside signal in this output.
+            </li>
+            <li>
+              Swap the <code>as_of</code> filter for a <code>BETWEEN</code> range and add
+              <code>DATE_TRUNC(sh.date, MONTH)</code> to the grouping to trend any of this over
+              time.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-los"><span class="q-num">3</span>Median length of stay by move-in month</h3>
+        <p class="q-purpose">
+          Tenure by cohort, with the pre-migration history problem handled.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+
+WITH history_start AS (
+  -- The earliest move-out ever recorded for this org, which approximates the
+  -- migration/go-live date. Move-outs before this date are absent from the data,
+  -- so cohorts starting earlier contain only migration survivors.
+  SELECT DATE_TRUNC(MIN(lease_ended), MONTH) AS first_observable_month
+  FROM `cubby-partner-data.analytics.leases`
+  WHERE org_id = target_org
+    AND lease_ended &gt; DATE '2015-01-01'      -- guard against junk dates
+),
+cohort AS (
+  SELECT
+    DATE_TRUNC(l.lease_started, MONTH) AS move_in_month,
+    l.lease_ended IS NOT NULL          AS has_moved_out,
+    DATE_DIFF(IFNULL(l.lease_ended, CURRENT_DATE()), l.lease_started, DAY) AS days_observed
+  FROM `cubby-partner-data.analytics.leases` l
+  CROSS JOIN history_start h
+  WHERE l.org_id = target_org
+    AND l.lease_started &gt;= h.first_observable_month
+    AND l.lease_started &lt;= CURRENT_DATE()
+)
+SELECT
+  move_in_month,
+  COUNT(*)                 AS move_ins,
+  COUNTIF(has_moved_out)   AS moved_out,
+  ROUND(SAFE_DIVIDE(COUNTIF(has_moved_out), COUNT(*)) * 100, 1) AS pct_moved_out,
+  ROUND(APPROX_QUANTILES(IF(has_moved_out, days_observed, NULL), 2)[OFFSET(1)] / 30.44, 1)
+    AS median_los_months,
+  ROUND(AVG(IF(has_moved_out, days_observed, NULL)) / 30.44, 1) AS avg_los_months,
+  IF(SAFE_DIVIDE(COUNTIF(has_moved_out), COUNT(*)) &gt;= 0.5,
+     'complete',
+     'incomplete - fewer than half have moved out') AS cohort_status
+FROM cohort
+GROUP BY move_in_month
+ORDER BY move_in_month DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong>Only read <code>median_los_months</code> where
+              <code>cohort_status = 'complete'</code>.</strong> For recent cohorts most tenants are
+              still in place, so the median of those who have left is a median of early leavers
+              only &mdash; badly biased downward. A cohort's median means something exactly when at
+              least half of it has moved out.
+            </li>
+            <li>
+              Expect the series to look wrong at first glance: recent months show 0&ndash;2 months
+              and older months 5&ndash;6. That is the censoring artifact, not a trend. Read down to
+              the first <code>complete</code> row for the real number.
+            </li>
+            <li>
+              <code>avg_los_months</code> runs well above the median because a minority of very
+              long tenancies pull the mean up. Median is the better headline; the gap between the
+              two tells you about your long-tail tenants.
+            </li>
+            <li>
+              Imported leases are included deliberately &mdash; they carry true original start
+              dates from the prior system, and the <code>history_start</code> guard already
+              excludes the cohorts where their move-outs are missing. Adding
+              <code>AND lease_created_by &lt;&gt; 'IMPORT'</code> would truncate your history back
+              to go-live and throw away real tenure data.
+            </li>
+            <li>
+              Facilities migrate on different dates, so a mixed-vintage portfolio has one
+              <code>first_observable_month</code> per facility. To be strict, compute
+              <code>history_start</code> grouped by <code>facility_id</code> and join on it.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 4 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-moveins-source"><span class="q-num">4</span>Move-ins by lead source and rental channel</h3>
+        <p class="q-purpose">
+          Monthly move-in volume split by how the customer found you and how they signed.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE start_date DATE DEFAULT DATE '2025-01-01';
+DECLARE end_date   DATE DEFAULT CURRENT_DATE();
+
+WITH move_ins AS (
+  SELECT
+    DATE_TRUNC(l.lease_started, MONTH) AS move_in_month,
+    CASE
+      WHEN l.lease_created_by = 'WEBSITE' THEN 'Online (self-serve)'
+      WHEN l.lease_created_by = 'IMPORT'  THEN 'Imported / migrated'
+      ELSE 'Manager-assisted'
+    END AS rental_channel,
+    IFNULL(ld.lead_source, '(no lead record)') AS lead_source,
+    l.lease_rent_original
+  FROM `cubby-partner-data.analytics.leases` l
+  LEFT JOIN `cubby-partner-data.analytics.leads` ld
+    ON ld.org_id = l.org_id
+   AND ld.converted_lease_id = l.lease_id
+  WHERE l.org_id = target_org
+    AND l.lease_started BETWEEN start_date AND end_date
+)
+SELECT
+  move_in_month,
+  rental_channel,
+  lead_source,
+  COUNT(*) AS move_ins,
+  ROUND(SAFE_DIVIDE(COUNT(*), SUM(COUNT(*)) OVER (PARTITION BY move_in_month)) * 100, 1)
+    AS pct_of_month,
+  ROUND(AVG(lease_rent_original), 2) AS avg_move_in_rent
+FROM move_ins
+GROUP BY move_in_month, rental_channel, lead_source
+ORDER BY move_in_month DESC, move_ins DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong><code>lease_created_by</code> is your rental-channel field.</strong>
+              <code>WEBSITE</code> is an online self-serve rental, <code>IMPORT</code> came from a
+              prior system or a bulk load, and any other value is a staff member's name &mdash; a
+              manager-assisted rental.
+            </li>
+            <li>
+              <code>leads.converted_lease_id</code> joins to <code>leases.lease_id</code> one to
+              one. Coverage is roughly 99% of online rentals and 92% of manager-assisted ones; the
+              rest appear as <code>(no lead record)</code>.
+            </li>
+            <li>
+              <strong>Lead source and rental channel are different axes and both matter.</strong> A
+              <code>CALL</code> lead that closes as <code>Online (self-serve)</code> means the
+              customer phoned and then rented on their own &mdash; a different operational story
+              from a call the manager closed. The split shows where staff time is actually
+              converting.
+            </li>
+            <li>
+              <code>Imported / migrated</code> rows are not real move-ins for the month; they are
+              artifacts of a data load. Exclude them when reporting leasing velocity, or use query
+              5, which avoids the issue.
+            </li>
+            <li>
+              <code>avg_move_in_rent</code> uses <code>lease_rent_original</code>, the contract
+              rent at signing before any promotional discount. For actual first-month revenue,
+              join <code>discounts</code> on <code>lease_id</code>.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 5 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-absorption"><span class="q-num">5</span>Move-ins, move-outs, and net absorption by facility</h3>
+        <p class="q-purpose">
+          Leasing velocity from the purpose-built turnover table.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE start_date DATE DEFAULT DATE '2025-01-01';
+DECLARE end_date   DATE DEFAULT CURRENT_DATE();
+
+SELECT
+  DATE_TRUNC(move_date, MONTH) AS month,
+  facility_name,
+  COUNTIF(move_type = 'MOVE_IN')  AS move_ins,
+  COUNTIF(move_type = 'MOVE_OUT') AS move_outs,
+  COUNTIF(move_type = 'MOVE_IN') - COUNTIF(move_type = 'MOVE_OUT') AS net_absorption_units,
+  COUNTIF(move_type = 'TRANSFER') AS internal_transfers,
+  ROUND(SUM(IF(move_type = 'MOVE_IN',  unit_width * unit_depth, 0)), 0) AS sqft_moved_in,
+  ROUND(SUM(IF(move_type = 'MOVE_OUT', unit_width * unit_depth, 0)), 0) AS sqft_moved_out,
+  ROUND(AVG(IF(move_type = 'MOVE_IN',  lease_rent, NULL)), 2) AS avg_move_in_rent,
+  ROUND(AVG(IF(move_type = 'MOVE_OUT', lease_rent, NULL)), 2) AS avg_move_out_rent,
+  ROUND(APPROX_QUANTILES(IF(move_type = 'MOVE_OUT', lease_days_rented, NULL), 2)[OFFSET(1)], 0)
+    AS median_days_rented_of_move_outs
+FROM `cubby-partner-data.analytics.unit_turnover`
+WHERE org_id = target_org
+  AND move_date BETWEEN start_date AND end_date
+GROUP BY month, facility_name
+ORDER BY month DESC, move_ins DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong>Prefer <code>unit_turnover</code> over deriving move-ins from
+              <code>leases</code>.</strong> It holds one row per lease per event and already
+              separates internal transfers into their own <code>TRANSFER</code> type, so a tenant
+              moving from a 5x10 to a 10x10 does not inflate your move-ins and move-outs. Deriving
+              from <code>lease_started</code> and <code>lease_ended</code> counts both sides of
+              every transfer as real churn.
+            </li>
+            <li>
+              <code>avg_move_in_rent</code> against <code>avg_move_out_rent</code> is a rate-roll
+              indicator. Move-out rents are usually higher because departing tenants have absorbed
+              years of increases; a persistent large gap means new rentals are priced well below
+              what the existing base tolerates.
+            </li>
+            <li>
+              Comparing <code>sqft_moved_in</code> with <code>sqft_moved_out</code> catches mix
+              shift that unit counts hide. Flat net absorption alongside shrinking net square
+              footage means you are trading large units for small ones.
+            </li>
+            <li>
+              Pre-go-live months show move-ins with few or no move-outs, for the migration reason
+              above. Start your window at go-live.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 6 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-lead-aging"><span class="q-num">6</span>Open lead aging by source</h3>
+        <p class="q-purpose">
+          Which inquiries are sitting unworked, and for how long.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+
+WITH open_leads AS (
+  SELECT
+    IFNULL(lead_source, '(unknown)') AS lead_source,
+    age_of_lead_minutes / 1440.0     AS age_days
+  FROM `cubby-partner-data.analytics.leads`
+  WHERE org_id = target_org
+    -- Unresolved statuses only; age_of_lead_minutes is meaningless once a lead closes
+    AND status IN ('NEW','IN_PROGRESS_HOT','IN_PROGRESS_COLD','ON_HOLD','RESERVATION')
+)
+SELECT
+  lead_source,
+  COUNT(*)                                        AS open_leads,
+  COUNTIF(age_days &lt;  1)                          AS age_under_1d,
+  COUNTIF(age_days &gt;= 1  AND age_days &lt;  7)       AS age_1_6d,
+  COUNTIF(age_days &gt;= 7  AND age_days &lt; 30)       AS age_7_29d,
+  COUNTIF(age_days &gt;= 30 AND age_days &lt; 90)       AS age_30_89d,
+  COUNTIF(age_days &gt;= 90)                         AS age_90d_plus,
+  ROUND(APPROX_QUANTILES(age_days, 2)[OFFSET(1)], 1) AS median_age_days,
+  ROUND(AVG(age_days), 1)                            AS avg_age_days
+FROM open_leads
+GROUP BY lead_source
+ORDER BY open_leads DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong>The status filter is essential.</strong>
+              <code>age_of_lead_minutes</code> is recomputed as now minus
+              <code>created_at</code> on every load, so a lead that converted in five minutes two
+              years ago reports an age of two years. Without the filter you are measuring how long
+              ago leads were created, not how long they have been waiting. For resolution time use
+              <code>time_to_convert</code> or <code>time_to_unqualified</code>.
+            </li>
+            <li>
+              <code>DUPLICATE</code> is a real status and is excluded here along with the other
+              closed states. It is worth reporting separately &mdash; a high duplicate rate on a
+              source usually means the same person is arriving through several paths.
+            </li>
+            <li>
+              The <code>age_90d_plus</code> bucket is mostly dead pipeline that was never
+              dispositioned. Cleaning it up makes every downstream conversion rate more honest.
+            </li>
+            <li>
+              <code>avg_age_days</code> far above <code>median_age_days</code> for a source is the
+              signature of a stale tail rather than a slow process.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 7 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-conversion"><span class="q-num">7</span>Lead conversion rate by source</h3>
+        <p class="q-purpose">
+          Conversion and speed to close, by where the lead came from.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE start_date DATE DEFAULT DATE '2025-01-01';
+-- End the window early so recent leads have had time to convert
+DECLARE end_date   DATE DEFAULT DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY);
+
+WITH scored AS (
+  SELECT
+    IFNULL(lead_source, '(unknown)') AS lead_source,
+    status,
+    time_to_convert
+  FROM `cubby-partner-data.analytics.leads`
+  WHERE org_id = target_org
+    AND DATE(created_at) BETWEEN start_date AND end_date
+    AND status &lt;&gt; 'DUPLICATE'          -- duplicates would deflate every rate
+)
+SELECT
+  lead_source,
+  COUNT(*)                        AS leads,
+  COUNTIF(status = 'CONVERTED')   AS converted,
+  ROUND(SAFE_DIVIDE(COUNTIF(status = 'CONVERTED'), COUNT(*)) * 100, 1) AS conversion_pct,
+  COUNTIF(status = 'UNQUALIFIED') AS unqualified,
+  COUNTIF(status IN ('NEW','IN_PROGRESS_HOT','IN_PROGRESS_COLD','ON_HOLD','RESERVATION'))
+    AS still_open,
+  ROUND(APPROX_QUANTILES(IF(status = 'CONVERTED', time_to_convert / 60.0, NULL), 2)[OFFSET(1)], 1)
+    AS median_hours_to_convert,
+  ROUND(SAFE_DIVIDE(COUNTIF(status = 'CONVERTED' AND time_to_convert = 0),
+                    NULLIF(COUNTIF(status = 'CONVERTED'), 0)) * 100, 1)
+    AS pct_converted_instantly
+FROM scored
+GROUP BY lead_source
+HAVING leads &gt;= 20                   -- suppress thin cells
+ORDER BY leads DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong>Some sources convert at nearly 100% by construction and are not comparable
+              to the rest.</strong> <code>WEBSITE_CHECKOUT</code> records a
+              <em>completed</em> online rental &mdash; the lead row is created by the checkout, so
+              it converts essentially always. The same applies to <code>WALK_IN</code>, often
+              logged at the counter as the rental happens. The real prospect sources to compare
+              against each other are <code>CALL</code>, <code>RESERVATION_FORM</code>,
+              <code>CONTACT_FORM</code>, <code>SPAREFOOT</code>, and the other aggregators.
+            </li>
+            <li>
+              <code>pct_converted_instantly</code> is what separates the two groups. A high value
+              means the lead is a record of a rental rather than an inquiry that was worked. Read
+              <code>conversion_pct</code> alongside it, never alone.
+            </li>
+            <li>
+              <code>ABANDONED_CHECKOUT</code> and <code>FAILED_CHECKOUT</code> are
+              system-generated recovery leads, not inbound demand. Their conversion rate measures
+              how well you win back a dropped cart &mdash; useful, but not a marketing-channel
+              number. Do not roll them into a blended rate.
+            </li>
+            <li>
+              <strong>Use <code>lead_source</code>, not <code>source</code> or
+              <code>marketing_source</code>, for channel reporting.</strong>
+              <code>lead_source</code> is a clean controlled vocabulary; the other two blend that
+              vocabulary with raw UTM strings, so you get <code>organic</code>, <code>cpc</code>,
+              <code>gbp</code>, <code>gpb</code> (a typo of the same thing), and occasionally an
+              entire ad-set name.
+            </li>
+            <li>
+              The 14-day lag on <code>end_date</code> matters. Median time to convert is under an
+              hour for most sources, but <code>CONTACT_FORM</code> runs well over a day, so a
+              window ending today understates the slower channels.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 8 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-delinquency"><span class="q-num">8</span>Delinquency and AR aging by facility</h3>
+        <p class="q-purpose">
+          Current past-due balances bucketed by how long the lease has been delinquent.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+
+WITH active AS (
+  SELECT
+    facility_name,
+    balance_ar,
+    is_lease_paid,
+    is_needs_overlock,
+    is_in_auction,
+    is_autopay_enabled,
+    DATE_DIFF(CURRENT_DATE(), status_late_since_date, DAY) AS days_late
+  FROM `cubby-partner-data.analytics.leases`
+  WHERE org_id = target_org
+    AND is_active = 1
+)
+SELECT
+  facility_name,
+  COUNT(*)                    AS active_leases,
+  COUNTIF(is_lease_paid = 0)  AS leases_past_due,
+  ROUND(SAFE_DIVIDE(COUNTIF(is_lease_paid = 0), COUNT(*)) * 100, 1) AS pct_past_due,
+  ROUND(SUM(GREATEST(balance_ar, 0)), 2) AS total_ar,
+  ROUND(SUM(IF(days_late BETWEEN  1 AND 30, GREATEST(balance_ar, 0), 0)), 2) AS ar_1_30,
+  ROUND(SUM(IF(days_late BETWEEN 31 AND 60, GREATEST(balance_ar, 0), 0)), 2) AS ar_31_60,
+  ROUND(SUM(IF(days_late BETWEEN 61 AND 90, GREATEST(balance_ar, 0), 0)), 2) AS ar_61_90,
+  ROUND(SUM(IF(days_late &gt; 90,              GREATEST(balance_ar, 0), 0)), 2) AS ar_over_90,
+  COUNTIF(is_needs_overlock = 1) AS needs_overlock,
+  COUNTIF(is_in_auction = 1)     AS in_auction,
+  ROUND(SAFE_DIVIDE(COUNTIF(is_autopay_enabled), COUNT(*)) * 100, 1) AS pct_on_autopay
+FROM active
+GROUP BY facility_name
+ORDER BY total_ar DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              This is a <strong>live snapshot, not a historical series</strong> &mdash;
+              <code>leases</code> holds current state only. To trend delinquency you need to
+              snapshot this output on a schedule.
+            </li>
+            <li>
+              <code>GREATEST(balance_ar, 0)</code> matters. <code>balance_ar</code> goes negative
+              when a tenant is in credit, and summing raw values lets prepaid tenants silently
+              cancel out delinquent ones. Prepaid balances live in <code>balance_prepaid</code> if
+              you want them.
+            </li>
+            <li>
+              Aging buckets are driven by <code>status_late_since_date</code> &mdash; when the
+              lease entered delinquency, not the age of each individual charge, so the whole
+              balance lands in one bucket. That is the right shape for collections triage; it is
+              not a GAAP AR aging.
+            </li>
+            <li>
+              <code>pct_on_autopay</code> is the strongest lever here. Sites 10&ndash;15 points
+              below portfolio average on autopay adoption almost always carry proportionally more
+              <code>ar_1_30</code>.
+            </li>
+            <li>
+              <code>needs_overlock</code> and <code>in_auction</code> show whether policy is
+              actually being enforced. Heavy <code>ar_over_90</code> with near-zero auction
+              activity is a process problem, not a collections problem.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 9 ─────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-ecri"><span class="q-num">9</span>Rent increase (ECRI) execution by month</h3>
+        <p class="q-purpose">
+          How many increases went out, how big they were, and what they added to monthly revenue.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE start_date DATE DEFAULT DATE '2025-01-01';
+DECLARE end_date   DATE DEFAULT CURRENT_DATE();
+
+WITH changes AS (
+  SELECT
+    DATE_TRUNC(rc.rent_change_scheduled_date, MONTH) AS effective_month,
+    rc.rent_change_status,
+    rc.lease_rent_previous AS old_rent,
+    rc.rent_change_amount  AS new_rent,   -- NB: this is the new rent, not the delta
+    SAFE_DIVIDE(rc.rent_change_amount, rc.lease_rent_previous) - 1 AS pct_increase,
+    rc.street_rate,
+    rc.lease_id
+  FROM `cubby-partner-data.analytics.rate_changes` rc
+  WHERE rc.org_id = target_org
+    AND rc.rent_change_scheduled_date BETWEEN start_date AND end_date
+    AND rc.lease_rent_previous &gt;= 10      -- guards against divide-by-near-zero junk
+    AND rc.rent_change_amount  &gt;= 10
+),
+outcomes AS (
+  SELECT c.*, l.lease_ended
+  FROM changes c
+  LEFT JOIN `cubby-partner-data.analytics.leases` l
+    ON l.org_id = target_org AND l.lease_id = c.lease_id
+)
+SELECT
+  effective_month,
+  COUNTIF(rent_change_status = 'APPLIED')   AS increases_applied,
+  COUNTIF(rent_change_status = 'SCHEDULED') AS increases_scheduled,
+  COUNTIF(rent_change_status = 'CANCELLED') AS increases_cancelled,
+  ROUND(SAFE_DIVIDE(COUNTIF(rent_change_status = 'CANCELLED'), COUNT(*)) * 100, 1)
+    AS cancel_rate_pct,
+  ROUND(AVG(IF(rent_change_status = 'APPLIED', pct_increase, NULL)) * 100, 1)
+    AS avg_increase_pct,
+  ROUND(APPROX_QUANTILES(IF(rent_change_status = 'APPLIED', pct_increase, NULL), 2)[OFFSET(1)] * 100, 1)
+    AS median_increase_pct,
+  ROUND(SUM(IF(rent_change_status = 'APPLIED', new_rent - old_rent, 0)), 2)
+    AS monthly_revenue_added,
+  ROUND(AVG(IF(rent_change_status = 'APPLIED', SAFE_DIVIDE(new_rent, street_rate), NULL)) * 100, 1)
+    AS new_rent_vs_street_pct,
+  -- Descriptive only. See notes: this is NOT a causal churn estimate.
+  ROUND(SAFE_DIVIDE(
+    COUNTIF(rent_change_status = 'APPLIED' AND lease_ended IS NOT NULL
+            AND DATE_DIFF(lease_ended, effective_month, DAY) BETWEEN 0 AND 90),
+    NULLIF(COUNTIF(rent_change_status = 'APPLIED'), 0)) * 100, 1)
+    AS pct_moved_out_within_90d
+FROM outcomes
+GROUP BY effective_month
+ORDER BY effective_month DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong><code>rent_change_amount</code> is the new rent, not the increase.</strong>
+              Reading it as a delta overstates your program by roughly an order of magnitude.
+              <code>monthly_revenue_added</code> above computes
+              <code>new_rent - old_rent</code> explicitly.
+            </li>
+            <li>
+              <strong>Use <code>median_increase_pct</code>, not
+              <code>avg_increase_pct</code>.</strong> The average is dragged around by a handful of
+              extreme records; one month tested at a 25.5% average against an 11.3% median. The
+              guards on <code>lease_rent_previous</code> and <code>rent_change_amount</code> remove
+              the worst divide-by-tiny artifacts, but the tail is still heavy.
+            </li>
+            <li>
+              <strong><code>pct_moved_out_within_90d</code> is descriptive, not causal, and should
+              not be quoted as the churn cost of ECRI.</strong> There is no control group, and
+              tenants who receive increases are systematically different from those who do not
+              &mdash; they have already survived longer, which makes them lower-risk to begin with.
+              Comparing them against non-increased tenants biases the result. For a defensible
+              read, compare across <em>increase size tiers</em> among tenants who all received an
+              increase in the same month; that holds the selection effect roughly constant.
+            </li>
+            <li>
+              <code>cancel_rate_pct</code> is the operational health metric worth watching. A jump
+              usually means managers are pulling increases back after tenant pushback, which is a
+              leading indicator that next month's applied number will disappoint.
+            </li>
+            <li>
+              <code>new_rent_vs_street_pct</code> below 100% means even post-increase tenants sit
+              under the current asking rate &mdash; headroom for a larger increase next cycle.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 10 ────────────────────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3 id="q-revenue"><span class="q-num">10</span>Revenue collected by month by facility</h3>
+        <p class="q-purpose">
+          Net cash collected, with refunds netted out and card decline rates alongside.
+        </p>
+        <div class="q-code">
+          <button class="q-copy" onclick="copyQuery(this)">Copy</button>
+<pre>DECLARE target_org STRING DEFAULT 'org_XXXXXXXXXXX';
+DECLARE start_date DATE DEFAULT DATE '2025-01-01';
+DECLARE end_date   DATE DEFAULT CURRENT_DATE();
+
+SELECT
+  DATE_TRUNC(payment_date, MONTH) AS month,
+  facility_name,
+  ROUND(SUM(IF(payment_type = 'SALE' AND payment_status IN ('APPROVED','REFUNDED'),
+               payment_amount, 0)), 2) AS gross_collected,
+  ROUND(SUM(IF(payment_type = 'REFUND' AND payment_status = 'APPROVED',
+               payment_amount, 0)), 2) AS refunds,
+  ROUND(SUM(IF(payment_type = 'SALE'   AND payment_status IN ('APPROVED','REFUNDED'),
+               payment_amount, 0))
+      - SUM(IF(payment_type = 'REFUND' AND payment_status = 'APPROVED',
+               payment_amount, 0)), 2) AS net_collected,
+  COUNTIF(payment_type = 'SALE' AND payment_status IN ('APPROVED','REFUNDED'))
+    AS successful_payments,
+  COUNTIF(payment_type = 'SALE' AND payment_status = 'DECLINED') AS declined_attempts,
+  ROUND(SAFE_DIVIDE(
+    COUNTIF(payment_type = 'SALE' AND payment_status = 'DECLINED'),
+    COUNTIF(payment_type = 'SALE' AND payment_status IN ('APPROVED','REFUNDED','DECLINED'))) * 100, 1)
+    AS decline_rate_pct,
+  ROUND(SAFE_DIVIDE(
+    SUM(IF(payment_type = 'SALE' AND payment_status IN ('APPROVED','REFUNDED')
+           AND payment_channel = 'AUTOPAY', payment_amount, 0)),
+    SUM(IF(payment_type = 'SALE' AND payment_status IN ('APPROVED','REFUNDED'),
+           payment_amount, 0))) * 100, 1)
+    AS pct_collected_via_autopay
+FROM `cubby-partner-data.analytics.payments`
+WHERE org_id = target_org
+  AND payment_date BETWEEN start_date AND end_date
+GROUP BY month, facility_name
+ORDER BY month DESC, net_collected DESC;</pre>
+        </div>
+        <div class="q-notes">
+          <div class="q-notes-label">Notes</div>
+          <ul>
+            <li>
+              <strong>All <code>payment_amount</code> values are positive, including refunds and
+              declines.</strong> A naive <code>SUM(payment_amount)</code> overstates revenue by
+              roughly 20% because it silently includes failed attempts. The status and type filters
+              above are not optional.
+            </li>
+            <li>
+              The combinations you need to know:
+              <div class="q-table-wrap"><table class="q-table">
+                <thead>
+                  <tr><th>payment_type</th><th>payment_status</th><th>Meaning</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>SALE</code></td><td><code>APPROVED</code></td><td>Collected, still stands</td></tr>
+                  <tr><td><code>SALE</code></td><td><code>REFUNDED</code></td><td>Was collected, later refunded &mdash; the original row is restamped</td></tr>
+                  <tr><td><code>REFUND</code></td><td><code>APPROVED</code></td><td>The refund transaction itself, positive amount</td></tr>
+                  <tr><td><code>SALE</code></td><td><code>DECLINED</code> / <code>FAILED</code> / <code>ERROR</code></td><td>Never collected</td></tr>
+                  <tr><td><code>FAILURE</code></td><td><code>APPROVED</code></td><td>Failed-payment fee records &mdash; exclude from revenue</td></tr>
+                </tbody>
+              </table></div>
+              Gross includes both <code>APPROVED</code> and <code>REFUNDED</code> sales, then
+              subtracts the <code>REFUND</code> rows. Because refunds carry their own
+              <code>payment_date</code>, a refund can land in a later month than its sale, so
+              monthly netting is approximate &mdash; the annual total is exact.
+            </li>
+            <li>
+              This is <strong>cash collected, not revenue recognized</strong>. Prepayments land in
+              the month paid. For accrual revenue use <code>book_entries</code>.
+            </li>
+            <li>
+              <code>decline_rate_pct</code> typically runs 13&ndash;25% by site, and a retry that
+              later succeeds appears as both a decline and a success &mdash; so this measures
+              attempt quality, not lost revenue. Rising declines alongside flat
+              <code>pct_collected_via_autopay</code> usually mean expiring cards;
+              <code>leases.autopay_card_expiration</code> is where to look next.
+            </li>
+            <li>
+              <code>payments</code> carries <code>contact_id</code> but <strong>no
+              <code>lease_id</code></strong>, so you cannot attribute revenue to a specific unit
+              through this table. Go through <code>book_entries</code> for unit-level revenue.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Where to go next ─────────────────────────────────────────────────── -->
+      <div class="q-item">
+        <h3>Where to go next</h3>
+        <div class="q-table-wrap"><table class="q-table">
+          <thead>
+            <tr><th>Table</th><th>Use it for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>book_entries</code></td><td>Accrual revenue, unit-level charge detail, GAAP-shaped reporting</td></tr>
+            <tr><td><code>spaces_historical</code></td><td>Anything trended &mdash; occupancy, rate history, vacancy duration</td></tr>
+            <tr><td><code>unit_turnover</code></td><td>Move-ins, move-outs, transfers; already transfer-aware</td></tr>
+            <tr><td><code>calls</code>, <code>sms</code>, <code>emails</code>, <code>customer_touches</code></td><td>Contact-attempt volume and response times</td></tr>
+            <tr><td><code>ga_events</code></td><td>Web sessions upstream of lead creation (date-partitioned)</td></tr>
+            <tr><td><code>stor_track</code></td><td>Competitor rate benchmarking</td></tr>
+            <tr><td><code>discounts</code>, <code>discount_programs</code></td><td>Promotional concession cost</td></tr>
+            <tr><td><code>date_dim</code></td><td>Calendar joins &mdash; pre-built month, quarter, week, and weekday flags</td></tr>
+            <tr><td><code>auctions</code>, <code>lease_auctions</code></td><td>Delinquency resolution outcomes</td></tr>
+          </tbody>
+        </table></div>
+        <p>
+          <code>date_dim</code> is worth knowing about early: joining to it is cleaner than nesting
+          <code>DATE_TRUNC</code> and <code>FORMAT_DATE</code> calls, and it gives you gap-free
+          month rows even in periods with no activity.
+        </p>
+      </div>
+
     </div>
 
   </div>
@@ -684,22 +1811,25 @@ loadData();
 var DICT_SUB  = document.getElementById('page-sub').innerHTML;
 var ERD_SUB   = 'Entity-relationship map of the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> dataset &mdash; every table, its columns, and the foreign keys that join them. Drag a table to rearrange, scroll to zoom, drag the canvas to pan, hover a table to highlight its relationships, and search to locate one.';
 var INTRO_SUB = 'An overview of the Cubby data warehouse and how often it refreshes.';
+var QUERIES_SUB = 'Worked examples you can copy, adjust, and run against the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> dataset &mdash; occupancy, leasing velocity, marketing attribution, tenure, collections, and revenue management.';
 var __erdInit = false;
 
 function clearNav() {
   document.getElementById('nav-dict').classList.remove('active');
   document.getElementById('nav-erd').classList.remove('active');
   document.getElementById('nav-intro').classList.remove('active');
+  document.getElementById('nav-queries').classList.remove('active');
   document.getElementById('tables-toggle').classList.remove('active');
 }
 
 function showDiagram() {
   currentView = 'diagram';
-  document.getElementById('erd-wrap').style.display    = 'block';
-  document.getElementById('intro-wrap').style.display  = 'none';
-  document.getElementById('controls').style.display    = 'none';
-  document.getElementById('status').style.display      = 'none';
-  document.getElementById('table-wrap').style.display  = 'none';
+  document.getElementById('erd-wrap').style.display     = 'block';
+  document.getElementById('intro-wrap').style.display   = 'none';
+  document.getElementById('queries-wrap').style.display = 'none';
+  document.getElementById('controls').style.display     = 'none';
+  document.getElementById('status').style.display       = 'none';
+  document.getElementById('table-wrap').style.display   = 'none';
   initERD();
   clearNav();
   document.getElementById('nav-erd').classList.add('active');
@@ -710,8 +1840,9 @@ function showDiagram() {
 }
 function showDict() {
   currentView = 'dict';
-  document.getElementById('erd-wrap').style.display   = 'none';
-  document.getElementById('intro-wrap').style.display = 'none';
+  document.getElementById('erd-wrap').style.display     = 'none';
+  document.getElementById('intro-wrap').style.display   = 'none';
+  document.getElementById('queries-wrap').style.display = 'none';
   if (dataLoaded) {
     document.getElementById('status').style.display     = 'none';
     document.getElementById('controls').style.display   = 'flex';
@@ -728,15 +1859,30 @@ function showDict() {
 }
 function showIntro() {
   currentView = 'intro';
-  document.getElementById('erd-wrap').style.display   = 'none';
-  document.getElementById('table-wrap').style.display = 'none';
-  document.getElementById('controls').style.display   = 'none';
-  document.getElementById('status').style.display     = 'none';
-  document.getElementById('intro-wrap').style.display = 'block';
+  document.getElementById('erd-wrap').style.display     = 'none';
+  document.getElementById('table-wrap').style.display   = 'none';
+  document.getElementById('controls').style.display     = 'none';
+  document.getElementById('status').style.display       = 'none';
+  document.getElementById('queries-wrap').style.display = 'none';
+  document.getElementById('intro-wrap').style.display   = 'block';
   clearNav();
   document.getElementById('nav-intro').classList.add('active');
   document.getElementById('page-title').textContent = 'Introduction';
   document.getElementById('page-sub').innerHTML = INTRO_SUB;
+  window.scrollTo(0, 0);
+}
+function showQueries() {
+  currentView = 'queries';
+  document.getElementById('erd-wrap').style.display     = 'none';
+  document.getElementById('table-wrap').style.display   = 'none';
+  document.getElementById('controls').style.display     = 'none';
+  document.getElementById('status').style.display       = 'none';
+  document.getElementById('intro-wrap').style.display   = 'none';
+  document.getElementById('queries-wrap').style.display = 'block';
+  clearNav();
+  document.getElementById('nav-queries').classList.add('active');
+  document.getElementById('page-title').textContent = 'Sample queries';
+  document.getElementById('page-sub').innerHTML = QUERIES_SUB;
   window.scrollTo(0, 0);
 }
 function toggleTables() {
@@ -748,8 +1894,88 @@ function toggleTables() {
   if (caret) caret.innerHTML = open ? '&#9656;' : '&#9662;';
 }
 
-// Default landing view is the Introduction.
-showIntro();
+// ── Sample queries: SQL highlighting and copy-to-clipboard ──────────────────
+var SQL_KW = new Set(['SELECT','FROM','WHERE','GROUP','BY','ORDER','HAVING','JOIN','LEFT','RIGHT',
+  'INNER','OUTER','FULL','CROSS','ON','AND','OR','NOT','AS','WITH','DECLARE','SET','DEFAULT',
+  'CASE','WHEN','THEN','ELSE','END','IN','IS','NULL','BETWEEN','LIKE','DISTINCT','LIMIT','DESC',
+  'ASC','OVER','PARTITION','INTERVAL','UNION','ALL','EXCEPT','QUALIFY','WINDOW','TRUE','FALSE',
+  'STRING','DATE','DATETIME','TIMESTAMP','BOOL','BOOLEAN','INT64','INTEGER','NUMERIC','FLOAT64',
+  'MONTH','DAY','YEAR','QUARTER','WEEK','HOUR','MINUTE','SECOND','OFFSET','UNNEST']);
+var SQL_FN = new Set(['COUNT','COUNTIF','SUM','AVG','MIN','MAX','ROUND','SAFE_DIVIDE','DATE_TRUNC',
+  'DATE_DIFF','DATE_SUB','DATE_ADD','CURRENT_DATE','CURRENT_DATETIME','IFNULL','IF','NULLIF',
+  'GREATEST','LEAST','APPROX_QUANTILES','CONCAT','CAST','SAFE_CAST','COALESCE','EXTRACT',
+  'FORMAT_DATE','PARSE_DATE','LOWER','UPPER','TRIM','ABS','ARRAY_AGG','STRING_AGG','ROW_NUMBER',
+  'RANK','LAG','LEAD','PERCENTILE_CONT']);
+
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Tokenize first, then escape each token, so escaping never corrupts the match.
+function highlightSQL(text) {
+  var re = /(--[^\n]*)|('(?:[^']|'')*')|(`[^`]*`)|(\b\d+(?:\.\d+)?\b)|(\b[A-Za-z_][A-Za-z0-9_]*\b)/g;
+  var out = '', last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    out += escHtml(text.slice(last, m.index));
+    if (m[1])      { out += '<span class="sql-com">' + escHtml(m[1]) + '</span>'; }
+    else if (m[2]) { out += '<span class="sql-str">' + escHtml(m[2]) + '</span>'; }
+    else if (m[3]) { out += '<span class="sql-id">'  + escHtml(m[3]) + '</span>'; }
+    else if (m[4]) { out += '<span class="sql-num">' + escHtml(m[4]) + '</span>'; }
+    else if (m[5]) {
+      var w = m[5], u = w.toUpperCase();
+      if (SQL_KW.has(u))      { out += '<span class="sql-kw">' + escHtml(w) + '</span>'; }
+      else if (SQL_FN.has(u)) { out += '<span class="sql-fn">' + escHtml(w) + '</span>'; }
+      else                    { out += escHtml(w); }
+    }
+    last = m.index + m[0].length;
+  }
+  return out + escHtml(text.slice(last));
+}
+
+function initQueryBlocks() {
+  document.querySelectorAll('.q-code pre').forEach(function (pre) {
+    pre.setAttribute('data-raw', pre.textContent);   // keep plain text for copying
+    pre.innerHTML = highlightSQL(pre.textContent);
+  });
+}
+
+function copyQuery(btn) {
+  var pre  = btn.parentNode.querySelector('pre');
+  var text = pre.getAttribute('data-raw') || pre.textContent;
+  var done = function () {
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+initQueryBlocks();
+
+// Default landing view is the Introduction, unless a #q-… anchor was shared.
+var __hash = window.location.hash;
+if (__hash === '#sample-queries' || __hash.indexOf('#q-') === 0) {
+  showQueries();
+  var __target = document.querySelector(__hash);
+  if (__target) __target.scrollIntoView();
+} else {
+  showIntro();
+}
 
 function initERD() {
  if (__erdInit) return; __erdInit = true;
