@@ -2097,6 +2097,9 @@ Example via curl:</p>
 <h1 id="changelog">Changelog</h1>
 <h2 id="august-2026">August 2026</h2>
 <ul>
+<li><strong>Leases: discount eligibility enforced</strong> — <code>POST /v1/leases/create</code>, <code>POST /v1/leases/checkout</code> and <code>POST /v1/leases/get-move-in-charges</code> now reject a <code>discounts</code> entry that could not have been offered for the unit: not assigned to the unit's pricing group, or occupancy-percentage or available-units restriction not currently satisfied. The response is a <code>400</code> naming the offending discount. A repeated discount id is applied once rather than stacked. Channel visibility is not part of this check: a <code>CUBBY_ONLY</code> program assigned to the unit's pricing group is still accepted, and <code>availableDiscounts</code> on <code>POST /v1/pricing-groups/search</code> still lists it. Filtering on visibility is left to the client, which can read it per pricing group from <code>pricingGroups[].visibility</code> on <code>POST /v1/discounts/search</code> or on the <code>discounts</code> expansion of <code>POST /v1/pricing-groups/search</code>. Lead endpoints are unchanged.</li>
+<li><strong>Pricing Groups Search: assignment visibility on expanded discounts</strong> — Discount objects returned by the <code>discounts</code> expansion on <code>POST /v1/pricing-groups/search</code> now carry the same <code>pricingGroups</code> array as <code>POST /v1/discounts/search</code>: every pricing group the discount is assigned to, each with the <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>) configured for that pairing. A client that honours the &quot;Cubby only&quot; channel can read visibility from the same response that lists a pricing group's discounts, instead of one <code>discounts/search</code> call per pricing group.</li>
+<li><strong>Payments Search: <code>leaseId</code> filter</strong> — <code>POST /v1/payments/search</code> now accepts <code>leaseId</code> as a search scope, returning every payment applied to that lease including imported history from a previous management system, alongside the attempts against it that never settled (a <code>DECLINED</code> or <code>FAILED</code> card, for instance). Because a customer renting several units can settle them in one transaction, a payment belongs to every lease it paid: the same <code>paymentId</code> can be returned for more than one <code>leaseId</code>, and <code>amount</code> remains the full transaction amount rather than the portion applied to the lease searched for. Exactly one of <code>facilityId</code>, <code>customerId</code>, or <code>leaseId</code> must be supplied. Unlike a <code>facilityId</code> search, a <code>leaseId</code> search does not fall back to a one-month window when the date bounds are omitted.</li>
 <li><strong>Rent Roll Report: <code>lastRentChangeDate</code> field</strong> — Entries in <code>POST /v1/reports/rent-roll</code> now include a <code>lastRentChangeDate</code> field, the date of the tenant's last completed rent change (omitted if the rent has never changed).</li>
 <li><strong>Rent Roll Report: <code>effectiveRate</code> field</strong> — Entries in <code>POST /v1/reports/rent-roll</code> now include an <code>effectiveRate</code> field, the net rent for the unit in cents (rent less discounts and waived rent) charged for the current billing period.</li>
 <li><strong>Managers Search: <code>phone</code> filter normalised to E.164</strong> — The <code>phone</code> filter on <code>POST /v1/managers/search</code> is now normalised to E.164 and matched exactly, so a full number in any common spelling (<code>555-555-5555</code>, <code>(555) 555-5555</code>, <code>+15555555555</code>) matches the same manager. A value that is not a full phone number is now rejected with a <code>400</code>, and partial-number search is not supported on this filter. (<code>customers/search</code> is unchanged: its <code>phone</code> remains a partial match.)</li>
@@ -2962,7 +2965,9 @@ each group's <code>facilityIds</code>. Without the expansion, only the per-group
 <h3 id="optional-properties-9">Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
-endpoint are <code>discounts</code>, <code>facilities</code>, <code>valuePricingStrategies</code></li>
+endpoint are <code>discounts</code>, <code>facilities</code>, <code>valuePricingStrategies</code>. Expanded discount objects have the same shape as
+<a href="#discounts-search">Discounts Search</a>, including the <code>pricingGroups</code> array that carries the channel <code>visibility</code>
+configured for each assignment</li>
 </ul>
 <h3 id="response-parameters-4">Response Parameters</h3>
 <ul>
@@ -4813,12 +4818,16 @@ or <code>ANYTIME</code></li>
     <span class="hljs-attr">&quot;paymentMethods&quot;</span>: [
       {
         <span class="hljs-attr">&quot;paymentMethodId&quot;</span>: <span class="hljs-string">&quot;pm_V4w64pjUwVK&quot;</span>,
-        <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;CREDIT_CARD | ACH&quot;</span>,
+        <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;CREDIT_CARD | ACH | ACSS&quot;</span>,
         <span class="hljs-attr">&quot;cardBrand&quot;</span>: <span class="hljs-string">&quot;VISA | MASTERCARD | AMERICAN_EXPRESS | DISCOVER | DINERS_CLUB | JCB | MAESTRO | UNIONPAY | MIR | ELO | HIPER | HIPERCARD | FORBRUGSFORENINGEN | VISA_ELECTRON | UNKNOWN&quot;</span>,
         <span class="hljs-attr">&quot;cardLastFour&quot;</span>: <span class="hljs-string">&quot;1234&quot;</span>,
         <span class="hljs-attr">&quot;cardExpiration&quot;</span>: <span class="hljs-string">&quot;03/24&quot;</span>,
         <span class="hljs-attr">&quot;achAccountLastFour&quot;</span>: <span class="hljs-string">&quot;1234&quot;</span>,
-        <span class="hljs-attr">&quot;achAccountType&quot;</span>: <span class="hljs-string">&quot;CHECKING | SAVINGS&quot;</span>
+        <span class="hljs-attr">&quot;achAccountType&quot;</span>: <span class="hljs-string">&quot;CHECKING | SAVINGS&quot;</span>,
+        <span class="hljs-attr">&quot;achAccountHolder&quot;</span>: <span class="hljs-string">&quot;Bebe Flatley&quot;</span>,
+        <span class="hljs-attr">&quot;acssAccountHolderType&quot;</span>: <span class="hljs-string">&quot;PERSONAL | BUSINESS&quot;</span>,
+        <span class="hljs-attr">&quot;acssAccountHolder&quot;</span>: <span class="hljs-string">&quot;Bebe Flatley&quot;</span>,
+        <span class="hljs-attr">&quot;acssAccountLastFour&quot;</span>: <span class="hljs-string">&quot;0001&quot;</span>
       }
     ]
   }
@@ -5525,8 +5534,10 @@ with the unused portion credited to the account.</p>
 </blockquote>
 <pre class="highlight tab tab-json"><code>{
   <span class="hljs-attr">&quot;where&quot;</span>: {
+    <span class="hljs-comment">// Exactly one of facilityId, customerId, or leaseId</span>
     <span class="hljs-attr">&quot;facilityId&quot;</span>: <span class="hljs-string">&quot;fac_C7bSZyPT6fp&quot;</span>,
     <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
+    <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_9wKq3vTn2Bd&quot;</span>,
     <span class="hljs-attr">&quot;paymentDateOnOrAfter&quot;</span>: <span class="hljs-string">&quot;2024-03-01&quot;</span>,
     <span class="hljs-attr">&quot;paymentDateOnOrBefore&quot;</span>: <span class="hljs-string">&quot;2024-03-31&quot;</span>
   }
@@ -5554,18 +5565,41 @@ with the unused portion credited to the account.</p>
   }
 }
 </code></pre>
-<p>Search for payments by facility, customer, or payment date</p>
+<p>Search for payments by facility, customer, or lease</p>
 <h3 id="required-properties-47">Required Properties</h3>
+<p>Exactly one scope must be supplied. Supplying none, or more than one, is rejected with a <code>403</code>.</p>
 <ul>
-<li><code>facilityId</code> - limits results to payments in a particular facility</li>
+<li><code>facilityId</code> - limits results to payments taken at a particular facility</li>
 <li>or</li>
-<li><code>customerId</code> - limits results to payments for a particular customer</li>
+<li><code>customerId</code> - limits results to payments made by a particular customer, across every facility your token can reach</li>
+<li>or</li>
+<li><code>leaseId</code> - limits results to payments applied to a particular lease, plus the attempts made against it that never settled</li>
 </ul>
 <h3 id="optional-properties-26">Optional Properties</h3>
 <ul>
 <li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific date</li>
 <li><code>paymentDateOnOrBefore</code> - limits results to payments which were made on or before a specific date</li>
 </ul>
+<p>Both dates are interpreted in the facility's time zone, and how they are applied depends on the scope:</p>
+<ul>
+<li>with <code>leaseId</code>, both bounds are optional; omitting them returns the lease's entire payment history</li>
+<li>with <code>facilityId</code>, omitting either bound falls back to a one-month window ending on the facility's current date</li>
+<li>with <code>customerId</code>, both bounds are ignored and the customer's entire payment history is returned</li>
+</ul>
+<h3 id="one-payment-can-pay-for-multiple-leases">One payment can pay for multiple leases</h3>
+<ul>
+<li>A customer renting several units can settle them all in a single transaction, so a payment is not tied to one
+lease — it belongs to every lease it was applied to.</li>
+<li><code>amount</code> is always the full amount of the transaction, never the portion applied to the lease you searched
+for. Adding up <code>amount</code> across a customer's leases will therefore over-count. To see how much of a payment
+landed on one particular lease, read that lease's ledger via
+<a href="#ledger-search">Ledger Search</a> — the applied portion appears there as a <code>PAYMENT</code> book entry.</li>
+</ul>
+<h3 id="not-every-result-settled">Not every result settled</h3>
+<p>A <code>leaseId</code> search returns the lease's attempted payments as well as its successful ones, so check <code>status</code>
+before treating a result as money received. A payment that did not settle — <code>DECLINED</code>, <code>FAILED</code>, <code>REJECTED</code>,
+<code>DIRECT_DEBIT_RETURN</code> — still reports the full <code>amount</code> that was attempted and posts nothing to the lease's
+ledger, so summing <code>amount</code> without filtering on <code>status</code> will overstate what the lease has paid.</p>
 <h2 id="auctions">Auctions</h2>
 <ul>
 <li><a href="#auctions-search">Auctions Search</a></li>
