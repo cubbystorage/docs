@@ -1535,6 +1535,16 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
                     
                   </li>
                 
+                  <li>
+                    <a href="#overlock-remove-needed" class="toc-h2 toc-link" data-title="">Overlock Remove Needed</a>
+                    
+                  </li>
+                
+                  <li>
+                    <a href="#sms-received" class="toc-h2 toc-link" data-title="">SMS Received</a>
+                    
+                  </li>
+                
               </ul>
             
           </li>
@@ -1596,7 +1606,7 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
       <div class="dark-box"></div>
       <div class="content">
         <h1 id="introduction">Introduction</h1>
-<p>Cubby can send outbound webhook notifications to <a href="https://make.com">Make.com</a> scenarios when key events occur in the system. These webhooks allow you to build automations that react to events such as a new lead inquiry, a move-in, a move-out, or a tenant becoming delinquent.</p>
+<p>Cubby can send outbound webhook notifications to <a href="https://make.com">Make.com</a> scenarios when key events occur in the system. These webhooks allow you to build automations that react to events such as a new lead inquiry, a move-in, a move-out, a tenant becoming delinquent, or an inbound text message from a tenant.</p>
 <p>Webhooks are sent as HTTP <code>POST</code> requests with a JSON body to URLs you configure in <a href="http://Make.com">Make.com</a>. Each webhook URL is registered per event type in Cubby's server configuration. Cubby will attempt delivery and will log a failure to our error tracker if the webhook URL does not respond with HTTP 200.</p>
 <blockquote>
 <p>To enable <a href="http://Make.com">Make.com</a> webhooks for your organization, contact <a href="mailto:support@cubbystorage.com">support@cubbystorage.com</a>.</p>
@@ -1635,6 +1645,8 @@ unit_GfNkzV4itfk
 <li><a href="#lease-documents-completed">Lease Documents Completed</a></li>
 <li><a href="#auction-scheduled">Auction Scheduled</a></li>
 <li><a href="#tenant-overlocked">Tenant Overlocked</a></li>
+<li><a href="#overlock-remove-needed">Overlock Remove Needed</a></li>
+<li><a href="#sms-received">SMS Received</a></li>
 </ul>
 <h2 id="online-lead-created">Online Lead Created</h2>
 <blockquote>
@@ -2261,6 +2273,161 @@ unit_GfNkzV4itfk
 <tr>
 <td><code>balances</code></td>
 <td>Current account balances including the amount owed. See <a href="#balances">Balances</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="overlock-remove-needed">Overlock Remove Needed</h2>
+<blockquote>
+<p>Payload</p>
+</blockquote>
+<pre class="highlight"><code>{
+  &quot;topicId&quot;: &quot;your-topic-id&quot;,
+
+  &quot;lease&quot;: {
+    &quot;leaseId&quot;: &quot;lease_jOi8joH3Hu&quot;,
+    &quot;moveInDate&quot;: &quot;2024-01-01&quot;,
+    &quot;monthlyRentalAmount&quot;: 12500,
+    &quot;customerId&quot;: &quot;cust_FiUtBj8JkF&quot;,
+    &quot;unitId&quot;: &quot;unit_GfNkzV4itfk&quot;,
+    &quot;facilityId&quot;: &quot;fac_C7bSZyPT6fp&quot;,
+    &quot;overlockNeeded&quot;: false
+    /* ... full lease fields ... */
+  },
+
+  &quot;unit&quot;: {
+    &quot;unitId&quot;: &quot;unit_GfNkzV4itfk&quot;,
+    &quot;name&quot;: &quot;A101&quot;,
+    &quot;overlocked&quot;: true
+    /* ... full unit fields ... */
+  },
+
+  &quot;customer&quot;: {/* ... */},
+  &quot;facility&quot;: {/* ... */},
+  &quot;pricingGroup&quot;: {/* ... */},
+  &quot;discounts&quot;: [{/* ... */}],
+  &quot;balances&quot;: {
+    &quot;totalDue&quot;: 0,
+    &quot;deposit&quot;: 0,
+    &quot;prepaid&quot;: 0
+  }
+}
+</code></pre>
+<p>Fired when a tenant who was overlocked has paid enough to clear the overlock, so the physical lock now needs to come off the unit. This is the counterpart to <a href="#tenant-overlocked">Tenant Overlocked</a> &mdash; use it to tell staff that a lock is ready to be removed.</p>
+<p>The payload is a snapshot taken at the moment Cubby cleared the overlock. <code>lease.overlockNeeded</code> is therefore already <code>false</code>, while <code>unit.overlocked</code> is still <code>true</code>: the lock is still on the door and nobody has removed it yet.</p>
+<p>This webhook only fires when there is a physical lock to remove. At facilities where Cubby controls smart locks, the lock is released automatically when the balance clears and no webhook is sent. It also does not fire for leases that are no longer active.</p>
+<h3 id="payload-fields-7">Payload Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>topicId</code></td>
+<td>Organization-level routing key</td>
+</tr>
+<tr>
+<td><code>lease</code></td>
+<td>The lease that is no longer overlocked. <code>overlockNeeded</code> will be <code>false</code>. See <a href="#lease">Lease</a>.</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td>The unit the lock must be removed from. <code>overlocked</code> will be <code>true</code>. See <a href="#unit">Unit</a>.</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>The tenant who paid. See <a href="#customer">Customer</a>.</td>
+</tr>
+<tr>
+<td><code>facility</code></td>
+<td>The facility. See <a href="#facility">Facility</a>.</td>
+</tr>
+<tr>
+<td><code>pricingGroup</code></td>
+<td>The pricing group. See <a href="#pricing-group">Pricing Group</a>.</td>
+</tr>
+<tr>
+<td><code>discounts</code></td>
+<td>Discounts applied to the lease. See <a href="#discount">Discount</a>.</td>
+</tr>
+<tr>
+<td><code>balances</code></td>
+<td>Account balances after the payment. See <a href="#balances">Balances</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sms-received">SMS Received</h2>
+<blockquote>
+<p>Payload</p>
+</blockquote>
+<pre class="highlight"><code>{
+  &quot;topicId&quot;: &quot;your-topic-id&quot;,
+  &quot;messageId&quot;: &quot;SM7f3c1b2a9d4e5f6071829a3b4c5d6e7f&quot;,
+  &quot;orgId&quot;: &quot;org_Ji9JKfKkhuR&quot;,
+  &quot;facilityId&quot;: &quot;fac_C7bSZyPT6fp&quot;,
+  &quot;from&quot;: &quot;+15551234567&quot;,
+  &quot;to&quot;: &quot;+15559876543&quot;,
+  &quot;body&quot;: &quot;Can I get my gate code resent?&quot;,
+  &quot;receivedAt&quot;: &quot;2026-07-15T12:00:00Z&quot;,
+
+  &quot;customer&quot;: {
+    &quot;customerId&quot;: &quot;cust_FiUtBj8JkF&quot;,
+    &quot;name&quot;: &quot;Jane Doe&quot;
+    /* ... full customer fields ... */
+  }
+}
+</code></pre>
+<p>Fired when an inbound text message arrives on one of your Cubby phone numbers. Unlike the other webhooks on this page, this one is not tied to a lease &mdash; it reports the message itself, plus the tenant it came from when Cubby can identify one.</p>
+<p>Messages that Cubby sends from your own numbers do not produce this webhook; only inbound messages from outside numbers do.</p>
+<p><code>facilityId</code> is populated only when the number that received the message serves exactly one facility. If you share a number across several facilities, it is <code>null</code> and you should route on <code>to</code> instead.</p>
+<p><code>customer</code> is populated when the sending phone number matches a contact with at least one active lease. Messages from leads, past tenants, and unknown numbers arrive with <code>customer</code> set to <code>null</code>, so check for it before using it in a scenario.</p>
+<p>The same message may be delivered more than once if a delivery attempt fails and is retried. Use <code>messageId</code>, which is stable for the life of the message, to discard duplicates.</p>
+<h3 id="payload-fields-8">Payload Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>topicId</code></td>
+<td>Organization-level routing key</td>
+</tr>
+<tr>
+<td><code>messageId</code></td>
+<td>The carrier's unique identifier for the message. Use it to deduplicate.</td>
+</tr>
+<tr>
+<td><code>orgId</code></td>
+<td>The ID of the organization that owns the receiving number.</td>
+</tr>
+<tr>
+<td><code>facilityId</code></td>
+<td>The facility the receiving number belongs to, or <code>null</code> when the number serves more than one facility.</td>
+</tr>
+<tr>
+<td><code>from</code></td>
+<td>The sender's phone number, in E.164 format.</td>
+</tr>
+<tr>
+<td><code>to</code></td>
+<td>The Cubby number that received the message, in E.164 format.</td>
+</tr>
+<tr>
+<td><code>body</code></td>
+<td>The text of the message. Attached media is not included.</td>
+</tr>
+<tr>
+<td><code>receivedAt</code></td>
+<td>When Cubby received the message, as a UTC timestamp.</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>The tenant the number belongs to, or <code>null</code> when the sender is not a current tenant. See <a href="#customer">Customer</a>.</td>
 </tr>
 </tbody>
 </table>
