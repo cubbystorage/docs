@@ -1321,7 +1321,8 @@ ORDER BY leads DESC;</pre>
       <div class="q-item">
         <h3 id="q-delinquency"><span class="q-num">8</span>Delinquency and AR aging by facility</h3>
         <p class="q-purpose">
-          Current past-due balances bucketed by how long the lease has been delinquent.
+          Unpaid balances by facility, separating the current billing cycle from genuinely
+          delinquent AR and aging the rest by how long the lease has been late.
         </p>
         <div class="q-code">
           <button class="q-copy" onclick="copyQuery(this)">Copy</button>
@@ -1329,41 +1330,102 @@ ORDER BY leads DESC;</pre>
 
 WITH active AS (
   SELECT
-    facility_name,
-    balance_ar,
-    is_lease_paid,
-    is_needs_overlock,
-    is_in_auction,
-    is_autopay_enabled,
-    DATE_DIFF(CURRENT_DATE(), status_late_since_date, DAY) AS days_late
-  FROM `cubby-partner-data.analytics.leases`
-  WHERE org_id = target_org
-    AND is_active = 1
+    l.facility_name,
+    GREATEST(IFNULL(l.balance_ar, 0), 0) AS ar,
+    l.is_lease_paid,
+    l.is_needs_overlock,
+    l.is_in_auction,
+    l.is_autopay_enabled,
+    -- status_late_since_date is forward-looking: on a paid or paid-ahead lease it holds the
+    -- NEXT date the lease goes late, so clamp negatives to 0 (still within the current cycle).
+    -- CURRENT_DATE() is UTC, so take the date in the facility's own time zone.
+    GREATEST(
+      DATE_DIFF(CURRENT_DATE(IFNULL(f.time_zone, 'UTC')), l.status_late_since_date, DAY),
+      0
+    ) AS days_late
+  FROM `cubby-partner-data.analytics.leases` l
+  LEFT JOIN `cubby-partner-data.analytics.facilities` f
+    USING (org_id, facility_id)
+  WHERE l.org_id = target_org
+    AND l.is_active = 1
 )
 SELECT
   facility_name,
-  COUNT(*)                    AS active_leases,
-  COUNTIF(is_lease_paid = 0)  AS leases_past_due,
-  ROUND(SAFE_DIVIDE(COUNTIF(is_lease_paid = 0), COUNT(*)) * 100, 1) AS pct_past_due,
-  ROUND(SUM(GREATEST(balance_ar, 0)), 2) AS total_ar,
-  ROUND(SUM(IF(days_late BETWEEN  1 AND 30, GREATEST(balance_ar, 0), 0)), 2) AS ar_1_30,
-  ROUND(SUM(IF(days_late BETWEEN 31 AND 60, GREATEST(balance_ar, 0), 0)), 2) AS ar_31_60,
-  ROUND(SUM(IF(days_late BETWEEN 61 AND 90, GREATEST(balance_ar, 0), 0)), 2) AS ar_61_90,
-  ROUND(SUM(IF(days_late &gt; 90,              GREATEST(balance_ar, 0), 0)), 2) AS ar_over_90,
+  COUNT(*) AS active_leases,
+
+  -- Due but not yet delinquent. Rent bills on the lease anniversary, so on any given day a
+  -- large share of tenants sit here simply because their cycle just turned over.
+  COUNTIF(is_lease_paid = 0 AND days_late &lt;= 10)                  AS unpaid_current_cycle,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late &lt;= 10, ar, 0)), 2) AS ar_0_10,
+
+  -- Delinquent: past the 10-day grace window.
+  COUNTIF(is_lease_paid = 0 AND days_late &gt;= 11)                                AS delinquent_leases,
+  ROUND(SAFE_DIVIDE(COUNTIF(is_lease_paid = 0 AND days_late &gt;= 11), COUNT(*)) * 100, 1)
+                                                                                AS pct_delinquent,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late &gt;= 11, ar, 0)), 2)               AS delinquent_ar,
+
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late BETWEEN  11 AND  30, ar, 0)), 2) AS ar_11_30,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late BETWEEN  31 AND  60, ar, 0)), 2) AS ar_31_60,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late BETWEEN  61 AND  90, ar, 0)), 2) AS ar_61_90,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late BETWEEN  91 AND 120, ar, 0)), 2) AS ar_91_120,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late BETWEEN 121 AND 180, ar, 0)), 2) AS ar_121_180,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late BETWEEN 181 AND 360, ar, 0)), 2) AS ar_181_360,
+  ROUND(SUM(IF(is_lease_paid = 0 AND days_late &gt;  360, ar, 0)), 2)              AS ar_over_360,
+  ROUND(SUM(IF(is_lease_paid = 0, ar, 0)), 2)                                   AS total_unpaid_ar,
+
   COUNTIF(is_needs_overlock = 1) AS needs_overlock,
   COUNTIF(is_in_auction = 1)     AS in_auction,
-  ROUND(SAFE_DIVIDE(COUNTIF(is_autopay_enabled), COUNT(*)) * 100, 1) AS pct_on_autopay
+  ROUND(SAFE_DIVIDE(COUNTIF(is_autopay_enabled IS TRUE), COUNT(*)) * 100, 1) AS pct_on_autopay
 FROM active
 GROUP BY facility_name
-ORDER BY total_ar DESC;</pre>
+ORDER BY delinquent_ar DESC;</pre>
         </div>
         <div class="q-notes">
           <div class="q-notes-label">Notes</div>
           <ul>
             <li>
+              <strong>Do not report a single &ldquo;past due&rdquo; number.</strong> Rent bills on
+              the lease anniversary, so on any given day a large share of tenants are unpaid
+              purely because their cycle just turned over &mdash; on a portfolio with high autopay
+              adoption the charge often posts days before the payment settles. Counting every
+              unpaid lease as delinquent typically overstates the problem by several times over,
+              which is why <code>ar_0_10</code> is split out here rather than folded into a total.
+            </li>
+            <li>
+              <code>status_late_since_date</code> is <strong>forward-looking</strong>. On a lease
+              that is paid, or paid ahead of its cycle, it holds the <em>next</em> date the lease
+              goes late, so a raw <code>DATE_DIFF</code> against it returns a negative number.
+              Guard every bucket with <code>is_lease_paid = 0</code> and clamp with
+              <code>GREATEST(&hellip;, 0)</code>, or those leases fall silently into no bucket at
+              all and your buckets will not sum to your total.
+            </li>
+            <li>
+              <code>CURRENT_DATE()</code> is <strong>UTC</strong>. Join
+              <code>facilities.time_zone</code> and use <code>CURRENT_DATE(time_zone)</code>, or
+              every lease shifts a bucket once the UTC date rolls over ahead of the facility's.
+            </li>
+            <li>
+              <code>is_active = 1</code> scopes this to <strong>current tenants</strong>, which
+              matches the Management Summary's <em>Unpaid Charges (Current Tenants)</em> block.
+              Moved-out tenants who still owe money are excluded &mdash; for a collections or
+              write-off view that includes them, and for aging by the age of each individual
+              charge, build from <code>book_entries</code> instead
+              (<code>book = 'ACCOUNT_RECEIVABLE'</code>).
+            </li>
+            <li>
+              Aging here is driven by <strong>how long the lease has been late</strong>, not the
+              age of each charge, so the whole balance lands in one bucket. That is the right
+              shape for collections triage and it matches the Management Summary; it will
+              <em>not</em> match the Aged Receivables report, which ages each charge separately
+              and includes move-outs. Both are correct &mdash; they answer different questions,
+              and the charge-aged figure is always the smaller of the two.
+            </li>
+            <li>
               This is a <strong>live snapshot, not a historical series</strong> &mdash;
               <code>leases</code> holds current state only. To trend delinquency you need to
-              snapshot this output on a schedule.
+              snapshot this output on a schedule. It also refreshes hourly, so a payment taken in
+              the last few minutes will still show as owing; reconcile against the manager app
+              only after checking when the table last landed.
             </li>
             <li>
               <code>GREATEST(balance_ar, 0)</code> matters. <code>balance_ar</code> goes negative
@@ -1372,19 +1434,15 @@ ORDER BY total_ar DESC;</pre>
               you want them.
             </li>
             <li>
-              Aging buckets are driven by <code>status_late_since_date</code> &mdash; when the
-              lease entered delinquency, not the age of each individual charge, so the whole
-              balance lands in one bucket. That is the right shape for collections triage; it is
-              not a GAAP AR aging.
-            </li>
-            <li>
               <code>pct_on_autopay</code> is the strongest lever here. Sites 10&ndash;15 points
               below portfolio average on autopay adoption almost always carry proportionally more
-              <code>ar_1_30</code>.
+              <code>ar_11_30</code>. Note the <code>IS TRUE</code> &mdash;
+              <code>is_autopay_enabled</code> is nullable, and a bare <code>COUNTIF</code> counts
+              NULL as false.
             </li>
             <li>
               <code>needs_overlock</code> and <code>in_auction</code> show whether policy is
-              actually being enforced. Heavy <code>ar_over_90</code> with near-zero auction
+              actually being enforced. Heavy <code>ar_over_360</code> with near-zero auction
               activity is a process problem, not a collections problem.
             </li>
           </ul>
