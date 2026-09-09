@@ -2102,7 +2102,6 @@ Example via curl:</p>
 <h1 id="changelog">Changelog</h1>
 <h2 id="september-2026">September 2026</h2>
 <ul>
-<li><strong>Documentation: payment identifiers</strong> — The response of <code>POST /v1/leases/make-payment</code> is now documented. It returns a <code>payment</code> object whose <code>paymentId</code> is the same identifier that <code>POST /v1/leases/checkout</code> returns as <code>paymentTransactionId</code>, and that <code>POST /v1/payments/search</code> and <code>POST /v1/reports/merchant-services-disbursements</code> return as <code>paymentId</code> — so a payment can be correlated across all four. A declined card returns a <code>200</code> with that object and a non-<code>SUCCEEDED</code> <code>status</code>, which the endpoint's documentation now spells out. Separately, several example identifiers in these docs carried prefixes the API never emits: payment identifiers were shown as <code>ptxn_</code> and <code>pay_</code> rather than <code>payment_</code>, a customer identifier as <code>con_</code> rather than <code>cust_</code>, and a lease configuration identifier as <code>lc_</code> rather than <code>leaseconfig_</code>. No API behaviour changed, but validation or parsing written against those example prefixes will not match real values and should be corrected.</li>
 <li><strong>Facilities: <code>enabled</code> field</strong> — Facility objects now carry an <code>enabled</code> boolean saying whether the facility is live in Cubby. A facility is disabled while it is being set up and enabled when it goes live, so a client migrating a portfolio in stages can tell which facilities Cubby is already managing from those still running on a previous system, without tracking the cutover schedule out of band. Disabled facilities were already returned by the API and still are — the field reports their state rather than hiding them. The field appears on every facility object the API returns, including the <code>facility</code> / <code>facilities</code> expansions of <code>POST /v1/leases/search</code>, <code>/v1/units/search</code>, <code>/v1/tasks/search</code>, <code>/v1/leads/search</code>, <code>/v1/pricing-groups/search</code> and <code>/v1/facility-groups/search</code>. The storefront endpoint <code>POST /v1/storefront/facilities/search</code> is unchanged.</li>
 <li><strong>Leases: a customer's reservation is converted by their move-in</strong> — <code>POST /v1/leases/create</code> and <code>POST /v1/leases/checkout</code> now convert the reservation the customer holds for the unit being leased, instead of skipping it and minting a second lead. Previously the reservation was left open with no unit alongside a duplicate converted lead, which inflated the customer's open-lead count, split source attribution, and kept the reservation on its expiry reminder schedule — so a customer who had already moved in could still receive &quot;your reservation expires soon&quot; and then a cancellation notice. No client change is needed. The reservation is matched ahead of any plain open lead, because a customer usually enquires before reserving and the general match takes the earliest record. Only a reservation for the same facility and pricing group as the unit being leased is matched, and only one pinned to that unit or to no unit at all — use <code>leadId</code> to convert one held against a different unit or group.</li>
 <li><strong>Leases: name the lead to convert with <code>leadId</code></strong> — <code>POST /v1/leases/create</code> and <code>POST /v1/leases/checkout</code> accept an optional <code>leadId</code>. When supplied it replaces the match-by-shape entirely: that lead is converted even when its pricing group or unit differs from the one being leased, and it is repinned to the leased unit. Any open lead converts, a <code>RESERVATION</code> included. The lead must belong to the same facility, or to no facility yet - divergence is allowed on the pricing group and unit only. Rejected with a <code>400</code> if the lead is already converted, is marked as a duplicate, belongs to a customer other than <code>customerId</code>, is pinned to another facility, or is combined with a new <code>customer</code> object.</li>
@@ -4889,7 +4888,7 @@ or <code>ANYTIME</code></li>
       <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
       <span class="hljs-attr">&quot;methodType&quot;</span>: <span class="hljs-string">&quot;CREDIT_CARD&quot;</span>,
       <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;SUCCEEDED&quot;</span>,
-      <span class="hljs-attr">&quot;reason&quot;</span>: <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">&quot;reason&quot;</span>: <span class="hljs-string">&quot;Approved&quot;</span>,
       <span class="hljs-attr">&quot;explanation&quot;</span>: <span class="hljs-literal">null</span>
     }
   }
@@ -4904,25 +4903,28 @@ or <code>ANYTIME</code></li>
 <li><code>amount</code> - the amount in cents to charge the payment method. For credit cards at facilities with processing fees configured, the fee is included in (deducted from) this amount.</li>
 </ul>
 <h3 id="response-parameters-11">Response Parameters</h3>
-<p>The response wraps a single <code>payment</code> object, whose fields are:</p>
+<p>The response wraps a single <code>payment</code> object:</p>
 <ul>
-<li><code>paymentId</code> - the Cubby payment identifier. This is the same identifier that <a href="#checkout">Checkout</a> returns as <code>paymentTransactionId</code> and that <a href="#payments-search">Payments Search</a> returns as <code>paymentId</code></li>
+<li><code>paymentId</code> - the Cubby payment identifier. The same identifier that <a href="#checkout">Checkout</a> returns as <code>paymentTransactionId</code> and <a href="#payments-search">Payments Search</a> returns as <code>paymentId</code></li>
 <li><code>createdAt</code> - when the payment was created</li>
 <li><code>amount</code> - the amount charged, in cents</li>
 <li><code>customerId</code> - the ID of the customer the payment is for</li>
 <li><code>methodType</code> - the type of payment method used</li>
-<li><code>status</code> - the payment status: <code>SUCCEEDED</code>, <code>DECLINED</code>, <code>REJECTED</code>, <code>FAILED</code>, <code>REFUND_INITIATED</code>, <code>REFUNDED</code>, <code>DISPUTED</code>, <code>DIRECT_DEBIT_RETURN</code>, <code>PENDING</code></li>
-<li><code>reason</code> - short reason the payment did not succeed; <code>null</code> on success</li>
-<li><code>explanation</code> - fuller explanation of the failure; <code>null</code> on success</li>
+<li><code>status</code> - the outcome: <code>SUCCEEDED</code>, <code>DECLINED</code>, <code>FAILED</code>, or <code>PENDING</code>. Statuses a payment reaches later — refunded, disputed, returned — appear on <a href="#payments-search">Payments Search</a>, not here</li>
+<li><code>reason</code> - a short status label, always populated: <code>Approved</code> on success, otherwise the decline reason (<code>Insufficient funds</code>) or a fallback such as <code>Declined</code> or <code>Pending</code>. A non-<code>null</code> <code>reason</code> does not mean the payment failed — read <code>status</code></li>
+<li><code>explanation</code> - a fuller description of <code>reason</code> where there is one, <code>null</code> otherwise, including on success</li>
 </ul>
 <h3 id="a-declined-payment-is-still-a-200">A declined payment is still a 200</h3>
-<p>A card that is declined is a completed request, not a failed one: the response is an HTTP <code>200</code> carrying a
-<code>payment</code> object like any other. Read <code>status</code> to find out whether money moved — only <code>SUCCEEDED</code> means it did
-— and show <code>reason</code> or <code>explanation</code> to explain a decline. Treating <code>200</code> as &quot;paid&quot; will report a declined card
-as a successful payment.</p>
-<p>A non-<code>2xx</code> response means something different: the request itself was rejected and no payment was attempted
-at all. An unknown <code>leaseId</code> or <code>paymentMethodId</code>, a payment method belonging to a different customer, and a
-non-positive <code>amount</code> are all rejected this way, among others.</p>
+<p>A decline is a completed request, not a failed one: the response is a <code>200</code> carrying a <code>payment</code> object like
+any other. Read <code>status</code>, not the HTTP code — <code>SUCCEEDED</code> means the money moved, <code>DECLINED</code> or <code>FAILED</code> means
+it did not, with <code>reason</code> and <code>explanation</code> describing why.</p>
+<p><code>PENDING</code> is neither. The gateway gave no usable answer, typically a timeout, and the outcome is not yet
+known. Cubby may already have applied the payment to the lease, so do not retry it — that risks charging the
+customer twice — and do not show it as a decline. Re-check with <a href="#payments-search">Payments Search</a> until it
+resolves.</p>
+<p>A non-<code>2xx</code> response is different again: the request itself was rejected and no payment was attempted. An
+unknown <code>leaseId</code> or <code>paymentMethodId</code>, a payment method belonging to a different customer, and a
+non-positive <code>amount</code> are all rejected this way.</p>
 <h3 id="enable-autopay">Enable AutoPay</h3>
 <p><code>POST /v1/leases/enable-auto-pay</code></p>
 <blockquote>
@@ -7402,27 +7404,24 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>methodType</code> - the payment method used: <code>CREDIT_CARD</code>, <code>ACH</code>, <code>ACSS</code>, etc. Every row is a gateway transaction, so the methods a facility takes outside a gateway do not appear here</li>
 <li><code>cardBrand</code> - the card brand, if applicable: <code>VISA</code>, <code>MASTERCARD</code>, <code>AMERICAN_EXPRESS</code>, <code>DISCOVER</code>, <code>JCB</code>, <code>UNIONPAY</code>, etc.</li>
 <li><code>lastFour</code> - the last four digits of the card or account number, if applicable</li>
-<li><code>checkNo</code> - the check number, if the payment was made by check</li>
 </ul>
 <h4 id="rows-without-cubby-payment-details">Rows without Cubby payment details</h4>
-<p>Transaction rows come from Stripe and Payabli, and Cubby's own details are attached to a row by matching the
-provider's <code>transactionId</code> against the payment Cubby recorded for it. When there is no match, the group of
-Cubby-sourced fields is omitted from the row together — <code>paymentId</code>, <code>status</code>, <code>customerId</code>, <code>methodType</code>,
-<code>cardBrand</code>, <code>lastFour</code>, and <code>checkNo</code> — while the provider-sourced fields (<code>facilityId</code>, <code>facilityName</code>,
-<code>paymentProvider</code>, <code>batchNumber</code>, <code>batchDate</code>, <code>transactionId</code>, <code>date</code>, <code>amount</code>, <code>type</code>, <code>payabliStatus</code>,
-and <code>customerName</code>) are still present.</p>
+<p>Rows come from Stripe and Payabli; Cubby's own details are attached by matching the provider's
+<code>transactionId</code> against the payment Cubby recorded for it. When there is no match, the Cubby-sourced fields
+drop as a group — <code>paymentId</code>, <code>status</code>, <code>customerId</code>, <code>methodType</code>, <code>cardBrand</code>, <code>lastFour</code> — and the
+provider-sourced fields are unaffected. Unaffected is not the same as present: each still follows its own
+rule, and <code>payabliStatus</code> only appears on Payabli rows. A matched row can also omit <code>customerId</code>, when the
+payment is not linked to a customer.</p>
 <p>This is expected rather than a lookup failure. It applies to:</p>
 <ul>
-<li><strong>refunds, disputes, and ACH returns</strong> — Cubby records these as children of the original payment, and only
-original payments are matched, so a <code>REFUND</code> or <code>FAILURE</code> row never carries a <code>paymentId</code>. The original
-<code>SALE</code> row does carry one, but only if it settled inside the period you requested — a refund of an older
-payment has no corresponding <code>SALE</code> row in the same response.</li>
-<li><strong>transactions with no matching Cubby payment</strong> — a provider transaction Cubby holds no payment record for
-under that gateway reference (a charge taken on the same merchant account outside Cubby, for example).</li>
+<li><strong>refunds, disputes, and ACH returns</strong> — Cubby records these as children of the original payment and only
+originals are matched, so a <code>REFUND</code> or <code>FAILURE</code> row never carries a <code>paymentId</code>. The original <code>SALE</code> row
+does, but only if it settled inside the period you requested.</li>
+<li><strong>transactions with no matching Cubby payment</strong> — a charge taken on the same merchant account outside
+Cubby, for example.</li>
 </ul>
-<p>Because this report is built from gateway data, payments taken outside a gateway — cash, check, and money
-order — do not appear as rows at all. Use <a href="#payments-search">Payments Search</a> to reach those.</p>
-<p><code>customerId</code> is also omitted on an otherwise-matched row when the payment is not linked to a customer.</p>
+<p>Payments taken outside a gateway — cash, check, and money order — do not appear as rows at all. Use
+<a href="#payments-search">Payments Search</a> to reach those.</p>
 <p>Treat a missing <code>paymentId</code> as &quot;not applicable to this row&quot; rather than &quot;payment not found&quot;.</p>
 <h2 id="storefront-2">Storefront</h2>
 <ul>
