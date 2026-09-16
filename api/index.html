@@ -1691,6 +1691,8 @@ type of the object referred to is defined by the prefix.</p>
 <li><code>status</code> — always <code>200</code> on success. Mirrors the HTTP status.</li>
 <li><code>data</code> — the endpoint-specific response payload. Omitted for endpoints that have no payload to return (the body is then just <code>{ &quot;status&quot;: 200 }</code>).</li>
 </ul>
+<p><a href="#schedule-move-out">Schedule Move Out</a> is the one exception to the envelope: it returns an empty body. Treat its
+HTTP <code>200</code> as success without parsing the body.</p>
 <blockquote>
 <p>Example: <code>POST /v1/facilities/search</code></p>
 </blockquote>
@@ -2102,11 +2104,16 @@ Example via curl:</p>
 <h1 id="changelog">Changelog</h1>
 <h2 id="september-2026">September 2026</h2>
 <ul>
+<li><strong>Checkout Component: <code>unit-id</code> attribute</strong> — <code>&lt;cubby-checkout&gt;</code> now accepts a <code>unit-id</code> attribute naming the exact unit to rent, instead of letting Cubby assign one from the pricing group. The pricing group is derived from the unit, so <code>unit-id</code> alone is sufficient; supplying it alongside <code>pricing-groups</code> is accepted as long as the unit belongs to that group. A unit that has been rented by the time the customer checks out fails with the new response code <code>7503</code> rather than silently substituting another unit. For a pricing group with value pricing approved, a named unit is charged the tier its ranking gives it, and any <code>selectedValueTier</code> sent alongside <code>unit-id</code> is ignored. The supported way to pick a <code>unit-id</code> is <code>POST /v1/pricing-groups/find-unit-for-tier</code>, so the tier you advertise is the tier charged. A unit's tier can change as its neighbours are rented or returned; if it changes between the price shown and the payment, the checkout fails with <code>7501</code> and the client should re-quote. Omitting <code>unit-id</code> leaves the existing behaviour unchanged.</li>
+<li><strong>Lock Search: <code>where</code> wrapper accepted</strong> — <code>POST /v1/locks/search</code> now takes the standard <code>where</code> wrapper: <code>{&quot;where&quot;: {&quot;organizationId&quot;: &quot;org_...&quot;}}</code>. It previously read its two scopes only from the top level of the request body, unlike every other search endpoint, and rejected the wrapper with a <code>403</code> — so a caller following this documentation received no results whatever their permissions. The top-level form continues to work — there is no plan to remove it, and when both are present the wrapper wins — but it is now <strong>deprecated</strong>, and new integrations should send the wrapper. <code>leaseId</code> is also now documented as the second scope; it was always accepted. Exactly one of the two must be supplied, and supplying none or both is rejected with a <code>403</code>.</li>
+<li><strong>Locks: <code>lockId</code> supersedes <code>id</code></strong> — <code>POST /v1/locks/search</code> and <code>POST /v1/locks/register</code> now return <code>lockId</code>, the name a lock's identifier already carries on the request side of Disable, Attach, Return and Transfer, so a lock can be passed between those endpoints without renaming the field. Both continue to return <code>id</code> alongside it with the same value; <code>id</code> is now <strong>deprecated</strong>, with no plan to remove it, and new integrations should read <code>lockId</code>. <a href="#lock-identifiers">Lock Identifiers</a> covers which endpoints produce and consume a lock's ID. <code>status</code> and <code>disabledReason</code> are unchanged on the wire.</li>
 <li><strong>Facilities: <code>enabled</code> field</strong> — Facility objects now carry an <code>enabled</code> boolean saying whether the facility is live in Cubby. A facility is disabled while it is being set up and enabled when it goes live, so a client migrating a portfolio in stages can tell which facilities Cubby is already managing from those still running on a previous system, without tracking the cutover schedule out of band. Disabled facilities were already returned by the API and still are — the field reports their state rather than hiding them. The field appears on every facility object the API returns, including the <code>facility</code> / <code>facilities</code> expansions of <code>POST /v1/leases/search</code>, <code>/v1/units/search</code>, <code>/v1/tasks/search</code>, <code>/v1/leads/search</code>, <code>/v1/pricing-groups/search</code> and <code>/v1/facility-groups/search</code>. The storefront endpoint <code>POST /v1/storefront/facilities/search</code> is unchanged.</li>
 <li><strong>Leases: a customer's reservation is converted by their move-in</strong> — <code>POST /v1/leases/create</code> and <code>POST /v1/leases/checkout</code> now convert the reservation the customer holds for the unit being leased, instead of skipping it and minting a second lead. Previously the reservation was left open with no unit alongside a duplicate converted lead, which inflated the customer's open-lead count, split source attribution, and kept the reservation on its expiry reminder schedule — so a customer who had already moved in could still receive &quot;your reservation expires soon&quot; and then a cancellation notice. No client change is needed. The reservation is matched ahead of any plain open lead, because a customer usually enquires before reserving and the general match takes the earliest record. Only a reservation for the same facility and pricing group as the unit being leased is matched, and only one pinned to that unit or to no unit at all — use <code>leadId</code> to convert one held against a different unit or group.</li>
 <li><strong>Leases: name the lead to convert with <code>leadId</code></strong> — <code>POST /v1/leases/create</code> and <code>POST /v1/leases/checkout</code> accept an optional <code>leadId</code>. When supplied it replaces the match-by-shape entirely: that lead is converted even when its pricing group or unit differs from the one being leased, and it is repinned to the leased unit. Any open lead converts, a <code>RESERVATION</code> included. The lead must belong to the same facility, or to no facility yet - divergence is allowed on the pricing group and unit only. Rejected with a <code>400</code> if the lead is already converted, is marked as a duplicate, belongs to a customer other than <code>customerId</code>, is pinned to another facility, or is combined with a new <code>customer</code> object.</li>
 <li><strong>Leads Update: reservations editable</strong> — <code>POST /v1/leads/update</code> no longer rejects reservation-backed leads outright. Their fields — coverage, discounts, unit, pricing group, rate, target move-in date — can now be changed, matching what staff can already do in the Cubby app; a reservation keeps requiring a pricing group and a target move-in date, and its rate quote is kept in step. Moving a reservation to a different unit or pricing group re-checks availability the way creating one does, so it cannot be parked on a unit another reservation holds or in a fully booked group unless the facility allows overbooking. Changing a reservation's <code>status</code> through this endpoint is still rejected, because leaving <code>RESERVATION</code> cancels the hold and requires a cancellation reason this endpoint has no field for; sending the status it already has is accepted, so a client that writes back a whole lead object is unaffected.</li>
 <li><strong>Customers: communication preferences readable</strong> — <code>POST /v1/customers/search</code> now returns a <code>communicationPreferences</code> object on every customer, containing an <code>sms</code> and an <code>email</code> object. Each carries <code>marketing</code> (accepts promotions), <code>suppressed</code> (has asked, or been marked, to receive no automated messages), and <code>suppressionReason</code> (<code>OPTED_OUT</code> or <code>UNDELIVERABLE</code>) explaining why a channel is suppressed. Together <code>marketing</code> and <code>suppressed</code> express the customer's full recorded preference on that channel, which Cubby's automated messaging honours apart from required notices and messages a facility sends through its own workflows. No expansion is required, though the object is PII and is skipped for keys without PII access. The same object now also appears on every customer object returned by an expansion: the <code>customer</code> expansions of <code>POST /v1/leases/search</code>, <code>POST /v1/leads/search</code> and <code>POST /v1/tasks/search</code>, and the <code>winningBidders</code> expansion of <code>POST /v1/auctions/search</code>.</li>
+<li><strong>Leads Create: response documented</strong> — <code>POST /v1/leads/create</code> returns <code>leadId</code> and <code>customerId</code> in its <code>data</code> object. This is a documentation fix rather than a behaviour change: the endpoint has returned both since it shipped, but the reference documented only its request body, so a client following it had no documented way to learn the id of the lead it had just created short of a follow-up <code>POST /v1/leads/search</code> — a round-trip that is unnecessary and, for a customer who generates two leads in quick succession, cannot reliably tell which lead it just made. <code>customerId</code> echoes the request when one was supplied; when the lead was created from a <code>customer</code> object it is the newly created customer's id, saving a <code>POST /v1/customers/search</code> to find the customer just created.</li>
+<li><strong>Schedule Move Out: empty response body documented</strong> — <code>POST /v1/leases/schedule-move-out</code> returns an HTTP <code>200</code> with an empty body rather than the <code>{&quot;status&quot;: 200}</code> envelope documented for endpoints without a payload, which every other such endpoint returns. Behaviour is unchanged and this is not a recommendation to rely on it: the reference simply did not say so, and a client that parsed every success response as JSON would fail on this one endpoint. Treat its <code>200</code> as the success signal without reading the body.</li>
 </ul>
 <h2 id="august-2026">August 2026</h2>
 <ul>
@@ -2284,6 +2291,15 @@ Example via curl:</p>
 <li><a href="#lock-return">Lock Return</a></li>
 <li><a href="#lock-transfer">Lock Transfer</a></li>
 </ul>
+<h3 id="lock-identifiers">Lock Identifiers</h3>
+<p>A lock is identified by its <code>lockId</code>. <a href="#lock-register">Lock Register</a> returns the <code>lockId</code> of the lock it created
+and <a href="#lock-search">Lock Search</a> returns one for every lock it finds; <a href="#lock-disable">Lock Disable</a>,
+<a href="#lock-attach">Lock Attach</a>, <a href="#lock-return">Lock Return</a> and <a href="#lock-transfer">Lock Transfer</a> each take a <code>lockId</code>.
+A lock can therefore be carried from one of these endpoints to the next without renaming the field.</p>
+<p>Register and Search also return that same value as <code>id</code>, the name they used before <code>lockId</code> existed. <code>id</code> is
+<strong>deprecated but still supported</strong>: it continues to be returned and there is no plan to remove it, so existing
+integrations need not change. New integrations should read <code>lockId</code>. Any change to this will be announced in
+the <a href="#changelog">Changelog</a>.</p>
 <h3 id="lock-register">Lock Register</h3>
 <p><code>POST /v1/locks/register</code></p>
 <blockquote>
@@ -2302,7 +2318,8 @@ Example via curl:</p>
 <pre class="highlight tab tab-json"><code>{
   <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-number">200</span>,
   <span class="hljs-attr">&quot;data&quot;</span>: {
-    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;lock_&lt;ID&gt;&quot;</span>
+    <span class="hljs-attr">&quot;lockId&quot;</span>: <span class="hljs-string">&quot;lock_&lt;ID&gt;&quot;</span>,
+    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;lock_&lt;ID&gt;&quot;</span>                      <span class="hljs-comment">// Deprecated. Use lockId</span>
   }
 }
 </code></pre>
@@ -2328,8 +2345,12 @@ Available locks can be associated with a location until they are attached to a u
 </thead>
 <tbody>
 <tr>
-<td>id</td>
+<td>lockId</td>
 <td>The ID of the newly registered lock</td>
+</tr>
+<tr>
+<td>id</td>
+<td><strong>Deprecated.</strong> Use <code>lockId</code> — see <a href="#lock-identifiers">Lock Identifiers</a></td>
 </tr>
 </tbody>
 </table>
@@ -2352,7 +2373,8 @@ Available locks can be associated with a location until they are attached to a u
   <span class="hljs-attr">&quot;data&quot;</span>: {
     <span class="hljs-attr">&quot;locks&quot;</span>: [
       {
-        <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;lock_&lt;ID&gt;&quot;</span>,
+        <span class="hljs-attr">&quot;lockId&quot;</span>: <span class="hljs-string">&quot;lock_&lt;ID&gt;&quot;</span>,
+        <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;lock_&lt;ID&gt;&quot;</span>,                 <span class="hljs-comment">// Deprecated. Use lockId</span>
         <span class="hljs-attr">&quot;facilityId&quot;</span>: <span class="hljs-string">&quot;fac_C7bSZyPT6fp&quot;</span>,
         <span class="hljs-attr">&quot;organizationId&quot;</span>: <span class="hljs-string">&quot;org_4a2da7d271a&quot;</span>,
         <span class="hljs-attr">&quot;serial&quot;</span>: <span class="hljs-string">&quot;M9U2FK&quot;</span>,
@@ -2366,11 +2388,20 @@ Available locks can be associated with a location until they are attached to a u
   }
 }
 </code></pre>
-<p>Search for locks by organization</p>
+<p>Search for locks by organization, or for the locks attached to a single lease</p>
 <h3 id="required-properties-4">Required Properties</h3>
+<p>Exactly one scope must be supplied. Supplying none, or more than one, is rejected with a <code>403</code>.</p>
 <ul>
-<li><code>organizationId</code> - the ID of the organization to search for locks</li>
+<li><code>organizationId</code> - limits results to locks held by a particular organization</li>
+<li>or</li>
+<li><code>leaseId</code> - limits results to the locks attached to a particular lease</li>
 </ul>
+<p>This endpoint also accepts the two scopes at the top level of the body, without the <code>where</code> wrapper —
+<code>{&quot;organizationId&quot;: &quot;org_&lt;ID&gt;&quot;}</code> — the shape it took before the wrapper was supported. That form is
+<strong>deprecated but still supported</strong>: it continues to work and there is no plan to remove it, so existing
+integrations need not change. New integrations should send the <code>where</code> wrapper shown above, which is the shape
+every other search endpoint takes. When both are present the wrapper wins. Any change to this will be announced
+in the <a href="#changelog">Changelog</a>.</p>
 <h3 id="response-parameters-3">Response Parameters</h3>
 <table>
 <thead>
@@ -2381,8 +2412,12 @@ Available locks can be associated with a location until they are attached to a u
 </thead>
 <tbody>
 <tr>
+<td>lockId</td>
+<td>The ID of the lock — see <a href="#lock-identifiers">Lock Identifiers</a></td>
+</tr>
+<tr>
 <td>id</td>
-<td>The ID of the lock</td>
+<td><strong>Deprecated.</strong> Use <code>lockId</code></td>
 </tr>
 <tr>
 <td>facilityId</td>
@@ -3625,7 +3660,24 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
     }
 }
 </code></pre>
+<blockquote>
+<p>Response Body — leads/create</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-number">200</span>,
+  <span class="hljs-attr">&quot;data&quot;</span>: {
+    <span class="hljs-attr">&quot;leadId&quot;</span>: <span class="hljs-string">&quot;lead_4a2da7d271a&quot;</span>,
+    <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>
+  }
+}
+</code></pre>
 <p>Creates a new lead.  If <code>customerId</code> is not provided, a new customer will be created.</p>
+<p>The response returns the new lead's <code>leadId</code> and the <code>customerId</code> of the customer it belongs to. Keep the
+<code>leadId</code> if you intend to follow the lead up: it is the id <a href="#leads-update">Leads Update</a> takes, and the one
+<a href="#create-lease">Create Lease</a> and <a href="#checkout">Checkout</a> accept as <code>leadId</code> to convert this specific lead.
+<code>customerId</code> echoes the request when one was supplied, and is the id of the newly created customer when the
+lead was created from a <code>customer</code> object — keep it to reuse that customer on a later call instead of
+re-finding them with <a href="#customers-search">Customers Search</a>.</p>
 <h3 id="required-properties-22">Required Properties</h3>
 <ul>
 <li><code>organizationId</code> - the ID of the organization the lead belongs to.  At least one of <code>organizationId</code> or <code>facilityId</code> must be provided</li>
@@ -4801,6 +4853,9 @@ exactly, otherwise a 400 error is returned.</p>
 }
 </code></pre>
 <p>Schedules a move-out for a lease</p>
+<p>This endpoint returns an HTTP <code>200</code> with an <strong>empty body</strong> on success, not the <code>{ &quot;status&quot;: 200 }</code> envelope that
+every other endpoint without a payload returns. A client that parses the response as JSON will fail on it, so
+treat the <code>200</code> itself as the success signal.</p>
 <h3 id="required-properties-35">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to schedule the move-out for</li>
@@ -7712,9 +7767,28 @@ Storefront API endpoints above.</p>
     <span class="hljs-attr">customer-phone</span>=<span class="hljs-string">&quot;+15551234567&quot;</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">cubby-checkout</span>&gt;</span>
 </code></pre>
-<p>Place the <code>&lt;cubby-checkout&gt;</code> element wherever the checkout flow should appear.  The <code>pricing-groups</code>
-attribute is required and accepts a single pricing group ID as returned by
+<p>Place the <code>&lt;cubby-checkout&gt;</code> element wherever the checkout flow should appear.  One of <code>pricing-groups</code>
+or <code>unit-id</code> is required.  <code>pricing-groups</code> accepts a single pricing group ID as returned by
 the Storefront Pricing Groups Search endpoint.  Only one pricing group is supported at this time.</p>
+<p>Supplying <code>unit-id</code> rents that exact unit rather than one Cubby picks from the pricing group, which is what
+a link from a unit-level listing needs.  The pricing group is derived from the unit, so <code>unit-id</code> on its own
+is enough; supplying both is accepted as long as the unit belongs to that group.  The unit must still be
+available when the customer checks out — if it has been rented in the meantime the checkout fails with
+response code <code>7503</code> rather than quietly renting a different unit.</p>
+<p>For a pricing group with value pricing approved, a named unit is charged the tier its ranking gives it, so
+any <code>selectedValueTier</code> sent alongside <code>unit-id</code> is ignored.  The supported way to pick a <code>unit-id</code> is
+<code>POST /v1/pricing-groups/find-unit-for-tier</code>: it returns a unit that is currently rentable and, on a
+value-priced group, one charged the tier you asked for, so the price you advertise is the price the
+customer is charged.</p>
+<p>A unit's tier depends on which units are available, so it can change as its neighbours are rented or
+returned.  Should it change between the price the customer was shown and their payment, the checkout fails
+with response code <code>7501</code>, the same code as an expired quote: fetch a fresh price and let the customer
+confirm the new total.</p>
+<blockquote>
+<p>Checkout for a Specific Unit</p>
+</blockquote>
+<pre class="highlight tab tab-html"><code><span class="hljs-tag">&lt;<span class="hljs-name">cubby-checkout</span> <span class="hljs-attr">unit-id</span>=<span class="hljs-string">&quot;unit_9f31b6c04e2&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">cubby-checkout</span>&gt;</span>
+</code></pre>
 <h3 id="attributes">Attributes</h3>
 <table>
 <thead>
@@ -7729,8 +7803,14 @@ the Storefront Pricing Groups Search endpoint.  Only one pricing group is suppor
 <tr>
 <td>pricing-groups</td>
 <td>string</td>
-<td>Yes</td>
+<td>Yes*</td>
 <td>The ID of the pricing group to display</td>
+</tr>
+<tr>
+<td>unit-id</td>
+<td>string</td>
+<td>Yes*</td>
+<td>The ID of a specific unit to rent</td>
 </tr>
 <tr>
 <td>customer-name</td>
@@ -7752,6 +7832,7 @@ the Storefront Pricing Groups Search endpoint.  Only one pricing group is suppor
 </tr>
 </tbody>
 </table>
+<p>* One of <code>pricing-groups</code> or <code>unit-id</code> must be supplied.</p>
 <!-- Renderer: Shins v2.6.0 -->
       </div>
       <div class="dark-box">
