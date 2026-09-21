@@ -1841,7 +1841,7 @@ Example via curl:</p>
 </tr>
 <tr>
 <td>Tasks</td>
-<td><code>search</code>, <code>create</code></td>
+<td><code>search</code>, <code>create</code>, <code>update</code></td>
 </tr>
 <tr>
 <td>Units</td>
@@ -2104,6 +2104,11 @@ Example via curl:</p>
 <h1 id="changelog">Changelog</h1>
 <h2 id="september-2026">September 2026</h2>
 <ul>
+<li><strong>Tasks: editable through the API</strong> — <code>POST /v1/tasks/update</code> edits an existing task: its title, description, due date, the customer or unit it is attached to, and whether it is completed or archived. Every property but <code>taskId</code> is optional and independent — omit one to leave it as it is, send it as <code>null</code> to clear it — so a client that writes a whole open task object back is safe. A task stays at the facility it was created in, and its assignees, attachments, team assignments and repeat settings are preserved. A task must pass back through <code>OPEN</code> to move between the two terminal statuses — see <a href="#task-status">Task Status</a>.</li>
+<li><strong>Tasks: addressable by ID</strong> — <code>POST /v1/tasks/create</code> now returns a <code>data</code> object carrying <code>taskId</code>, and <code>POST /v1/tasks/search</code> accepts <code>taskId</code> as a scope returning just that task. Together they let a client create a task and then update or re-read it without searching a facility and matching on title. The <code>status</code> field of the create response is unchanged, so a client that only reads that is unaffected; <code>taskId</code> is exclusive with the other search scopes, as they are with each other.</li>
+<li><strong>Tasks: incremental sync</strong> — Task objects now carry <code>createdAt</code> and <code>updatedAt</code>, and <code>POST /v1/tasks/search</code> accepts the strict <code>updatedAfter</code> / <code>updatedBefore</code> UTC bounds already available on Leases, Leads and Customers Search. Passing the <code>updatedAt</code> from your previous response as <code>updatedAfter</code> on the next poll returns only the tasks that changed since, instead of re-reading every task in a facility to find the ones that moved.</li>
+<li><strong>Leads Search: <code>reservedAt</code> set on leads created as reservations</strong> — a lead created directly as a reservation, through <code>POST /v1/leads/create</code>, the Cubby app, the voice agent or an import, returned <code>reservedAt: null</code> even while its <code>status</code> read <code>RESERVATION</code>. It now reports the moment the hold opened, which is the lead's <code>createdAt</code>. Leads promoted into <code>RESERVATION</code> are unchanged, except that one re-reserved after a downgrade now reports its most recent promotion rather than its creation date. <code>reservedAt</code> on the <code>leads</code> expansion of <code>POST /v1/customers/search</code> changes the same way.</li>
+<li><strong>Leads Search: <code>unqualifiedAt</code> set on archived reservations</strong> — archiving a lead out of <code>RESERVATION</code> records a cancellation rather than a plain archive, and <code>unqualifiedAt</code> read only the plain archive unless the lead came from the storefront reservation form. A reservation archived on any other origin — the Cubby app, <code>POST /v1/leads/create</code>, the voice agent — returned <code>null</code>, as did a storefront-form lead downgraded to a plain lead before being archived. Both now report when the lead was archived. A lead archived more than once, from a reservation on one occasion and from a plain status on another, reports the later of the two rather than whichever its origin selected. <code>unqualifiedAt</code> on the <code>leads</code> expansion of <code>POST /v1/customers/search</code> changes the same way.</li>
 <li><strong>Checkout Component: <code>unit-id</code> attribute</strong> — <code>&lt;cubby-checkout&gt;</code> now accepts a <code>unit-id</code> attribute naming the exact unit to rent, instead of letting Cubby assign one from the pricing group. The pricing group is derived from the unit, so <code>unit-id</code> alone is sufficient; supplying it alongside <code>pricing-groups</code> is accepted as long as the unit belongs to that group. A unit that has been rented by the time the customer checks out fails with the new response code <code>7503</code> rather than silently substituting another unit. For a pricing group with value pricing approved, a named unit is charged the tier its ranking gives it, and any <code>selectedValueTier</code> sent alongside <code>unit-id</code> is ignored. The supported way to pick a <code>unit-id</code> is <code>POST /v1/pricing-groups/find-unit-for-tier</code>, so the tier you advertise is the tier charged. A unit's tier can change as its neighbours are rented or returned; if it changes between the price shown and the payment, the checkout fails with <code>7501</code> and the client should re-quote. Omitting <code>unit-id</code> leaves the existing behaviour unchanged.</li>
 <li><strong>Lock Search: <code>where</code> wrapper accepted</strong> — <code>POST /v1/locks/search</code> now takes the standard <code>where</code> wrapper: <code>{&quot;where&quot;: {&quot;organizationId&quot;: &quot;org_...&quot;}}</code>. It previously read its two scopes only from the top level of the request body, unlike every other search endpoint, and rejected the wrapper with a <code>403</code> — so a caller following this documentation received no results whatever their permissions. The top-level form continues to work — there is no plan to remove it, and when both are present the wrapper wins — but it is now <strong>deprecated</strong>, and new integrations should send the wrapper. <code>leaseId</code> is also now documented as the second scope; it was always accepted. Exactly one of the two must be supplied, and supplying none or both is rejected with a <code>403</code>.</li>
 <li><strong>Locks: <code>lockId</code> supersedes <code>id</code></strong> — <code>POST /v1/locks/search</code> and <code>POST /v1/locks/register</code> now return <code>lockId</code>, the name a lock's identifier already carries on the request side of Disable, Attach, Return and Transfer, so a lock can be passed between those endpoints without renaming the field. Both continue to return <code>id</code> alongside it with the same value; <code>id</code> is now <strong>deprecated</strong>, with no plan to remove it, and new integrations should read <code>lockId</code>. <a href="#lock-identifiers">Lock Identifiers</a> covers which endpoints produce and consume a lock's ID. <code>status</code> and <code>disabledReason</code> are unchanged on the wire.</li>
@@ -2117,6 +2122,9 @@ Example via curl:</p>
 </ul>
 <h2 id="august-2026">August 2026</h2>
 <ul>
+<li><strong>Documentation: Payabli tokenization fix</strong> — The <a href="#generating-a-payment-token">Generating a Payment Token</a> guide previously instructed Payabli integrators to create a Basis Theory <em>token intent</em> (<code>bt.tokenIntents.create</code>). This was incorrect: the Cubby API only accepts plain Basis Theory tokens, and a token-intent ID fails when the payment is processed. The guide now shows <code>bt.tokens.create</code>. If you followed the previous instructions, switch to plain tokens.</li>
+<li><strong>Checkout: ACH / ACSS direct debit</strong> — The <code>payment</code> object of <code>POST /v1/leases/checkout</code> now accepts <code>methodType</code> <code>ACH</code> (USD facilities) and <code>ACSS</code> (Stripe-backed CAD facilities) alongside the existing <code>CREDIT_CARD</code>. Direct-debit requests supply <code>achAccountType</code>, <code>achAccountHolder</code>, and <code>achAccountLastFour</code> (or the <code>acss*</code> equivalents) instead of the card fields — the same fields as <a href="#create-payment-method">Create Payment Method</a>. With <code>enableAutoPay</code>, the bank account is saved and enrolled in AutoPay just like a card. Direct-debit payments settle asynchronously: <code>paymentSuccess: true</code> means the debit was accepted for processing, and it can still be returned later. Existing card integrations are unaffected.</li>
+<li><strong>Documentation: bank-account tokenization</strong> — <a href="#generating-a-payment-token">Generating a Payment Token</a> previously covered credit cards only. It now also shows how to tokenize a bank account on each gateway: <code>us_bank_account</code> and <code>acss_debit</code> payment methods on Stripe, and <code>bank</code> tokens on Payabli.</li>
 <li><strong>Leases: discount eligibility enforced</strong> — <code>POST /v1/leases/create</code>, <code>POST /v1/leases/checkout</code> and <code>POST /v1/leases/get-move-in-charges</code> now reject a <code>discounts</code> entry that could not have been offered for the unit: not assigned to the unit's pricing group, or occupancy-percentage or available-units restriction not currently satisfied. The response is a <code>400</code> naming the offending discount. A repeated discount id is applied once rather than stacked. Channel visibility is not part of this check: a <code>CUBBY_ONLY</code> program assigned to the unit's pricing group is still accepted, and <code>availableDiscounts</code> on <code>POST /v1/pricing-groups/search</code> still lists it. Filtering on visibility is left to the client, which can read it per pricing group from <code>pricingGroups[].visibility</code> on <code>POST /v1/discounts/search</code> or on the <code>discounts</code> expansion of <code>POST /v1/pricing-groups/search</code>. Lead endpoints are unchanged.</li>
 <li><strong>Pricing Groups Search: assignment visibility on expanded discounts</strong> — Discount objects returned by the <code>discounts</code> expansion on <code>POST /v1/pricing-groups/search</code> now carry the same <code>pricingGroups</code> array as <code>POST /v1/discounts/search</code>: every pricing group the discount is assigned to, each with the <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>) configured for that pairing. A client that honours the &quot;Cubby only&quot; channel can read visibility from the same response that lists a pricing group's discounts, instead of one <code>discounts/search</code> call per pricing group.</li>
 <li><strong>Payments Search: <code>leaseId</code> filter</strong> — <code>POST /v1/payments/search</code> now accepts <code>leaseId</code> as a search scope, returning every payment applied to that lease including imported history from a previous management system, alongside the attempts against it that never settled (a <code>DECLINED</code> or <code>FAILED</code> card, for instance). Because a customer renting several units can settle them in one transaction, a payment belongs to every lease it paid: the same <code>paymentId</code> can be returned for more than one <code>leaseId</code>, and <code>amount</code> remains the full transaction amount rather than the portion applied to the lease searched for. Exactly one of <code>facilityId</code>, <code>customerId</code>, or <code>leaseId</code> must be supplied. Unlike a <code>facilityId</code> search, a <code>leaseId</code> search does not fall back to a one-month window when the date bounds are omitted.</li>
@@ -3583,7 +3591,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><code>WAITLIST_FORM</code> - submitted through a website waitlist form</li>
 <li><code>RESERVATION_FORM</code> - submitted through a website reservation form</li>
 <li><code>WEBSITE_CHECKOUT</code> - online checkout completed as a rental</li>
-<li><code>RESERVED_CHECKOUT</code> - online checkout completed as a reservation</li>
+<li><code>RESERVED_CHECKOUT</code> - contact details captured at the first step of a multi-step online checkout; nothing is reserved, even when <code>unitId</code> is set</li>
 <li><code>ABANDONED_CHECKOUT</code> - online checkout that was started but not completed</li>
 <li><code>FAILED_CHECKOUT</code> - online checkout that failed at payment</li>
 </ul>
@@ -3597,7 +3605,7 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 <li><code>CONVERTED</code></li>
 <li><code>UNQUALIFIED</code></li>
 <li><code>DUPLICATE</code></li>
-<li><code>RESERVATION</code></li>
+<li><code>RESERVATION</code> - the lead holds a reservation on its pricing group, pinned to <code>unitId</code> when a unit was named; <code>unitId</code> is cleared if that unit stops being available</li>
 </ul>
 </li>
 <li><code>facilityId</code> - the ID of the facility the lead is interested in</li>
@@ -3614,9 +3622,9 @@ endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>
 </ul>
 <p>The coverage, discount, and rate assignments above are returned regardless of whether they were set through the API or by staff in the Cubby app.</p>
 <ul>
-<li><code>reservedAt</code> - ISO-8601 UTC timestamp when the lead transitioned into a reservation, or <code>null</code> if it never did. For leads with <code>origin = RESERVATION_FORM</code>, this equals <code>createdAt</code>.</li>
+<li><code>reservedAt</code> - ISO-8601 UTC timestamp when the lead most recently became a reservation, whether it was created as one or promoted into one later, or <code>null</code> if it never was one. It is not cleared when the reservation ends - read <code>status</code> for whether the hold is still live</li>
 <li><code>convertedAt</code> - ISO-8601 UTC timestamp when the lead converted into a customer / lease, or <code>null</code> if it has not converted</li>
-<li><code>unqualifiedAt</code> - ISO-8601 UTC timestamp when the lead was archived as unqualified (or, for reservation-origin leads, when the reservation was cancelled), or <code>null</code></li>
+<li><code>unqualifiedAt</code> - ISO-8601 UTC timestamp when the lead was last archived as unqualified - for a lead archived out of a reservation, when the reservation was cancelled - or <code>null</code> if it has not been archived</li>
 <li><code>leaseMoveInDate</code> - the start date of the lease created from this lead (<code>YYYY-MM-DD</code>), or <code>null</code> if no lease has been created</li>
 </ul>
 <h3 id="leads-create">Leads Create</h3>
@@ -4625,12 +4633,19 @@ If the payment is declined, the lease is rolled back but the lead survives. If t
 succeeds, the response includes the <code>leaseId</code>, <code>paymentTransactionId</code>, and
 <code>paymentSuccess: true</code>. If the payment is declined, <code>leaseId</code> is <code>null</code>,
 <code>paymentSuccess</code> is <code>false</code>, and <code>paymentFailureInfo</code> contains the reason.</p>
-<p>When <code>enableAutoPay</code> is <code>true</code>, a successful payment also saves the card supplied in <code>payment</code>
-to the customer as a reusable payment method and enrols the new lease in AutoPay using that
-card. Saving the card and enabling AutoPay happen after the charge and never affect it: if
-either step fails the payment still stands, and the <code>paymentMethodId</code> and <code>autoPayEnabled</code>
-response fields report the outcome of each. When <code>enableAutoPay</code> is omitted or <code>false</code>, the
-card is charged but not saved — <code>paymentMethodId</code> is <code>null</code> and <code>autoPayEnabled</code> is <code>false</code>.</p>
+<p>The move-in charges can be paid with a credit card or by direct debit — <code>ACH</code> at USD
+facilities, <code>ACSS</code> at Stripe-backed CAD facilities. A <code>methodType</code> the facility's setup
+does not allow is rejected with a 400 error. Direct-debit payments settle asynchronously:
+<code>paymentSuccess: true</code> means the debit was accepted by the payment gateway, but it can
+still be returned later (e.g. insufficient funds), in which case the amount is charged
+back to the lease.</p>
+<p>When <code>enableAutoPay</code> is <code>true</code>, the payment method supplied in <code>payment</code> is also saved to the
+customer as a reusable payment method and the new lease is enrolled in AutoPay using it.
+Saving never affects the charge: if it fails the payment still stands, and the
+<code>paymentMethodId</code> and <code>autoPayEnabled</code> response fields report the outcome of each. The saved
+method is only retained when the payment succeeds — a declined payment rolls it back together
+with the lease. When <code>enableAutoPay</code> is omitted or <code>false</code>, the payment method is charged but
+not saved — <code>paymentMethodId</code> is <code>null</code> and <code>autoPayEnabled</code> is <code>false</code>.</p>
 <p>The <code>payment.amount</code> must match the total from <a href="#get-move-in-charges">Get Move-In Charges</a>
 exactly, otherwise a 400 error is returned.</p>
 <blockquote>
@@ -4678,11 +4693,39 @@ exactly, otherwise a 400 error is returned.</p>
           <span class="hljs-attr">&quot;phone&quot;</span>: <span class="hljs-string">&quot;+15943590263&quot;</span>
       },
       <span class="hljs-attr">&quot;methodType&quot;</span>: <span class="hljs-string">&quot;CREDIT_CARD&quot;</span>,
-      <span class="hljs-attr">&quot;token&quot;</span>: <span class="hljs-string">&quot;tok_1Hh1XYZabc1234567890&quot;</span>,
+      <span class="hljs-attr">&quot;token&quot;</span>: <span class="hljs-string">&quot;pm_card_visa&quot;</span>,
       <span class="hljs-attr">&quot;cardBrand&quot;</span>: <span class="hljs-string">&quot;VISA&quot;</span>,
       <span class="hljs-attr">&quot;cardExpiration&quot;</span>: <span class="hljs-string">&quot;03/24&quot;</span>,
       <span class="hljs-attr">&quot;cardLastFour&quot;</span>: <span class="hljs-string">&quot;1234&quot;</span>,
       <span class="hljs-attr">&quot;cardHolder&quot;</span>: <span class="hljs-string">&quot;Bebe Flatley&quot;</span>
+   }
+}
+</code></pre>
+<blockquote>
+<p>Payment object — ACH direct debit variant</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+   <span class="hljs-attr">&quot;payment&quot;</span>: {
+      <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">37198</span>,
+      <span class="hljs-attr">&quot;methodType&quot;</span>: <span class="hljs-string">&quot;ACH&quot;</span>,
+      <span class="hljs-attr">&quot;token&quot;</span>: <span class="hljs-string">&quot;pm_usBankAccount_success&quot;</span>,
+      <span class="hljs-attr">&quot;achAccountType&quot;</span>: <span class="hljs-string">&quot;CHECKING&quot;</span>,
+      <span class="hljs-attr">&quot;achAccountHolder&quot;</span>: <span class="hljs-string">&quot;Bebe Flatley&quot;</span>,
+      <span class="hljs-attr">&quot;achAccountLastFour&quot;</span>: <span class="hljs-string">&quot;6789&quot;</span>
+   }
+}
+</code></pre>
+<blockquote>
+<p>Payment object — ACSS direct debit variant</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+   <span class="hljs-attr">&quot;payment&quot;</span>: {
+      <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">37198</span>,
+      <span class="hljs-attr">&quot;methodType&quot;</span>: <span class="hljs-string">&quot;ACSS&quot;</span>,
+      <span class="hljs-attr">&quot;token&quot;</span>: <span class="hljs-string">&quot;pm_acssDebit_success&quot;</span>,
+      <span class="hljs-attr">&quot;acssHolderType&quot;</span>: <span class="hljs-string">&quot;PERSONAL&quot;</span>,
+      <span class="hljs-attr">&quot;acssAccountHolder&quot;</span>: <span class="hljs-string">&quot;Bebe Flatley&quot;</span>,
+      <span class="hljs-attr">&quot;acssAccountLastFour&quot;</span>: <span class="hljs-string">&quot;6789&quot;</span>
    }
 }
 </code></pre>
@@ -4729,7 +4772,7 @@ exactly, otherwise a 400 error is returned.</p>
 </li>
 <li>
 <ul>
-<li><code>methodType</code> - the type of payment method. Only <code>CREDIT_CARD</code> is supported on this endpoint. To charge an <code>ACH</code> or <code>ACSS</code> method, save it via <a href="#create-payment-method">Create Payment Method</a> and charge it with <a href="#make-payment">Make Payment</a>.</li>
+<li><code>methodType</code> - the type of payment method, which can be <code>CREDIT_CARD</code>, <code>ACH</code> or <code>ACSS</code></li>
 </ul>
 </li>
 <li>
@@ -4808,20 +4851,34 @@ exactly, otherwise a 400 error is returned.</p>
 <li><code>cardHolder</code> - the name of the cardholder</li>
 </ul>
 </li>
+<li>If <code>methodType</code> is <code>ACH</code>, the following properties are also required:
+<ul>
+<li><code>achAccountType</code> - the type of ACH account, which can be <code>CHECKING</code> or <code>SAVINGS</code></li>
+<li><code>achAccountHolder</code> - the name of the account holder</li>
+<li><code>achAccountLastFour</code> - the last four digits of the ACH account</li>
+</ul>
+</li>
+<li>If <code>methodType</code> is <code>ACSS</code>, the following properties are also required:
+<ul>
+<li><code>acssHolderType</code> - the type of ACSS account holder, which can be <code>PERSONAL</code> or <code>BUSINESS</code></li>
+<li><code>acssAccountHolder</code> - the name of the account holder</li>
+<li><code>acssAccountLastFour</code> - the last four digits of the ACSS account</li>
+</ul>
+</li>
 </ul>
 <h3 id="optional-properties-22">Optional Properties</h3>
 <p>All optional properties from <a href="#create-lease">Create Lease</a> also apply, plus:</p>
 <ul>
-<li><code>enableAutoPay</code> - a boolean (defaults to <code>false</code>). When <code>true</code>, a successful payment saves the card supplied in <code>payment</code> to the customer as a reusable payment method and enrols the lease in AutoPay using it. When <code>false</code>, the card is charged but not saved. AutoPay is only enabled when the payment succeeds and the card is saved; check the <code>autoPayEnabled</code> response flag to confirm.</li>
+<li><code>enableAutoPay</code> - a boolean (defaults to <code>false</code>). When <code>true</code>, a successful payment saves the payment method supplied in <code>payment</code> to the customer as a reusable payment method and enrols the lease in AutoPay using it. When <code>false</code>, the payment method is charged but not saved. AutoPay is only enabled when the payment succeeds and the payment method is saved; check the <code>autoPayEnabled</code> response flag to confirm.</li>
 </ul>
 <h3 id="response-parameters-10">Response Parameters</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the created lease; <code>null</code> if the payment was declined</li>
 <li><code>paymentTransactionId</code> - the ID of the payment transaction. This is the same identifier that <a href="#make-payment">Make Payment</a> and <a href="#payments-search">Payments Search</a> return as <code>paymentId</code>, so a checkout result can be correlated against either of those endpoints</li>
-<li><code>paymentSuccess</code> - whether the move-in payment succeeded. When <code>false</code>, the lease was rolled back</li>
-<li><code>paymentFailureInfo</code> - present only when the payment failed; contains a short <code>reason</code> and a fuller <code>explanation</code> of the decline. It is not used to report card-save or AutoPay problems</li>
-<li><code>paymentMethodId</code> - the ID of the saved payment method, or <code>null</code> when the card was not saved to the customer as a reusable payment method. The card is saved only when <code>enableAutoPay</code> is <code>true</code>, so this is always <code>null</code> when AutoPay was not requested. When AutoPay was requested and the payment succeeded, a <code>null</code> value means the charge went through but the card could not be stored (so AutoPay was not enabled). When non-null, it can be reused for subsequent payments (e.g. <a href="#make-payment">Make Payment</a>) or AutoPay for this customer</li>
-<li><code>autoPayEnabled</code> - whether AutoPay was enabled for the lease. Only <code>true</code> when <code>enableAutoPay</code> was requested and the card was saved successfully</li>
+<li><code>paymentSuccess</code> - whether the move-in payment succeeded. When <code>false</code>, the lease was rolled back. For direct-debit methods (<code>ACH</code>, <code>ACSS</code>) this means the debit was accepted for processing; it can still be returned later</li>
+<li><code>paymentFailureInfo</code> - present only when the payment failed; contains a short <code>reason</code> and a fuller <code>explanation</code> of the decline. It is not used to report payment-method-save or AutoPay problems</li>
+<li><code>paymentMethodId</code> - the ID of the saved payment method, or <code>null</code> when the payment method was not saved to the customer as a reusable payment method. The payment method is saved only when <code>enableAutoPay</code> is <code>true</code>, so this is always <code>null</code> when AutoPay was not requested. When AutoPay was requested and the payment succeeded, a <code>null</code> value means the charge went through but the payment method could not be stored (so AutoPay was not enabled). When non-null, it can be reused for subsequent payments (e.g. <a href="#make-payment">Make Payment</a>) or AutoPay for this customer</li>
+<li><code>autoPayEnabled</code> - whether AutoPay was enabled for the lease. Only <code>true</code> when <code>enableAutoPay</code> was requested and the payment method was saved successfully</li>
 </ul>
 <h3 id="cancel-lease">Cancel Lease</h3>
 <p><code>POST /v1/leases/cancel-lease</code></p>
@@ -5055,13 +5112,16 @@ non-positive <code>amount</code> are all rejected this way.</p>
 <h3 id="generating-a-payment-token">Generating a Payment Token</h3>
 <p>Before creating a payment method in Cubby, you must first generate a single-use token through
 your organization's payment gateway. The token is then passed to the
-<a href="#create-payment-method">Create Payment Method</a> endpoint below as the <code>token</code> property.</p>
+<a href="#create-payment-method">Create Payment Method</a> endpoint below as the <code>token</code> property, or to
+<a href="#checkout">Checkout</a> as <code>payment.token</code>.</p>
 <p>Cubby supports two payment gateways — <strong>Stripe</strong> and <strong>Payabli</strong> — configured per facility. A
 given facility uses exactly one of them. To determine which gateway a facility uses, call the
 <a href="#facilities-search">Facilities Search</a> endpoint and read the <code>paymentServiceProvider</code> field
 (<code>STRIPE</code> or <code>PAYABLI</code>) on the facility. Cubby provides the corresponding publishable key. Follow
 the flow for that facility's gateway below; the resulting token is sent to the Cubby API in
 exactly the same way regardless of gateway.</p>
+<p>Each gateway tokenizes credit cards and bank accounts differently, so follow the flow below that
+matches both the facility's gateway and the <code>methodType</code> you are collecting.</p>
 <h4 id="stripe">Stripe</h4>
 <p>Use this flow for facilities whose <code>paymentServiceProvider</code> is <code>STRIPE</code>. Your Stripe publishable
 key (<code>STRIPE_PK</code>) will be provided by Cubby.</p>
@@ -5112,6 +5172,46 @@ you will pass to the Cubby API.</p>
     },
 });
 </code></pre>
+<h5 id="bank-accounts---code-ach--code--">Bank accounts (<code>ACH</code>)</h5>
+<p>For a US bank account, initialize Elements exactly as above but with
+<code>payment_method_types: ['us_bank_account']</code>, and render the bank-account input instead of the card
+input. Collect the account holder's name alongside it.</p>
+<blockquote>
+<p>Step 2 (ACH): Create a Stripe payment method from a bank account</p>
+</blockquote>
+<pre class="highlight tab tab-js"><code><span class="hljs-keyword">await</span> stripeElements.submit();
+<span class="hljs-keyword">const</span> { paymentMethod, error } = <span class="hljs-keyword">await</span> stripe.createPaymentMethod({
+    <span class="hljs-attr">elements</span>: stripeElements,
+    <span class="hljs-attr">params</span>: {
+        <span class="hljs-attr">billing_details</span>: {
+            <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;Bebe Flatley&#x27;</span>,
+        },
+    },
+});
+</code></pre>
+<p>The resulting <code>paymentMethod.id</code> is the token. Read the last four digits from
+<code>paymentMethod.us_bank_account.last4</code> for the <code>achAccountLastFour</code> property.</p>
+<h5 id="bank-accounts---code-acss--code--">Bank accounts (<code>ACSS</code>)</h5>
+<p>Canadian pre-authorized debit does not use Elements. Collect the account, transit and institution
+numbers yourself and pass them directly to <code>createPaymentMethod</code>. An email address is required by
+Stripe for the pre-authorized debit agreement.</p>
+<blockquote>
+<p>Step 2 (ACSS): Create a Stripe payment method from a Canadian bank account</p>
+</blockquote>
+<pre class="highlight tab tab-js"><code><span class="hljs-keyword">const</span> { paymentMethod, error } = <span class="hljs-keyword">await</span> stripe.createPaymentMethod({
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;acss_debit&#x27;</span>,
+    <span class="hljs-attr">billing_details</span>: {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;Bebe Flatley&#x27;</span>,
+        <span class="hljs-attr">email</span>: <span class="hljs-string">&#x27;bebe.flatley@example.com&#x27;</span>,
+    },
+    <span class="hljs-attr">acss_debit</span>: {
+        <span class="hljs-attr">account_number</span>: <span class="hljs-string">&#x27;000123456789&#x27;</span>,
+        <span class="hljs-attr">transit_number</span>: <span class="hljs-string">&#x27;11000&#x27;</span>,
+        <span class="hljs-attr">institution_number</span>: <span class="hljs-string">&#x27;000&#x27;</span>,
+    },
+});
+</code></pre>
+<p>The resulting <code>paymentMethod.id</code> is the token.</p>
 <h4 id="payabli">Payabli</h4>
 <p>Use this flow for facilities whose <code>paymentServiceProvider</code> is <code>PAYABLI</code>. Payabli card capture is
 powered by <a href="https://developers.basistheory.com/">Basis Theory</a> web elements; install the
@@ -5141,26 +5241,47 @@ just added.</p>
 });
 cardElement.mount(<span class="hljs-string">&#x27;#card-element&#x27;</span>);
 </code></pre>
-<p>Once the customer has entered their card details, create a token intent from the card element.
-The resulting <code>token.id</code> is the token you will pass to the Cubby API.</p>
+<p>Once the customer has entered their card details, create a token from the card element.
+The resulting <code>token.id</code> is the token you will pass to the Cubby API. Do not use
+<code>bt.tokenIntents.create</code> — token intents are not accepted by the Cubby API and will fail
+when the payment is processed.</p>
 <blockquote>
 <p>Step 2: Create a Basis Theory token</p>
 </blockquote>
-<pre class="highlight tab tab-js"><code><span class="hljs-keyword">const</span> token = <span class="hljs-keyword">await</span> bt.tokenIntents.create({
+<pre class="highlight tab tab-js"><code><span class="hljs-keyword">const</span> token = <span class="hljs-keyword">await</span> bt.tokens.create({
     <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;card&#x27;</span>,
     <span class="hljs-attr">data</span>: cardElement,
 });
 </code></pre>
+<h5 id="bank-accounts---code-ach--code---2">Bank accounts (<code>ACH</code>)</h5>
+<p>For a US bank account, create two <code>text</code> elements — one for the routing number and one for the
+account number — and mount them the same way as the card element. Tokenize both together as a
+<code>bank</code> token.</p>
+<blockquote>
+<p>Step 2 (ACH): Create a Basis Theory bank token</p>
+</blockquote>
+<pre class="highlight tab tab-js"><code><span class="hljs-keyword">const</span> token = <span class="hljs-keyword">await</span> bt.tokens.create({
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;bank&#x27;</span>,
+    <span class="hljs-attr">data</span>: {
+        <span class="hljs-attr">routing_number</span>: routingNumberElement,
+        <span class="hljs-attr">account_number</span>: accountNumberElement,
+    },
+});
+</code></pre>
+<p>The resulting <code>token.id</code> is the token. As with cards, do not use <code>bt.tokenIntents.create</code>.</p>
+<p><code>ACSS</code> is not available on Payabli facilities — Canadian pre-authorized debit requires a
+Stripe-backed facility, and a request for it is rejected with a 400 error.</p>
 <h4 id="send-the-token-to-cubby">Send the token to Cubby</h4>
 <p>Use the token produced by your gateway — Stripe's <code>paymentMethod.id</code> or Basis Theory's <code>token.id</code>
-— as the <code>token</code> value in the <a href="#create-payment-method">Create Payment Method</a> endpoint below.</p>
+— as the <code>token</code> value in the <a href="#create-payment-method">Create Payment Method</a> endpoint below, or
+as <code>payment.token</code> when paying move-in charges through <a href="#checkout">Checkout</a>.</p>
 <h3 id="create-payment-method">Create Payment Method</h3>
 <p><code>POST /v1/payment-methods/create</code></p>
 <blockquote>
 <p>Request Body — payment-methods/create</p>
 </blockquote>
 <pre class="highlight tab tab-json"><code>{
-    <span class="hljs-attr">&quot;token&quot;</span>: <span class="hljs-string">&quot;tok_1Hh1XYZabc1234567890&quot;</span>,
+    <span class="hljs-attr">&quot;token&quot;</span>: <span class="hljs-string">&quot;pm_card_visa&quot;</span>,
     <span class="hljs-attr">&quot;methodType&quot;</span>: <span class="hljs-string">&quot;CREDIT_CARD&quot;</span>,
     <span class="hljs-attr">&quot;cardBrand&quot;</span>: <span class="hljs-string">&quot;VISA&quot;</span>,
     <span class="hljs-attr">&quot;cardExpiration&quot;</span>: <span class="hljs-string">&quot;03/24&quot;</span>,
@@ -6095,6 +6216,7 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
 <ul>
 <li><a href="#tasks-search">Tasks Search</a></li>
 <li><a href="#tasks-create">Tasks Create</a></li>
+<li><a href="#tasks-update">Tasks Update</a></li>
 </ul>
 <h3 id="tasks-search">Tasks Search</h3>
 <p><code>POST /v1/tasks/search</code></p>
@@ -6103,12 +6225,15 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
 </blockquote>
 <pre class="highlight tab tab-json"><code>{
   <span class="hljs-attr">&quot;where&quot;</span>: {
+    <span class="hljs-attr">&quot;taskId&quot;</span>: <span class="hljs-string">&quot;task_V4w64pjUwVK&quot;</span>,
     <span class="hljs-attr">&quot;facilityId&quot;</span>: <span class="hljs-string">&quot;fac_C7bSZyPT6fp&quot;</span>,
     <span class="hljs-attr">&quot;organizationId&quot;</span>: <span class="hljs-string">&quot;org_4a2da7d271a&quot;</span>,
     <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_GfNkzV4itfk&quot;</span>,
     <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
     <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;OPEN&quot;</span>,
-    <span class="hljs-attr">&quot;due&quot;</span>: <span class="hljs-literal">true</span>
+    <span class="hljs-attr">&quot;due&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;updatedAfter&quot;</span>: <span class="hljs-string">&quot;2026-03-01T00:00:00Z&quot;</span>,
+    <span class="hljs-attr">&quot;updatedBefore&quot;</span>: <span class="hljs-string">&quot;2026-04-01T00:00:00Z&quot;</span>
   },
   <span class="hljs-attr">&quot;expansions&quot;</span>: [<span class="hljs-string">&quot;facility&quot;</span>, <span class="hljs-string">&quot;unit&quot;</span>, <span class="hljs-string">&quot;tenant&quot;</span>]
 }
@@ -6128,7 +6253,9 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
         <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;OPEN&quot;</span>,
         <span class="hljs-attr">&quot;facilityId&quot;</span>: <span class="hljs-string">&quot;fac_C7bSZyPT6fp&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
-        <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_GfNkzV4itfk&quot;</span>
+        <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_GfNkzV4itfk&quot;</span>,
+        <span class="hljs-attr">&quot;createdAt&quot;</span>: <span class="hljs-string">&quot;2026-02-14T09:31:07Z&quot;</span>,
+        <span class="hljs-attr">&quot;updatedAt&quot;</span>: <span class="hljs-string">&quot;2026-02-20T16:04:55Z&quot;</span>
       },
       {<span class="hljs-comment">/* ... */</span>}
     ],
@@ -6144,10 +6271,12 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
   }
 }
 </code></pre>
-<p>Search for tasks by facility, organization, unit, customer, status, or due date</p>
+<p>Search for tasks by ID, facility, organization, unit, or customer, optionally narrowed by status, due date, or
+when the task last changed</p>
 <h3 id="required-properties-53">Required Properties</h3>
-<p>At least one of the following:</p>
+<p>Exactly one of the following:</p>
 <ul>
+<li><code>taskId</code> - returns the single task with this ID</li>
 <li><code>organizationId</code> - limits results to tasks in a specific organization</li>
 <li><code>facilityId</code> - limits results to tasks in a specific facility</li>
 <li><code>unitId</code> - limits results to tasks for a specific unit</li>
@@ -6156,7 +6285,10 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
 <h3 id="optional-properties-28">Optional Properties</h3>
 <ul>
 <li><code>status</code> - filters tasks by status; one of <code>OPEN</code>, <code>COMPLETED</code>, or <code>ARCHIVED</code></li>
-<li><code>due</code> - when <code>true</code>, filters to overdue tasks only</li>
+<li><code>due</code> - when <code>true</code>, filters to tasks whose due date has arrived, read in each task's facility timezone — so
+tasks due today are included alongside overdue ones</li>
+<li><code>updatedAfter</code> / <code>updatedBefore</code> - strict UTC timestamp bounds on <code>updatedAt</code>, intended as incremental-sync
+cursors; see <a href="#date-and-time">Date and Time</a></li>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></li>
 </ul>
@@ -6171,11 +6303,21 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
   <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Check for water damage after recent storm&quot;</span>,
   <span class="hljs-attr">&quot;dueDate&quot;</span>: <span class="hljs-string">&quot;2026-03-01&quot;</span>,
   <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
-  <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_GfNkzV4itfk&quot;</span>,
-  <span class="hljs-attr">&quot;assignedManagerIds&quot;</span>: [<span class="hljs-string">&quot;user_4a2da7d271a&quot;</span>]
+  <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_GfNkzV4itfk&quot;</span>
 }
 </code></pre>
-<p>Creates a new task at the specified facility</p>
+<blockquote>
+<p>Response Body — tasks/create</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-number">200</span>,
+  <span class="hljs-attr">&quot;data&quot;</span>: {
+    <span class="hljs-attr">&quot;taskId&quot;</span>: <span class="hljs-string">&quot;task_V4w64pjUwVK&quot;</span>
+  }
+}
+</code></pre>
+<p>Creates a new task at the specified facility and returns its <code>taskId</code>, for use with
+<a href="#tasks-update">Tasks Update</a> or the <code>taskId</code> scope on <a href="#tasks-search">Tasks Search</a></p>
 <h3 id="required-properties-54">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the task in</li>
@@ -6184,11 +6326,56 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <h3 id="optional-properties-29">Optional Properties</h3>
 <ul>
 <li><code>description</code> - a description of the task</li>
-<li><code>dueDate</code> - the due date of the task (YYYY-MM-DD)</li>
+<li><code>dueDate</code> - the due date of the task (YYYY-MM-DD). Cannot be in the past, read in the facility's own timezone</li>
 <li><code>customerId</code> - the ID of the customer to associate the task with</li>
-<li><code>unitId</code> - the ID of the unit to associate the task with</li>
-<li><code>assignedManagerIds</code> - an array of manager IDs to assign the task to</li>
+<li><code>unitId</code> - the ID of the unit to associate the task with; a task carries a customer or a unit, not both</li>
 </ul>
+<h3 id="tasks-update">Tasks Update</h3>
+<p><code>POST /v1/tasks/update</code></p>
+<blockquote>
+<p>Request Body — tasks/update</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+  <span class="hljs-attr">&quot;taskId&quot;</span>: <span class="hljs-string">&quot;task_V4w64pjUwVK&quot;</span>,
+  <span class="hljs-attr">&quot;title&quot;</span>: <span class="hljs-string">&quot;Inspect unit for damage&quot;</span>,
+  <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Check for water damage after recent storm&quot;</span>,
+  <span class="hljs-attr">&quot;dueDate&quot;</span>: <span class="hljs-string">&quot;2026-03-01&quot;</span>,
+  <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
+  <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;COMPLETED&quot;</span>
+}
+</code></pre>
+<p>Updates an existing task</p>
+<p>Every property except <code>taskId</code> is optional and independent: a property you omit is left as it is, and a property
+sent as <code>null</code> is cleared. Sending a whole open task back unchanged is therefore safe. <code>title</code> and <code>status</code> cannot
+be cleared — an explicit <code>null</code> for either is ignored — and <code>dueDate</code> cannot be cleared on a task that repeats.</p>
+<p>A task stays at the facility it was created in. Its assignees, attachments, team assignments and repeat settings
+are managed in the Cubby app and are preserved by this endpoint.</p>
+<h3 id="required-properties-55">Required Properties</h3>
+<ul>
+<li><code>taskId</code> - the ID of the task to update</li>
+</ul>
+<h3 id="optional-properties-30">Optional Properties</h3>
+<ul>
+<li><code>title</code> - the title of the task</li>
+<li><code>description</code> - a description of the task</li>
+<li><code>dueDate</code> - the due date of the task (YYYY-MM-DD). A date you change cannot be in the past, read in the
+facility's own timezone; a date already in the past may be left as it is. A task that repeats must keep a due
+date, so clearing it on one is rejected with a <code>400</code></li>
+<li><code>customerId</code> - the ID of the customer to associate the task with. Setting it clears <code>unitId</code></li>
+<li><code>unitId</code> - the ID of the unit to associate the task with. Setting it clears <code>customerId</code>. Sending both a
+customer and a unit in one request is rejected with a <code>400</code></li>
+<li><code>status</code> - <code>OPEN</code>, <code>COMPLETED</code> or <code>ARCHIVED</code>. See <a href="#task-status">Task Status</a></li>
+</ul>
+<h3 id="task-status">Task Status</h3>
+<p>A task is <code>OPEN</code> when it is created. Only an <code>OPEN</code> task can be completed or archived, so moving one terminal
+status straight to the other is rejected with a <code>400</code>; set it back to <code>OPEN</code> first. Sending the status a task
+already has is accepted and does nothing.</p>
+<p>Only an <code>OPEN</code> task can be edited, so a request that carries any property other than <code>taskId</code> and <code>status</code> is
+rejected with a <code>400</code> once a task has been completed or archived — including one that sends those properties back
+unchanged. A single request may both edit a task and change its status.</p>
+<p>Some tasks are set to repeat. Completing one of those opens its next occurrence as a new task, so a search after a
+completion can return a task the client never created.</p>
 <h2 id="reports">Reports</h2>
 <ul>
 <li><a href="#general-ledger-cash-based-report">General Ledger Cash Based Report</a></li>
@@ -6332,7 +6519,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 }
 </code></pre>
 <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-<h3 id="required-properties-55">Required Properties</h3>
+<h3 id="required-properties-56">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -6824,7 +7011,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 }
 </code></pre>
 <p>Generates an accrual basis general ledger report for a facility over a specified time period.</p>
-<h3 id="required-properties-56">Required Properties</h3>
+<h3 id="required-properties-57">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -7176,7 +7363,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 }
 </code></pre>
 <p>Generates an aged receivables report for one or more facilities.</p>
-<h3 id="required-properties-57">Required Properties</h3>
+<h3 id="required-properties-58">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 </ul>
@@ -7286,7 +7473,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 }
 </code></pre>
 <p>Generates a rent roll report for one or more facilities.</p>
-<h3 id="required-properties-58">Required Properties</h3>
+<h3 id="required-properties-59">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>throughDate</code> - the date through which to calculate rent due in <code>YYYY-MM-DD</code> format</li>
@@ -7403,7 +7590,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 }
 </code></pre>
 <p>Generates a merchant services disbursements report for one or more facilities over a specified time period. The report includes batch-level settlement summaries and individual transaction details from configured payment providers (Stripe, Payabli).</p>
-<h3 id="required-properties-59">Required Properties</h3>
+<h3 id="required-properties-60">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -7537,13 +7724,13 @@ Cubby, for example.</li>
 }
 </code></pre>
 <p>Search for storefront-visible facilities by facility or organization</p>
-<h3 id="required-properties-60">Required Properties</h3>
+<h3 id="required-properties-61">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to a specific facility</li>
 <li>or</li>
 <li><code>organizationId</code> - limits results to facilities in a specific organization</li>
 </ul>
-<h3 id="optional-properties-30">Optional Properties</h3>
+<h3 id="optional-properties-31">Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>organization</code> and <code>schedules</code></li>
@@ -7613,13 +7800,13 @@ a <code>CALL_TO_RENT</code> unit type still reports its <code>price</code>, <cod
 <code>discounts</code>, even though the Cubby storefront hides them and shows a phone number instead. Clients
 that want to mirror the storefront's presentation should suppress the rate themselves when
 <code>bookingOption</code> is <code>CALL_TO_RENT</code>.</p>
-<h3 id="required-properties-61">Required Properties</h3>
+<h3 id="required-properties-62">Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to a specific pricing group</li>
 <li>or</li>
 <li><code>facilityId</code> - limits results to pricing groups in a particular facility</li>
 </ul>
-<h3 id="optional-properties-31">Optional Properties</h3>
+<h3 id="optional-properties-32">Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>discounts</code></li>
@@ -7653,7 +7840,7 @@ endpoint are <code>discounts</code></li>
 }
 </code></pre>
 <p>Sends an SMS message to a customer</p>
-<h3 id="required-properties-62">Required Properties</h3>
+<h3 id="required-properties-63">Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -7720,7 +7907,7 @@ endpoint are <code>discounts</code></li>
   --form <span class="hljs-string">&#x27;attachments=@invoice.pdf&#x27;</span> \
   --form <span class="hljs-string">&#x27;attachments=@receipt.pdf&#x27;</span>
 </code></pre>
-<h3 id="required-properties-63">Required Properties</h3>
+<h3 id="required-properties-64">Required Properties</h3>
 <p>The following fields belong inside the JSON <code>request</code> part:</p>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
