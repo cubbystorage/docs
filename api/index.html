@@ -2184,6 +2184,9 @@ Example via curl:</p>
 <h1 id="changelog">Changelog</h1>
 <h2 id="october-2026">October 2026</h2>
 <ul>
+<li><strong>Units Search: <code>reserved</code> field</strong> — Unit objects now carry <code>reserved</code>, which is <code>true</code> when at least one customer holds the unit with a reservation, the same hold the Cubby manager app shows as &quot;Reserved&quot; in its units list. A reservation does not block a lease, so <code>rentability</code> is unchanged: a vacant, available unit that is reserved still returns <code>rentable: true</code>. Use <code>reserved</code> to hide or label held units on a storefront. The field appears on every unit object the API returns, including the <code>unit</code> expansion of <code>POST /v1/leases/search</code>, <code>/v1/leads/search</code> and <code>/v1/tasks/search</code> and the <code>units</code> expansion of <code>/v1/auctions/search</code>. See <a href="#units-search">Units Search</a>.</li>
+<li><strong>Leads, Leases: turn off Cubby's confirmation and receipt emails per request</strong> — An integration that emails customers itself can stop Cubby sending the same email. <code>POST /v1/leads/create</code> accepts <code>sendConfirmationEmail</code> for reservations, <code>POST /v1/leases/create</code> and <code>POST /v1/leases/checkout</code> accept <code>sendConfirmationEmail</code> for the rental confirmation, and <code>POST /v1/leases/checkout</code> and <code>POST /v1/leases/make-payment</code> accept <code>sendReceiptEmail</code> for the payment receipt. Each defaults to <code>true</code>, which keeps today's behaviour: Cubby sends the email when the facility has it turned on. Send <code>false</code> to suppress that email for that request only; <code>true</code> never sends an email the facility has turned off. Text messages, and every other message Cubby sends, are unchanged. Requests that omit the fields behave as before.</li>
+<li><strong>Aged Receivables Report: <code>charges</code> expansion</strong> — <code>POST /v1/reports/aged-receivables</code> now supports a <code>charges</code> expansion. When requested, each entry includes a <code>charges</code> array listing the unpaid charges that make up the lease's balance, with each charge's <code>account</code> (<code>RENT</code>, <code>FEES</code>, <code>INSURANCE</code>, <code>TAX_STATE</code>, etc.), <code>entryTime</code>, accrual period, original <code>amount</code>, <code>outstandingAmount</code> and aging <code>range</code>. A client can apply its own aging windows or split the balance by charge type, and the <code>outstandingAmount</code> of a lease's charges adds up to its <code>totalAmount</code> and to each of its <code>ranges</code>. The bucketed fields are returned unchanged. See <a href="#aged-receivables-report">Aged Receivables Report</a>.</li>
 <li><strong>Customers: <code>military</code> is always a boolean</strong> — <code>military</code> on customer objects is now always <code>true</code> or <code>false</code>; a customer whose military status was never recorded is returned as <code>false</code> instead of <code>null</code> or leaving the field out. <code>POST /v1/customers/update</code> now leaves <code>military</code> unchanged when it is sent as <code>null</code>, the same as when it is omitted; previously an explicit <code>null</code> cleared it. To mark a customer as not military, send <code>false</code>. <code>POST /v1/leases/create</code> and <code>POST /v1/leads/create</code> record a new customer sent without <code>military</code> as <code>false</code>.</li>
 <li><strong>Facilities: billing settings</strong> — Facility objects now carry the facility's billing settings: <code>billingCycle</code> (<code>MONTHLY</code> or <code>DAYS_28</code>), <code>billingOption</code> (<code>FIXED</code> or <code>FLEXIBLE</code>), <code>leaseAnniversary</code> (<code>START_DATE</code> or <code>FIRST_OF_MONTH</code>) and <code>jumpDay</code>. They tell you which cycle the facility's rates and lease rents are expressed in, whether a customer can choose another cycle at move-in, and how a monthly lease's first period is prorated. The fields appear on every facility object the API returns, including the <code>facility</code> / <code>facilities</code> expansions of <code>POST /v1/leases/search</code>, <code>/v1/units/search</code>, <code>/v1/tasks/search</code>, <code>/v1/leads/search</code>, <code>/v1/pricing-groups/search</code> and <code>/v1/facility-groups/search</code>. The storefront endpoint <code>POST /v1/storefront/facilities/search</code> is unchanged. See <a href="#facilities-search">Facilities Search</a>.</li>
 <li><strong>Leases Search: <code>billingCycle</code> field</strong> — Lease objects now carry <code>billingCycle</code>, the cycle the customer is charged on: <code>WEEKLY</code>, <code>BI_WEEKLY</code>, <code>DAYS_28</code> or <code>MONTHLY</code>, the same values as <code>billingCycle</code> on the Rent Roll report. It is usually the facility's cycle, but a lease imported from a previous system, or one where the customer chose another cycle at move-in, can be on a different one.</li>
@@ -3015,6 +3018,8 @@ each group's <code>facilityIds</code>. Without the expansion, only the per-group
         <span class="hljs-attr">&quot;floorName&quot;</span>: <span class="hljs-string">&quot;1&quot;</span>,
         <span class="hljs-attr">&quot;facilityId&quot;</span>: <span class="hljs-string">&quot;fac_C7bSZyPT6fp&quot;</span>,
         <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
+        <span class="hljs-attr">&quot;free&quot;</span>: <span class="hljs-literal">false</span>,
+        <span class="hljs-attr">&quot;reserved&quot;</span>: <span class="hljs-literal">false</span>,
         <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_4a2da7d271a&quot;</span>,
         <span class="hljs-attr">&quot;accessInstructions&quot;</span>: <span class="hljs-string">&quot;Your unit is located on the first floor, down the hall to the left.&quot;</span>,
         <span class="hljs-attr">&quot;walkthroughOrder&quot;</span>: <span class="hljs-number">1</span>,
@@ -3027,6 +3032,12 @@ each group's <code>facilityIds</code>. Without the expansion, only the per-group
 }
 </code></pre>
 <p>Returns metadata for spaces at co-managed facilities</p>
+<ul>
+<li><code>free</code> - <code>true</code> when the unit has no active lease.</li>
+<li><code>reserved</code> - <code>true</code> when at least one customer holds the unit with a reservation. A reservation is a soft hold, so a
+reserved unit can still be <code>rentable</code>: leasing it is not blocked. Use this flag to hide or label held units on a
+storefront.</li>
+</ul>
 <h3 id="required-properties-12">Required Properties</h3>
 <ul>
 <li><code>unitId</code> - limits results to a specific unit</li>
@@ -3852,6 +3863,7 @@ re-finding them with <a href="#customers-search">Customers Search</a>.</p>
 <li><code>message</code> - a free text message about the lead</li>
 <li><code>targetMoveInDate</code> - the target move-in date for the lead</li>
 <li><code>reservation</code> - a boolean indicating if the lead has a reservation, defaults to <code>false</code>. If <code>true</code>, <code>pricingGroupId</code> and <code>targetMoveInDate</code> must be provided</li>
+<li><code>sendConfirmationEmail</code> - a boolean, defaults to <code>true</code>. When <code>true</code> or omitted, Cubby emails its reservation confirmation if the facility has that email turned on. Set it to <code>false</code> when you email the customer your own: Cubby then does not email its reservation confirmation for this reservation. <code>true</code> cannot turn on an email the facility has turned off. The text message still follows the facility's settings. Ignored when <code>reservation</code> is not <code>true</code></li>
 <li><code>coverageLevelId</code> - the ID of a facility coverage level to assign to the lead as its protection plan. The level must be active for the lead's facility</li>
 <li><code>discounts</code> - an array of discount-program IDs to apply to the lead. Each must be active and available for the lead's pricing group, so <code>pricingGroupId</code> must also be provided</li>
 <li><code>rateType</code> - the quoted rate type for the lead. One of <code>WALK_IN_RATE</code>, <code>WEB_RATE</code>, or <code>CUSTOM_RATE</code>. Setting <code>CUSTOM_RATE</code> requires the lead to have a facility or pricing group</li>
@@ -4714,6 +4726,7 @@ merchandise with the lease.</p>
 <li><code>chargeMoveInFee</code> - a boolean indicating if the move-in fee should be charged, defaults to <code>true</code></li>
 <li><code>taxExempt</code> - a boolean indicating if the charges are tax exempt, defaults to <code>false</code></li>
 <li><code>storingVehicle</code> - a boolean indicating whether the tenant is storing a vehicle. When <code>true</code>, the vehicle storage addendum is attached to the lease for signing. Defaults to the unit's pricing group parking setting.</li>
+<li><code>sendConfirmationEmail</code> - a boolean, defaults to <code>true</code>. When <code>true</code> or omitted, Cubby emails its rental confirmation if the facility has that email turned on. Set it to <code>false</code> when you email the customer your own: Cubby then does not email its rental confirmation for this lease. <code>true</code> cannot turn on an email the facility has turned off. The text message still follows the facility's settings</li>
 <li><code>discounts</code> - an array of discount IDs, defaults to <code>[]</code></li>
 <li><code>upsellFeeIds</code> - an array of upsell fee IDs to add as recurring charges on the lease. Each ID must come from <a href="#get-upsells">Get Upsells</a> for the same <code>unitId</code>; passing a fee that is not an active optional upgrade for the unit returns a <code>400</code> error. Defaults to <code>[]</code>.</li>
 <li><code>source</code> - the lead source, defaults to <code>OTHER</code>. One of: <code>WALK_IN</code>, <code>CALL</code>, <code>CONTACT_FORM</code>, <code>WEBSITE</code>, <code>REFERRAL</code>, <code>SEARCH_ENGINE</code>, <code>DIGITAL_AD</code>, <code>BILLBOARD</code>, <code>PHYSICAL_AD</code>, <code>AI_VOICE_AGENT</code>, <code>SPAREFOOT</code>, <code>MOBILE_APP</code>, <code>KIOSK</code>, <code>OTHER</code></li>
@@ -5094,6 +5107,7 @@ full, from the Cubby app.</p>
 <ul>
 <li><code>products</code> - an array of merchandise to sell with the lease, as on <a href="#get-move-in-charges">Get Move-In Charges</a>: each entry has a <code>productId</code> from <a href="#products-search">Products Search</a> for the unit's facility and a positive integer <code>quantity</code>. Defaults to <code>[]</code>. The same <code>400</code> and <code>404</code> conditions as on Get Move-In Charges apply.</li>
 <li><code>enableAutoPay</code> - a boolean (defaults to <code>false</code>). When <code>true</code>, a successful payment saves the payment method supplied in <code>payment</code> to the customer as a reusable payment method and enrols the lease in AutoPay using it. When <code>false</code>, the payment method is charged but not saved. AutoPay is only enabled when the payment succeeds and the payment method is saved; check the <code>autoPayEnabled</code> response flag to confirm.</li>
+<li><code>sendReceiptEmail</code> - a boolean, defaults to <code>true</code>. When <code>true</code> or omitted, Cubby emails its receipt if the facility has that email turned on. Set it to <code>false</code> when you email the customer your own: Cubby then does not email its receipt for this payment, including when a direct-debit payment settles later. <code>true</code> cannot turn on an email the facility has turned off. The text message still follows the facility's settings</li>
 </ul>
 <h3 id="response-parameters-10">Response Parameters</h3>
 <ul>
@@ -5234,6 +5248,10 @@ or <code>ANYTIME</code></li>
 <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
 <li><code>amount</code> - the amount in cents to charge the payment method. For credit cards at facilities with processing fees configured, the fee is included in (deducted from) this amount.</li>
+</ul>
+<h3 id="optional-properties-24">Optional Properties</h3>
+<ul>
+<li><code>sendReceiptEmail</code> - a boolean, defaults to <code>true</code>. When <code>true</code> or omitted, Cubby emails its receipt if the facility has that email turned on. Set it to <code>false</code> when you email the customer your own: Cubby then does not email its receipt for this payment, including when a direct-debit payment settles later. <code>true</code> cannot turn on an email the facility has turned off. The text message still follows the facility's settings</li>
 </ul>
 <h3 id="response-parameters-11">Response Parameters</h3>
 <p>The response wraps a single <code>payment</code> object:</p>
@@ -6042,7 +6060,7 @@ array — which carry the program-wide <code>coverageOptions</code>.</p>
 <li><code>premiumAmount</code> - the premium in cents, per one billing cycle of the facility the coverage is sold at. See
 <a href="#billing-cycles">Billing Cycles</a></li>
 </ul>
-<h3 id="optional-properties-24">Optional Properties</h3>
+<h3 id="optional-properties-25">Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; the only supported
 value for this endpoint is <code>coverageProgram</code></li>
@@ -6116,7 +6134,7 @@ Join each level to its program via <code>coverageProgramId</code>. Each program 
 <li>or</li>
 <li><code>leaseId</code> - limit results to policies for a particular lease</li>
 </ul>
-<h3 id="optional-properties-25">Optional Properties</h3>
+<h3 id="optional-properties-26">Optional Properties</h3>
 <ul>
 <li><code>activeOnOrAfter</code> - limits results to policies which are active on or after a specific date</li>
 <li><code>activeOnOrBefore</code> - limits results to policies which are active on or before a specific date</li>
@@ -6213,7 +6231,7 @@ be looked up here.</p>
 <li>or</li>
 <li><code>leaseId</code> - limits results to payments applied to a particular lease, plus the attempts made against it that never settled</li>
 </ul>
-<h3 id="optional-properties-26">Optional Properties</h3>
+<h3 id="optional-properties-27">Optional Properties</h3>
 <ul>
 <li><code>paymentDateOnOrAfter</code> - limits results to payments which were made on or after a specific date</li>
 <li><code>paymentDateOnOrBefore</code> - limits results to payments which were made on or before a specific date</li>
@@ -6413,7 +6431,7 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
 <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
 <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
 </ul>
-<h3 id="optional-properties-27">Optional Properties</h3>
+<h3 id="optional-properties-28">Optional Properties</h3>
 <ul>
 <li><code>sendEmailAndSms</code> - a boolean indicating if email and SMS notices should be sent, defaults to <code>false</code></li>
 <li><code>sendToAlternativeContacts</code> - a boolean indicating if alternative contacts should be notified, defaults to <code>false</code></li>
@@ -6552,7 +6570,7 @@ select which automated actions to pause. See
 <a href="#delinquency-exemptions-search">Delinquency Exemptions Search</a> for what each one does. At least one must be
 <code>true</code></li>
 </ul>
-<h3 id="optional-properties-28">Optional Properties</h3>
+<h3 id="optional-properties-29">Optional Properties</h3>
 <ul>
 <li><code>otherReason</code> - a description of the reason. Required when <code>reason</code> is <code>OTHER</code></li>
 <li><code>note</code> - free text kept with the exemption, shown to staff in the Cubby app</li>
@@ -6597,7 +6615,7 @@ through this API. Clearing a note that carries one is rejected with a <code>400<
 <li><code>leaseId</code> - the ID of the lease whose exemption to change. A lease with no active exemption is rejected with a
 <code>400</code></li>
 </ul>
-<h3 id="optional-properties-29">Optional Properties</h3>
+<h3 id="optional-properties-30">Optional Properties</h3>
 <ul>
 <li><code>reason</code> - one of <code>BANKRUPTCY</code>, <code>DECEASED</code>, <code>MILITARY_SERVICE</code>, <code>PAYMENT_ARRANGEMENT</code>, or <code>OTHER</code></li>
 <li><code>otherReason</code> - a description of the reason. Required when <code>reason</code> is <code>OTHER</code>, so clearing it while the reason
@@ -6786,7 +6804,7 @@ when the task last changed</p>
 <li><code>unitId</code> - limits results to tasks for a specific unit</li>
 <li><code>customerId</code> - limits results to tasks for a specific customer</li>
 </ul>
-<h3 id="optional-properties-30">Optional Properties</h3>
+<h3 id="optional-properties-31">Optional Properties</h3>
 <ul>
 <li><code>status</code> - filters tasks by status; one of <code>OPEN</code>, <code>COMPLETED</code>, or <code>ARCHIVED</code></li>
 <li><code>due</code> - when <code>true</code>, filters to tasks whose due date has arrived, read in each task's facility timezone — so
@@ -6827,7 +6845,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 <li><code>facilityId</code> - the ID of the facility to create the task in</li>
 <li><code>title</code> - the title of the task</li>
 </ul>
-<h3 id="optional-properties-31">Optional Properties</h3>
+<h3 id="optional-properties-32">Optional Properties</h3>
 <ul>
 <li><code>description</code> - a description of the task</li>
 <li><code>dueDate</code> - the due date of the task (YYYY-MM-DD). Cannot be in the past, read in the facility's own timezone</li>
@@ -6859,7 +6877,7 @@ are managed in the Cubby app and are preserved by this endpoint.</p>
 <ul>
 <li><code>taskId</code> - the ID of the task to update</li>
 </ul>
-<h3 id="optional-properties-32">Optional Properties</h3>
+<h3 id="optional-properties-33">Optional Properties</h3>
 <ul>
 <li><code>title</code> - the title of the task</li>
 <li><code>description</code> - a description of the task</li>
@@ -7814,7 +7832,10 @@ completion can return a task the client never created.</p>
       <span class="hljs-string">&quot;fac_C7bSZyPT6fp&quot;</span>
     ],
     <span class="hljs-attr">&quot;throughDate&quot;</span>: <span class="hljs-string">&quot;2024-08-31&quot;</span>
-  }
+  },
+  <span class="hljs-attr">&quot;expansions&quot;</span>: [
+    <span class="hljs-string">&quot;charges&quot;</span>
+  ]
 }
 </code></pre>
 <blockquote>
@@ -7860,6 +7881,56 @@ completion can return a task the client never created.</p>
             <span class="hljs-attr">&quot;range&quot;</span>: <span class="hljs-string">&quot;RANGE_UNKNOWN&quot;</span>,
             <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">0</span>
           }
+        ],
+        <span class="hljs-attr">&quot;charges&quot;</span>: [
+          {
+            <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;be_8kQm2XvTn4R&quot;</span>,
+            <span class="hljs-attr">&quot;journalEntryId&quot;</span>: <span class="hljs-string">&quot;je_Vd3pLs9QwYz&quot;</span>,
+            <span class="hljs-attr">&quot;entryTime&quot;</span>: <span class="hljs-string">&quot;2024-07-15T00:00:00&quot;</span>,
+            <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-07-15&quot;</span>,
+            <span class="hljs-attr">&quot;accruesThrough&quot;</span>: <span class="hljs-string">&quot;2024-08-14&quot;</span>,
+            <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;RENT&quot;</span>,
+            <span class="hljs-attr">&quot;taxCategory&quot;</span>: <span class="hljs-string">&quot;RENT_ENCLOSED_STORAGE&quot;</span>,
+            <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">35000</span>,
+            <span class="hljs-attr">&quot;outstandingAmount&quot;</span>: <span class="hljs-number">32500</span>,
+            <span class="hljs-attr">&quot;range&quot;</span>: <span class="hljs-string">&quot;RANGE_30_60&quot;</span>
+          },
+          {
+            <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;be_Rt6nHc2KpWx&quot;</span>,
+            <span class="hljs-attr">&quot;journalEntryId&quot;</span>: <span class="hljs-string">&quot;je_Vd3pLs9QwYz&quot;</span>,
+            <span class="hljs-attr">&quot;entryTime&quot;</span>: <span class="hljs-string">&quot;2024-07-15T00:00:00&quot;</span>,
+            <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-07-15&quot;</span>,
+            <span class="hljs-attr">&quot;accruesThrough&quot;</span>: <span class="hljs-string">&quot;2024-08-14&quot;</span>,
+            <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;TAX_STATE&quot;</span>,
+            <span class="hljs-attr">&quot;taxCategory&quot;</span>: <span class="hljs-string">&quot;RENT_ENCLOSED_STORAGE&quot;</span>,
+            <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">3126</span>,
+            <span class="hljs-attr">&quot;outstandingAmount&quot;</span>: <span class="hljs-number">3126</span>,
+            <span class="hljs-attr">&quot;range&quot;</span>: <span class="hljs-string">&quot;RANGE_30_60&quot;</span>
+          },
+          {
+            <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;be_Mw4tYb7NcQs&quot;</span>,
+            <span class="hljs-attr">&quot;journalEntryId&quot;</span>: <span class="hljs-string">&quot;je_Hp8xKr2VjLd&quot;</span>,
+            <span class="hljs-attr">&quot;entryTime&quot;</span>: <span class="hljs-string">&quot;2024-08-15T00:00:00&quot;</span>,
+            <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-08-15&quot;</span>,
+            <span class="hljs-attr">&quot;accruesThrough&quot;</span>: <span class="hljs-string">&quot;2024-09-14&quot;</span>,
+            <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;RENT&quot;</span>,
+            <span class="hljs-attr">&quot;taxCategory&quot;</span>: <span class="hljs-string">&quot;RENT_ENCLOSED_STORAGE&quot;</span>,
+            <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">12000</span>,
+            <span class="hljs-attr">&quot;outstandingAmount&quot;</span>: <span class="hljs-number">12000</span>,
+            <span class="hljs-attr">&quot;range&quot;</span>: <span class="hljs-string">&quot;RANGE_0_30&quot;</span>
+          },
+          {
+            <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;be_Zs5qPf3GhTk&quot;</span>,
+            <span class="hljs-attr">&quot;journalEntryId&quot;</span>: <span class="hljs-string">&quot;je_Hp8xKr2VjLd&quot;</span>,
+            <span class="hljs-attr">&quot;entryTime&quot;</span>: <span class="hljs-string">&quot;2024-08-15T00:00:00&quot;</span>,
+            <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-08-15&quot;</span>,
+            <span class="hljs-attr">&quot;accruesThrough&quot;</span>: <span class="hljs-string">&quot;2024-09-14&quot;</span>,
+            <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;TAX_STATE&quot;</span>,
+            <span class="hljs-attr">&quot;taxCategory&quot;</span>: <span class="hljs-string">&quot;RENT_ENCLOSED_STORAGE&quot;</span>,
+            <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">1126</span>,
+            <span class="hljs-attr">&quot;outstandingAmount&quot;</span>: <span class="hljs-number">1126</span>,
+            <span class="hljs-attr">&quot;range&quot;</span>: <span class="hljs-string">&quot;RANGE_0_30&quot;</span>
+          }
         ]
       }
     ]
@@ -7870,6 +7941,12 @@ completion can return a task the client never created.</p>
 <h3 id="required-properties-63">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
+</ul>
+<h3 id="optional-properties-34">Optional Properties</h3>
+<ul>
+<li><code>throughDate</code> - the date to compute the aging buckets as of; defaults to the facility's current date</li>
+<li><code>expansions</code> - an array of strings which can be used to include additional data in the response; the only supported
+value for this endpoint is <code>charges</code></li>
 </ul>
 <h3 id="response-parameters-17">Response Parameters</h3>
 <p>The response contains an array of aged receivable entries, one for each lease with an outstanding balance, each of which contains the following fields:</p>
@@ -7904,7 +7981,110 @@ completion can return a task the client never created.</p>
 <li><code>amount</code> - the amount outstanding in that range in cents</li>
 </ul>
 </li>
+<li><code>charges</code> - returned only when the <code>charges</code> expansion is requested; an array of the unpaid charges that make up the
+lease's balance, ordered by <code>entryTime</code>. The <code>outstandingAmount</code> of all charges adds up to <code>totalAmount</code>, and that of
+the charges in a range adds up to that range's <code>amount</code>. Each charge contains:</li>
+<li>
+<ul>
+<li><code>id</code> - the ID of the charge</li>
 </ul>
+</li>
+<li>
+<ul>
+<li><code>journalEntryId</code> - the ID of the journal entry the charge was posted in</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>entryTime</code> - when the charge was posted; its age is counted from this date</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>accruesOn</code> - the first day of the period the charge covers</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>accruesThrough</code> - the last day of the period the charge covers</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>account</code> - the type of charge, which includes:</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>
+<ul>
+<li>charges: <code>RENT</code>, <code>FEES</code>, <code>INSURANCE</code>, <code>DAMAGE</code>, <code>DEPOSIT</code>, <code>RETAIL_SALES</code>, <code>TAX_STATE</code>, <code>TAX_LOCAL</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>
+<ul>
+<li>credits against charges: <code>DISCOUNTS</code>, <code>WAIVED_RENT</code>, <code>WAIVED_FEES</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>
+<ul>
+<li>balances imported from a previous system: <code>OLD_SYSTEM</code>, <code>OLD_SYSTEM_DEPOSIT</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>
+<ul>
+<li>balances transferred from another lease: <code>ACCOUNT_RECEIVABLE</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>taxCategory</code> - the tax category of the charge; same values as <code>taxCategory</code> in the
+<a href="#general-ledger-accrual-based-report">General Ledger Accrual Based Report</a></li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>feeId</code> - for fee charges, the ID of the fee</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>coverageLevelId</code> - for insurance charges, the ID of the coverage level</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>amount</code> - the original amount of the charge in cents; negative for a credit on the ledger, such as a discount</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>outstandingAmount</code> - the part of the charge not yet covered by payments, in cents; negative for a credit that has
+not yet been applied, which reduces the lease's balance</li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>range</code> - the aging range the charge falls in, one of the <code>range</code> values above</li>
+</ul>
+</li>
+</ul>
+<p>When a lease's ledger cannot be broken down into individual charges, its balance is returned as a single charge with
+only <code>outstandingAmount</code> and <code>range</code> (<code>RANGE_UNKNOWN</code>) set.</p>
 <h3 id="rent-roll-report">Rent Roll Report</h3>
 <p><code>POST /v1/reports/rent-roll</code></p>
 <blockquote>
@@ -8236,7 +8416,7 @@ Cubby, for example.</li>
 <li>or</li>
 <li><code>organizationId</code> - limits results to facilities in a specific organization</li>
 </ul>
-<h3 id="optional-properties-33">Optional Properties</h3>
+<h3 id="optional-properties-35">Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>organization</code> and <code>schedules</code></li>
@@ -8312,7 +8492,7 @@ that want to mirror the storefront's presentation should suppress the rate thems
 <li>or</li>
 <li><code>facilityId</code> - limits results to pricing groups in a particular facility</li>
 </ul>
-<h3 id="optional-properties-34">Optional Properties</h3>
+<h3 id="optional-properties-36">Optional Properties</h3>
 <ul>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this
 endpoint are <code>discounts</code></li>
