@@ -1531,6 +1531,16 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
                   </li>
                 
                   <li>
+                    <a href="#lease-entered-auction" class="toc-h2 toc-link" data-title="">Lease Entered Auction</a>
+                    
+                  </li>
+                
+                  <li>
+                    <a href="#lease-exited-auction" class="toc-h2 toc-link" data-title="">Lease Exited Auction</a>
+                    
+                  </li>
+                
+                  <li>
                     <a href="#tenant-overlocked" class="toc-h2 toc-link" data-title="">Tenant Overlocked</a>
                     
                   </li>
@@ -1644,6 +1654,8 @@ unit_GfNkzV4itfk
 <li><a href="#move-out">Move Out</a></li>
 <li><a href="#lease-documents-completed">Lease Documents Completed</a></li>
 <li><a href="#auction-scheduled">Auction Scheduled</a></li>
+<li><a href="#lease-entered-auction">Lease Entered Auction</a></li>
+<li><a href="#lease-exited-auction">Lease Exited Auction</a></li>
 <li><a href="#tenant-overlocked">Tenant Overlocked</a></li>
 <li><a href="#overlock-remove-needed">Overlock Remove Needed</a></li>
 <li><a href="#sms-received">SMS Received</a></li>
@@ -2071,10 +2083,16 @@ unit_GfNkzV4itfk
     &quot;totalDue&quot;: 0,
     &quot;deposit&quot;: 0,
     &quot;prepaid&quot;: 12500
+  },
+
+  &quot;document&quot;: {
+    &quot;type&quot;: &quot;LEASE&quot;,
+    &quot;category&quot;: &quot;LEASE_AGREEMENT&quot;,
+    &quot;name&quot;: &quot;Rental Agreement&quot;
   }
 }
 </code></pre>
-<p>Fired when a tenant has completed signing all required lease documents (rental agreement, addenda, etc.).</p>
+<p>Fired each time a tenant finishes signing a lease document (rental agreement, addendum, insurance form, etc.). A lease with several documents sends one event per document, so use the <code>document</code> field to tell them apart.</p>
 <h3 id="payload-fields-4">Payload Fields</h3>
 <table>
 <thead>
@@ -2090,7 +2108,7 @@ unit_GfNkzV4itfk
 </tr>
 <tr>
 <td><code>lease</code></td>
-<td>The lease whose documents were completed. See <a href="#lease">Lease</a>.</td>
+<td>The lease the signed document belongs to. See <a href="#lease">Lease</a>.</td>
 </tr>
 <tr>
 <td><code>unit</code></td>
@@ -2115,6 +2133,22 @@ unit_GfNkzV4itfk
 <tr>
 <td><code>balances</code></td>
 <td>Current account balances. See <a href="#balances">Balances</a>.</td>
+</tr>
+<tr>
+<td><code>document</code></td>
+<td>The document that was signed.</td>
+</tr>
+<tr>
+<td><code>document.type</code></td>
+<td>Kind of document: <code>LEASE</code>, <code>INSURANCE</code>, <code>AUTO_PAY</code>, <code>ID</code>, <code>ID_BACK</code>, <code>MILITARY_ID</code>, <code>VEHICLE</code>, <code>VEHICLE_INSURANCE</code>, <code>ADDENDUM</code> or <code>OTHER</code>.</td>
+</tr>
+<tr>
+<td><code>document.category</code></td>
+<td>Category of the document's template: <code>LEASE_AGREEMENT</code>, <code>ADDENDUM</code>, <code>COVERAGE_AGREEMENT</code>, <code>INVOICE</code>, <code>RECEIPT</code>, <code>REFUND_RECEIPT</code>, <code>LIEN_NOTICE</code>, <code>PRE_LIEN_NOTICE</code>, <code>RENT_CHANGE_NOTICE</code>, <code>RENTAL_QUOTE</code> or <code>OTHER</code>.</td>
+</tr>
+<tr>
+<td><code>document.name</code></td>
+<td>Name of the document template.</td>
 </tr>
 </tbody>
 </table>
@@ -2191,6 +2225,200 @@ unit_GfNkzV4itfk
 <tr>
 <td><code>balances</code></td>
 <td>Current account balances including the amount owed. See <a href="#balances">Balances</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lease-entered-auction">Lease Entered Auction</h2>
+<blockquote>
+<p>Payload</p>
+</blockquote>
+<pre class="highlight"><code>{
+  &quot;topicId&quot;: &quot;your-topic-id&quot;,
+
+  &quot;lease&quot;: {/* ... */},
+  &quot;unit&quot;: {/* ... */},
+  &quot;customer&quot;: {/* ... */},
+  &quot;facility&quot;: {/* ... */},
+  &quot;pricingGroup&quot;: {/* ... */},
+  &quot;discounts&quot;: [{/* ... */}],
+  &quot;balances&quot;: {/* ... */},
+
+  &quot;auction&quot;: {
+    &quot;leaseAuctionId&quot;: &quot;leaseauction_Xk29sLqPz1&quot;,
+    &quot;auctionId&quot;: &quot;auction_Hn4Tq8WvRb&quot;,
+    &quot;auctionTime&quot;: &quot;2024-06-20T10:00:00&quot;,
+    &quot;status&quot;: &quot;WAITING_FOR_AUCTION&quot;,
+    &quot;lienStartDate&quot;: &quot;2024-04-20&quot;,
+    &quot;lienEndDate&quot;: &quot;2024-06-19&quot;
+  }
+}
+</code></pre>
+<p>Fired when a lease enters the auction process, that is, when its lien becomes active. Imported leases that start in the process do not fire it. It fires for the lease&#39;s current lien only.</p>
+<h3 id="payload-fields-lease-entered-auction">Payload Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>topicId</code></td>
+<td>Organization-level routing key</td>
+</tr>
+<tr>
+<td><code>lease</code></td>
+<td>The lease in the lien process. See <a href="#lease">Lease</a>.</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td>The unit. See <a href="#unit">Unit</a>.</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>The tenant. See <a href="#customer">Customer</a>.</td>
+</tr>
+<tr>
+<td><code>facility</code></td>
+<td>The facility. See <a href="#facility">Facility</a>.</td>
+</tr>
+<tr>
+<td><code>pricingGroup</code></td>
+<td>The pricing group. See <a href="#pricing-group">Pricing Group</a>.</td>
+</tr>
+<tr>
+<td><code>discounts</code></td>
+<td>Discounts applied to the lease. See <a href="#discount">Discount</a>.</td>
+</tr>
+<tr>
+<td><code>balances</code></td>
+<td>Current account balances. See <a href="#balances">Balances</a>.</td>
+</tr>
+<tr>
+<td><code>auction</code></td>
+<td>The lease's current lien and auction record.</td>
+</tr>
+<tr>
+<td><code>auction.leaseAuctionId</code></td>
+<td>ID of the lease's lien and auction record.</td>
+</tr>
+<tr>
+<td><code>auction.auctionId</code></td>
+<td>ID of the auction event the lease is listed in.</td>
+</tr>
+<tr>
+<td><code>auction.auctionTime</code></td>
+<td>Date and time of the auction, in the facility's local time.</td>
+</tr>
+<tr>
+<td><code>auction.status</code></td>
+<td>Status of the lease in the auction: <code>LISTED</code>, <code>ADVERTISEMENT_NEEDED</code>, <code>WAITING_FOR_AUCTION</code>, <code>NO_BIDS</code>, <code>SOLD</code>, <code>PAYMENT_RECEIVED</code>, <code>COMPLETE</code> or <code>CANCELLED</code>.</td>
+</tr>
+<tr>
+<td><code>auction.lienStartDate</code></td>
+<td>Date the lien process started.</td>
+</tr>
+<tr>
+<td><code>auction.lienEndDate</code></td>
+<td>Date the lien process ends.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lease-exited-auction">Lease Exited Auction</h2>
+<blockquote>
+<p>Payload</p>
+</blockquote>
+<pre class="highlight"><code>{
+  &quot;topicId&quot;: &quot;your-topic-id&quot;,
+
+  &quot;lease&quot;: {/* ... */},
+  &quot;unit&quot;: {/* ... */},
+  &quot;customer&quot;: {/* ... */},
+  &quot;facility&quot;: {/* ... */},
+  &quot;pricingGroup&quot;: {/* ... */},
+  &quot;discounts&quot;: [{/* ... */}],
+  &quot;balances&quot;: {/* ... */},
+
+  &quot;auction&quot;: {
+    &quot;leaseAuctionId&quot;: &quot;leaseauction_Xk29sLqPz1&quot;,
+    &quot;auctionId&quot;: &quot;auction_Hn4Tq8WvRb&quot;,
+    &quot;auctionTime&quot;: &quot;2024-06-20T10:00:00&quot;,
+    &quot;status&quot;: &quot;WAITING_FOR_AUCTION&quot;,
+    &quot;lienStartDate&quot;: &quot;2024-04-20&quot;,
+    &quot;lienEndDate&quot;: &quot;2024-06-19&quot;
+  }
+}
+</code></pre>
+<p>Fired when a lease leaves the auction process because its lien closed: the lease was cancelled, sold, or settled unsold. It fires for the lease&#39;s current lien only. This is the counterpart to <a href="#lease-entered-auction">Lease Entered Auction</a>.</p>
+<h3 id="payload-fields-lease-exited-auction">Payload Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>topicId</code></td>
+<td>Organization-level routing key</td>
+</tr>
+<tr>
+<td><code>lease</code></td>
+<td>The lease in the lien process. See <a href="#lease">Lease</a>.</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td>The unit. See <a href="#unit">Unit</a>.</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>The tenant. See <a href="#customer">Customer</a>.</td>
+</tr>
+<tr>
+<td><code>facility</code></td>
+<td>The facility. See <a href="#facility">Facility</a>.</td>
+</tr>
+<tr>
+<td><code>pricingGroup</code></td>
+<td>The pricing group. See <a href="#pricing-group">Pricing Group</a>.</td>
+</tr>
+<tr>
+<td><code>discounts</code></td>
+<td>Discounts applied to the lease. See <a href="#discount">Discount</a>.</td>
+</tr>
+<tr>
+<td><code>balances</code></td>
+<td>Current account balances. See <a href="#balances">Balances</a>.</td>
+</tr>
+<tr>
+<td><code>auction</code></td>
+<td>The lease's current lien and auction record.</td>
+</tr>
+<tr>
+<td><code>auction.leaseAuctionId</code></td>
+<td>ID of the lease's lien and auction record.</td>
+</tr>
+<tr>
+<td><code>auction.auctionId</code></td>
+<td>ID of the auction event the lease is listed in.</td>
+</tr>
+<tr>
+<td><code>auction.auctionTime</code></td>
+<td>Date and time of the auction, in the facility's local time.</td>
+</tr>
+<tr>
+<td><code>auction.status</code></td>
+<td>Status of the lease in the auction: <code>LISTED</code>, <code>ADVERTISEMENT_NEEDED</code>, <code>WAITING_FOR_AUCTION</code>, <code>NO_BIDS</code>, <code>SOLD</code>, <code>PAYMENT_RECEIVED</code>, <code>COMPLETE</code> or <code>CANCELLED</code>.</td>
+</tr>
+<tr>
+<td><code>auction.lienStartDate</code></td>
+<td>Date the lien process started.</td>
+</tr>
+<tr>
+<td><code>auction.lienEndDate</code></td>
+<td>Date the lien process ends.</td>
 </tr>
 </tbody>
 </table>
