@@ -2078,14 +2078,14 @@ pricing_group_discount_strategies:{g:'lease',c:'pg_id|S|f|pricing_group;discount
 manager_notes:{g:'comm',c:'org_id|S|;created_at|DT|;updated_at|DT|;contact_name|S|;unit_name|S|;facility_name|S|;note|S|;manager_name|S|'}
  };
  var COLS=[
-['product','unit_turnover','sms','access_log'],
-['units','customer_touches','call_child','cubby_events'],
-['pricing_group','managers','spaces_historical','auctions','calls'],
-['facility_groups','leads','recurring_fees','lease_auctions','emails'],
-['manager_roles','contacts','discount_programs','book_entries','manager_notes'],
-['date_dim','stor_track','pricing_group_discount_strategies','payments'],
-['facilities','rate_changes','discounts','scheduled_move_outs','unit_walkthrough'],
-['ga_events','leases','tasks','call_agent_availability']
+['facilities','facility_groups','pricing_group','units'],
+['product','managers','manager_roles','stor_track','date_dim'],
+['contacts','leads','customer_touches','ga_events'],
+['leases','rate_changes','scheduled_move_outs','recurring_fees'],
+['discounts','discount_programs','pricing_group_discount_strategies','spaces_historical'],
+['unit_turnover','unit_walkthrough','payments','book_entries'],
+['auctions','lease_auctions','calls','call_child','call_agent_availability'],
+['emails','sms','cubby_events','access_log','tasks','manager_notes']
  ];
  var world=document.getElementById('erd-world'),svg=document.getElementById('erd-edges'),view=document.getElementById('erd-view'),wrap=document.getElementById('erd-wrap');
  var nodes={},edges=[];
