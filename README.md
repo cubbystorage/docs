@@ -47,3 +47,25 @@ output will again reference the external asset files — in that case copy
 `html/index.html` **and** the `html/stylesheets/`, `html/javascripts/`,
 `html/images/`, and `html/fonts/` folders together, keeping the fingerprinted
 filenames in sync so the references resolve.
+
+## Updating the data dictionary (`data-dictionary/`)
+
+`data-dictionary/index.html` renders `data-dictionary/schema.csv`, which sits
+next to it in this repo. The CSV is exported from the "Cubby-partner-data -
+Schema" Google Sheet, which the `syncSchema()` Apps Script in the schema helper
+spreadsheet keeps current.
+
+The page used to fetch that sheet straight from Google. That stopped working
+when a Workspace sharing policy change blocked anonymous access to the sheet,
+so the CSV is now committed here instead. To publish a schema change:
+
+1. Run `syncSchema()` in the helper spreadsheet.
+2. Run the `publish-data-dictionary` script. It downloads the sheet with your
+   own Google login (one-time setup: `gcloud auth login --enable-gdrive-access`),
+   refuses to publish anything missing the `Table_Name`, `Column_Name`,
+   `Data_Type` and `Description` columns, and commits `schema.csv` to `main`
+   with your `gh` login. It does nothing if the CSV hasn't changed;
+   `--dry-run` shows what it would do.
+
+The page's CSV parser reads one line per row, so cells must not contain line
+breaks.
