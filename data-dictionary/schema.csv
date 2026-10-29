@@ -24,6 +24,7 @@ analytics,auctions,facility_name,STRING,Name of the facility hosting the auction
 analytics,auctions,org_id,STRING,The organization identifier. Common filter field.
 analytics,auctions,updated_at,DATETIME,Timestamp when the auction record was last updated.
 analytics,book_entries,,TABLE,"Materialized book-entry table. Contains one row per accounting book entry (charges, payments, credits, and transfers), enriched with facility, lease, unit, and contact context. The pre-calculated amt_* columns make it easier to aggregate common financial metrics. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
+analytics,book_entries,accrual_end,DATE,"The last date of the period this entry covers (e.g., the end of the rent period for a rent charge). NULL for entries that do not cover a period."
 analytics,book_entries,accrual_start,DATE,The date from which this entry accrues (relevant for rent charges).
 analytics,book_entries,added_by,STRING,"Name of the manager/user who created the journal entry, as shown in 'Added by' on the ledger. NULL for entries not created by a user."
 analytics,book_entries,added_by_manager_id,STRING,"External ID (user_...) of the manager/user who created the journal entry. May be absent from managers, which lists only the org's own managers (e.g., Cubby call-center staff are not included). NULL when added_by is NULL."
@@ -46,11 +47,18 @@ analytics,book_entries,explanation,STRING,Short code or label describing the ent
 analytics,book_entries,explanation_text,STRING,Human-readable description of the entry.
 analytics,book_entries,facility,STRING,Name of the facility. Denormalized (note: same as facility_name in other tables).
 analytics,book_entries,facility_id,STRING,The facility this entry belongs to. Joins to facilities.facility_id.
+analytics,book_entries,fee_id,STRING,"The fee this entry charges or waives, for fee entries. NULL otherwise."
+analytics,book_entries,fee_name,STRING,"The name of the fee (e.g., Late Fee, Admin Fee). Use with fee_id to break fee revenue down by fee."
+analytics,book_entries,initial_book_entry_id,STRING,"For an entry that waives, reverses or adjusts an earlier charge (mostly waivers), the original charge entry. Joins to book_entries.book_entry_id. NULL otherwise."
+analytics,book_entries,ins_coverage_level,NUMERIC,"For insurance entries, the coverage amount of the policy being charged. NULL otherwise."
+analytics,book_entries,is_manual,INT64,"Flag (0/1) for the journal entry: 1 when a person posted it (any entry a staff user makes, and every payment except an autopay charge, including tenant portal payments), 0 for automated postings such as recurring rent, scheduled fees and autopay."
 analytics,book_entries,journal_entry_description,STRING,"Description of the journal entry this entry belongs to, as shown on the ledger."
 analytics,book_entries,journal_entry_id,STRING,The journal entry (transaction) this entry belongs to. All entries posted together in one transaction share this ID. Matches journalEntryId in the External API.
 analytics,book_entries,lease_id,STRING,The lease this entry is associated with. Joins to leases.lease_id.
 analytics,book_entries,org_id,STRING,The organization identifier. Common filter field.
 analytics,book_entries,payment_id,STRING,"The payment transaction that created this journal entry (payments, refunds, failures). Joins to payments.payment_id. NULL for entries not created by a payment. On payment entries, lease_id is on the ACCOUNT_RECEIVABLE/PREPAID_RENT lines, not the payment-method lines."
+analytics,book_entries,product_id,STRING,"The merchandise product sold, for retail entries. Joins to product.product_id. NULL otherwise."
+analytics,book_entries,quantity,INT64,"Number of units sold, for retail entries. NULL otherwise."
 analytics,book_entries,tax_category,STRING,The tax category applied to this entry.
 analytics,book_entries,tax_exempt,INT64,Flag (0/1) indicating whether this entry is tax-exempt.
 analytics,book_entries,txn_id,INT64,Internal numeric ID of the journal entry; matches 'Transaction #' shown on the ledger. Kept for existing queries; new queries should use journal_entry_id (matches the External API and other external IDs). May be deprecated in a future release.
@@ -76,6 +84,7 @@ analytics,call_child,communication_direction,STRING,Whether this leg is inbound 
 analytics,call_child,duration,INT64,Duration in milliseconds of this call leg.
 analytics,call_child,facility_id,STRING,The facility associated with this call leg. Joins to facilities.facility_id.
 analytics,call_child,facility_name,STRING,The facility name. Denormalized from facilities.
+analytics,call_child,has_recording,BOOL,TRUE when a recording is stored for this call leg (same rule the app uses for its hasRecording flag). Open it in the manager app at /calls/records/{call_id}.
 analytics,call_child,manager_id,STRING,"The manager who handled this leg, if human. Joins to managers.manager_id."
 analytics,call_child,manager_name,STRING,The manager's name. Denormalized.
 analytics,call_child,org_id,STRING,The organization identifier. Common filter field.
@@ -88,6 +97,7 @@ analytics,call_child,wait_time,INT64,Seconds the caller waited before this leg w
 analytics,calls,,TABLE,"Materialized calls table. Contains one row per inbound or outbound phone call, enriched with facility and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,calls,call_id,INT64,Unique identifier for the call.
 analytics,calls,caller_phone,STRING,The phone number of the caller.
+analytics,calls,campaign_label,STRING,"Name of the marketing (tracking) number the call came in on, captured when the call was received. NULL when the call did not come through a named marketing number. See marketing_numbers."
 analytics,calls,communication_direction,STRING,Whether the call is inbound or outbound.
 analytics,calls,created_at,DATETIME,Timestamp when the call record was created in the system.
 analytics,calls,ended_at,DATETIME,Timestamp when the call ended.
@@ -101,6 +111,7 @@ analytics,calls,purpose,STRING,"Disposition purpose tag for the call (e.g., sale
 analytics,calls,recipient_phone,STRING,The phone number that was dialed (the facility's tracking number).
 analytics,calls,started_at,DATETIME,Timestamp when the call started.
 analytics,calls,status,STRING,"Overall status/outcome of the call (e.g., completed, missed, voicemail)."
+analytics,calls,summary,STRING,"AI-generated summary of the call, written when the app scores the call from its transcript. NULL when no summary was produced (e.g., unanswered or untranscribed calls)."
 analytics,calls,support_phone,STRING,The support/tracking phone number this call was routed through.
 analytics,calls,topics,STRING,"Pipe-delimited list of topic tags for the call, sorted alphabetically (e.g., autopay|payment). A call can have several topics. NULL when none are tagged."
 analytics,calls,updated_at,DATETIME,Timestamp when the call record was last updated.
@@ -183,6 +194,25 @@ analytics,date_dim,week_of_year,INT64,Week number within the year (1–53).
 analytics,date_dim,year,INT64,"Four-digit calendar year (e.g., 2024)."
 analytics,date_dim,year_month,STRING,"Year and month formatted as a string (e.g., 2024-01), useful for monthly grouping."
 analytics,date_dim,year_quarter,STRING,"Year and quarter formatted as a string (e.g., 2024-Q1), useful for quarterly grouping."
+analytics,delinquency_exemptions,,TABLE,"Materialized delinquency-exemptions table. Contains one row per active delinquency exemption: a manager-set hold that pauses some or all of a delinquent lease's collections steps until an end date. Matches the app API: exemptions that were removed, replaced or have expired are not included. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
+analytics,delinquency_exemptions,contact_id,STRING,The tenant on the lease. Joins to contacts.contact_id.
+analytics,delinquency_exemptions,created_at,DATETIME,"Timestamp when the exemption was created, in facility local time."
+analytics,delinquency_exemptions,delinquency_exemption_id,INT64,Unique identifier for the exemption. Primary key.
+analytics,delinquency_exemptions,end_date,DATE,"The date the exemption ends, as entered. Can briefly be in the past until the app's expiry job removes the exemption."
+analytics,delinquency_exemptions,facility_id,STRING,The facility of the lease. Joins to facilities.facility_id.
+analytics,delinquency_exemptions,facility_name,STRING,The facility name. Denormalized.
+analytics,delinquency_exemptions,is_pausing_collections_messages,BOOL,Whether automated collections messages to the tenant are paused.
+analytics,delinquency_exemptions,is_pausing_delinquency_fees,BOOL,Whether late and delinquency fees are paused for this lease.
+analytics,delinquency_exemptions,is_pausing_lien_eligibility,BOOL,Whether the lease is held back from becoming lien-eligible (the path to auction).
+analytics,delinquency_exemptions,is_pausing_overlock,BOOL,Whether the overlock step is paused for this lease.
+analytics,delinquency_exemptions,lease_id,STRING,The lease the exemption applies to. Joins to leases.lease_id. A lease has at most one active exemption.
+analytics,delinquency_exemptions,manager_id,STRING,The manager who created the exemption. Joins to managers.manager_id.
+analytics,delinquency_exemptions,manager_name,STRING,The manager's name. Denormalized.
+analytics,delinquency_exemptions,note,STRING,The manager's note attached to the exemption. NULL when none was entered. The same note also appears in manager_notes.
+analytics,delinquency_exemptions,org_id,STRING,The organization identifier. Common filter field.
+analytics,delinquency_exemptions,other_reason,STRING,"Free-text explanation, required when reason is OTHER. NULL otherwise."
+analytics,delinquency_exemptions,reason,STRING,"Why the exemption was granted: BANKRUPTCY, DECEASED, MILITARY_SERVICE, PAYMENT_ARRANGEMENT or OTHER."
+analytics,delinquency_exemptions,updated_at,DATETIME,"Timestamp when the exemption was last updated, in facility local time."
 analytics,discount_programs,,TABLE,"Materialized discount-programs table. Contains one row per discount program (e.g., Military Discount, Web Special, First Month Free) with organisation attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,discount_programs,active,INT64,Flag (0/1) indicating whether the program is currently active.
 analytics,discount_programs,application_amount,NUMERIC,"The discount value (percentage or dollar amount, depending on application_method)."
@@ -233,6 +263,7 @@ analytics,discounts,usage,STRING,"When the discount can be applied (START_ONLY, 
 analytics,emails,,TABLE,"Materialized emails table. Contains one row per outbound email (e.g., late notices, move-in confirmations, rate change letters) with contact, lease, facility, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,emails,body,STRING,The full HTML or text body of the email.
 analytics,emails,bounce_reason,STRING,"The reason code or description for a bounce, if applicable."
+analytics,emails,bounce_type,STRING,"The email provider's bounce classification (e.g., HardBounce, SoftBounce, Transient, DnsError, Blocked). NULL when the email did not bounce."
 analytics,emails,bounced_at,DATETIME,Timestamp when a bounce was received. NULL if not bounced.
 analytics,emails,clicked_at,DATETIME,Timestamp when a link was first clicked. NULL if not tracked or not clicked.
 analytics,emails,created_at,DATETIME,Timestamp when the email was created/queued.
@@ -242,6 +273,7 @@ analytics,emails,facility_id,STRING,The facility this email is associated with. 
 analytics,emails,facility_name,STRING,The facility name. Denormalized.
 analytics,emails,failed_at,DATETIME,Timestamp when a send failure occurred. NULL if no failure.
 analytics,emails,failure_reason,STRING,"The reason for a send failure, if applicable."
+analytics,emails,is_system,INT64,"Flag (0/1): 1 for Cubby platform notices sent to the operator's own staff (e.g., manager invitations) rather than to tenants. Use created_by to separate staff-sent from automated tenant emails."
 analytics,emails,lease_id,STRING,"The lease associated with this email, if applicable. Joins to leases.lease_id."
 analytics,emails,opened_at,DATETIME,Timestamp when the email was first opened. NULL if not tracked or not opened.
 analytics,emails,org_id,STRING,The organization identifier. Common filter field.
@@ -254,21 +286,33 @@ analytics,emails,subject,STRING,The email subject line.
 analytics,emails,tag,STRING,"Category/template tag identifying the type of email (e.g., late_notice, move_in_confirmation)."
 analytics,emails,unit,STRING,The unit name associated with this email. Denormalized.
 analytics,emails,unit_id,STRING,"The unit associated with this email, if applicable. Joins to units.unit_id."
+analytics,emails,workflow_name,STRING,Name of the workflow that sent this email. NULL when not sent by a workflow.
+analytics,emails,workflow_run_id,INT64,"The workflow run that sent this email, when it was sent by an automated workflow. NULL otherwise. Emails, sms and tasks from the same run share this ID."
 analytics,facilities,,TABLE,Materialized facilities table. The primary dimension table for facility-level analysis. Contains one row per facility with organisation attribution and descriptive metadata. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js.
 analytics,facilities,address,STRING,The street address of the facility.
+analytics,facilities,billing_cycle,STRING,The facility's default billing period for leases: MONTHLY or DAYS_28 (every 28 days). WEEKLY and BI_WEEKLY are also valid app values.
+analytics,facilities,billing_option,STRING,FIXED: every lease bills on the facility billing_cycle. FLEXIBLE: tenants can choose a different billing cycle per lease.
+analytics,facilities,city,STRING,The facility's city.
+analytics,facilities,country,STRING,"The facility's country as entered in the app, usually a two-letter code (US, CA). Can be blank."
 analytics,facilities,created_at,DATETIME,Timestamp when the facility was added to the system.
+analytics,facilities,currency,STRING,"The currency the facility bills in (e.g., USD, CAD). Amounts in other tables are in the facility's currency."
+analytics,facilities,facility_email,STRING,The facility's contact email address.
 analytics,facilities,facility_id,STRING,Unique identifier for the facility. Primary key.
 analytics,facilities,facility_name,STRING,The public-facing name of the facility.
 analytics,facilities,facility_phone,STRING,The primary phone number for the facility.
 analytics,facilities,internal_name,STRING,"An internal-use name or alias (e.g., for multi-brand operators)."
+analytics,facilities,is_enabled,INT64,"Flag (0/1): 0 when the facility is disabled in the app. Disabled facilities can still have active leases, for example while they are being set up."
 analytics,facilities,jump_day,INT64,Day of the month after which a new lease's first bill is pushed to the next billing cycle.
 analytics,facilities,latitude,STRING,Geographic latitude of the facility.
 analytics,facilities,lease_anniversary,STRING,Defines the day of the month on which rent is due and leases anniversary.
 analytics,facilities,legal_name,STRING,"The legal business name of the facility, which may differ from the public name."
 analytics,facilities,longitude,STRING,Geographic longitude of the facility.
 analytics,facilities,org_id,STRING,The organization identifier. Common filter field.
+analytics,facilities,state,STRING,The facility's state or province.
 analytics,facilities,time_zone,STRING,"The IANA time zone of the facility (e.g., America/Chicago). Useful when working with datetime fields."
 analytics,facilities,updated_at,DATETIME,Timestamp when the facility record was last updated.
+analytics,facilities,website_link,STRING,"The facility's website URL, as entered in the app."
+analytics,facilities,zip,STRING,The facility's ZIP or postal code.
 analytics,facility_groups,,TABLE,"Materialized facility-groups table. Contains facility-to-group memberships used to roll up multiple facilities into named reporting groups, with organisation attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,facility_groups,facility_group_name,STRING,The name of the group this facility belongs to (used for multi-facility reporting rollups).
 analytics,facility_groups,facility_id,STRING,The facility in this group assignment. Joins to facilities.facility_id.
@@ -304,6 +348,9 @@ analytics,leads,converted_lease_id,STRING,The lease created when this lead conve
 analytics,leads,created_at,DATETIME,Timestamp when the lead was created.
 analytics,leads,created_by,STRING,"The manager or channel that created the lead (e.g., online, walk-in)."
 analytics,leads,created_by_manager_id,STRING,ID of the manager who created the lead. NULL when created_by is System or NULL. Joins to managers.manager_id.
+analytics,leads,custom_rate,NUMERIC,The custom rate entered for the lead. Only meaningful when rate_type = CUSTOM_RATE (the app stores 0 otherwise).
+analytics,leads,discount_strategy_ids,STRING,Pipe-delimited discount strategies (dstrat_ ids) applied to the lead's quote. Split on | to join each id to pricing_group_discount_strategies.discount_strategy_id. NULL when none.
+analytics,leads,discount_strategy_names,STRING,"Pipe-delimited names of the discount strategies in discount_strategy_ids, in the same order."
 analytics,leads,facility_id,STRING,The facility the lead is interested in. Joins to facilities.facility_id.
 analytics,leads,facility_name,STRING,The facility name. Denormalized.
 analytics,leads,first_touch_action,STRING,The first on-site action taken by this lead.
@@ -311,6 +358,9 @@ analytics,leads,first_touch_source,STRING,The first marketing touchpoint source 
 analytics,leads,ga_session,STRING,The GA session identifier. Joins to ga_events and customer_touches.
 analytics,leads,ga_session_id,STRING,Alternate string format of the GA session ID.
 analytics,leads,ga_source,STRING,The GA traffic medium associated with the lead's originating session. Offline means no GA Session matched.
+analytics,leads,ins_coverage_level,NUMERIC,Coverage amount of the insurance or protection plan quoted to the lead. NULL when none was selected.
+analytics,leads,ins_premium,NUMERIC,Monthly premium of the insurance or protection plan quoted to the lead. NULL when none was selected.
+analytics,leads,last_activity_at,DATETIME,"Timestamp (facility local time) of the most recent activity on the lead as tracked by the app, e.g. a status change, a staff note or an AI agent conversation. Use it to find stale leads. Imported leads carry the value from the previous system."
 analytics,leads,lead_id,STRING,Unique identifier for the lead.
 analytics,leads,lead_source,STRING,"The source channel of the lead (e.g., organic, paid, referral)."
 analytics,leads,marketing_source,STRING,"Marketing channel attributed to the lead (e.g., WALK_IN, DIGITAL_AD, CALL, REFERRAL, SEARCH_ENGINE)"
@@ -321,6 +371,7 @@ analytics,leads,pg_id,STRING,The pricing group (unit type) the prospect is inter
 analytics,leads,pg_name,STRING,The pricing group name. Denormalized.
 analytics,leads,phone_call_child_id,INT64,Key linking the lead to a call_child record when the lead originated from a phone call
 analytics,leads,rate_quoted,NUMERIC,The rental rate quoted to the lead at time of inquiry.
+analytics,leads,rate_type,STRING,"Which rate the lead was quoted: WEB_RATE, WALK_IN_RATE or CUSTOM_RATE. Compare rate_quoted with the pricing group's street rate to see quoted-vs-street."
 analytics,leads,source,STRING,Overall source attribution for the lead.
 analytics,leads,status,STRING,"Current status of the lead (e.g., new, qualified, converted, lost)."
 analytics,leads,target_move_in_date,DATE,The date the prospect indicated they want to move in.
@@ -347,13 +398,16 @@ analytics,lease_auctions,updated_at,DATETIME,Timestamp when the record was last 
 analytics,lease_auctions,winner_id,STRING,"Identifier of the winning bidder, if the auction completed."
 analytics,leases,,TABLE,"Materialized lease fact table. Contains one row per active or historical lease, enriched with facility, unit, contact, financial balance, insurance, discount, and access code details. Many contact_* fields are denormalized copies of the tenant's current contact record. Row-level security is enforced separately via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,leases,access_code,STRING,The gate/keypad access code for this tenant.
+analytics,leases,active_delinquency_exemption_id,INT64,The delinquency exemption currently in effect on this lease. Joins to delinquency_exemptions.delinquency_exemption_id. NULL when the lease has no active exemption.
 analytics,leases,alternative_contacts,STRING,Serialized list of emergency/alternative contacts associated with the tenant.
 analytics,leases,autopay_card_brand,STRING,"The card brand of the autopay payment method (e.g., Visa, Mastercard). NULL if ACH or no autopay."
 analytics,leases,autopay_card_expiration,STRING,The expiration date of the autopay card on file. NULL if ACH or no autopay.
 analytics,leases,autopay_method_type,STRING,"The type of payment method on file for autopay (e.g., card, ACH)."
 analytics,leases,balance_ar,NUMERIC,Current accounts receivable balance (amount currently owed by the tenant).
+analytics,leases,balance_credit,NUMERIC,Credit issued to the lease through the app's Issue Credit feature and not yet used. Separate from balance_prepaid. NULL if the app has not calculated the lease yet.
 analytics,leases,balance_deposit,NUMERIC,The deposit balance held for this lease.
 analytics,leases,balance_prepaid,NUMERIC,Any prepaid/credit balance on the lease (positive = credit owed to tenant).
+analytics,leases,billing_cycle,STRING,"The lease's billing period: MONTHLY, DAYS_28 (every 28 days), WEEKLY or BI_WEEKLY. Set from the facility's billing_cycle unless the facility lets tenants choose (facilities.billing_option = FLEXIBLE)."
 analytics,leases,contact_address_1,STRING,The tenant's street address line 1. Denormalized from contact.
 analytics,leases,contact_address_2,STRING,The tenant's street address line 2. Denormalized from contact.
 analytics,leases,contact_city,STRING,The tenant's city. Denormalized from contact.
@@ -366,20 +420,29 @@ analytics,leases,contact_pinned_note,STRING,"A pinned note visible on the lease 
 analytics,leases,contact_state,STRING,The tenant's state. Denormalized from contact.
 analytics,leases,contact_zip,STRING,The tenant's ZIP/postal code. Denormalized from contact.
 analytics,leases,created_at,DATETIME,Timestamp when the lease record was created in the system.
+analytics,leases,documents_combined_status,STRING,"Overall state of the tenant's required documents for this lease, as shown in the app, from worst to best: PENDING, MISSING_SIGNATURE, REJECTED, INCOMPLETE, PARTIAL, COMPLETE. Imported leases start as INCOMPLETE and are only re-evaluated once the tenant's details are verified, so most imported leases read INCOMPLETE whatever their paperwork. Filter on is_imported = 0 when measuring document compliance."
 analytics,leases,ecri_stage,STRING,"The lease's ECRI stage exactly as stored and shown by the Cubby app (lease.ecri_stage): READY (due for an increase; the app flags leases 45 days before the plan date), IN_REVIEW (a rate is being reviewed), SCHEDULED (a rent change is scheduled), SNOOZED, or SET (plan set, not yet due). NULL when the lease has no plan and has never had a rent change. Ended leases keep their last stage, so filter on is_active = 1 for current status. Not the same as rate_changes.rent_change_status, which is the status of an individual rent change request."
+analytics,leases,effective_rate,NUMERIC,"The rent the tenant actually pays for the current billing period after discounts and waived rent, as calculated by the app (the Effective Rate on the rent roll). NULL if the app has not calculated it for the lease."
 analytics,leases,estimated_next_rent_change_date,DATE,"ESTIMATE of the next date the lease's plan calls for a rent increase: last rent change + subsequent_change_months (or move-in + first_change_months), aligned to the lease's billing anniversary day. The app computes this on the fly and does not store it. Can be in the past: a lease becomes READY 45 days before this date and stays READY until an increase is scheduled. For SCHEDULED leases, use lease_rent_next_chg_date; this estimate keeps projecting from the plan and can differ. NULL when no plan is set."
 analytics,leases,facility_id,STRING,The facility where the leased unit is located. Joins to facilities.facility_id.
 analytics,leases,facility_name,STRING,The facility name. Denormalized.
 analytics,leases,facility_rate_change_plan_name,STRING,"The facility's default ECRI plan, copied onto new leases at move-in. Changing a facility's plan does not update existing leases, so this can differ from rate_change_plan_name or be set when the lease has no plan."
 analytics,leases,ins_coverage_level,NUMERIC,The coverage level/amount of the tenant's insurance policy. NULL if no insurance.
+analytics,leases,ins_coverage_type,STRING,"How the unit is protected: ORGANISATION (the operator's insurance or protection plan, see ins_premium and ins_coverage_level), PRIVATE_POLICY (the tenant's own insurance; ins_premium and ins_coverage_level are NULL), or NONE (no coverage)."
 analytics,leases,ins_premium,NUMERIC,The monthly insurance premium amount charged on this lease. NULL if no insurance.
+analytics,leases,ins_private_policy_expiration_date,DATE,"For PRIVATE_POLICY leases, the expiration date of the tenant's own policy as recorded in the app. NULL when not recorded or not a private policy."
 analytics,leases,is_access_code_enabled,INT64,Flag indicating whether the access code is currently active.
 analytics,leases,is_active,INT64,Flag (0/1) indicating whether the lease is currently active.
 analytics,leases,is_autopay_enabled,BOOL,Whether autopay is active on this lease.
+analytics,leases,is_eligible_for_rent_increase,INT64,Flag (0/1) as calculated by the app: 1 when the app considers the lease due for an ECRI rent increase (it starts flagging leases 45 days before the plan date). NULL if the app has not calculated the lease yet.
+analytics,leases,is_gate_lockout_needed,INT64,Flag (0/1): 1 when the tenant is locked out of the gate for non-payment (the app disables their access code once the facility's gate lockout grace period passes).
+analytics,leases,is_imported,INT64,"Flag (0/1): 1 when the lease was migrated into Cubby from a previous management system, 0 when it was created in Cubby."
 analytics,leases,is_in_auction,INT64,Flag indicating whether this lease is currently in the lien/auction process.
 analytics,leases,is_lease_paid,INT64,Flag indicating whether the lease is currently paid up to date.
 analytics,leases,is_military,INT64,Flag indicating whether the tenant has identified as active military or veteran.
 analytics,leases,is_needs_overlock,INT64,Flag indicating whether the unit has been flagged to be overlocked.
+analytics,leases,is_tax_exempt,INT64,Flag (0/1): 1 when the lease is exempt from tax on its charges.
+analytics,leases,lead_id,STRING,The lead this lease was converted from. Joins to leads.lead_id. NULL when the lease was not created from a lead (including most imported leases).
 analytics,leases,lease_all_discounts,STRING,"Pipe-delimited names of all discounts applied to this lease, active or not (discounts.discount_name), ordered by start date."
 analytics,leases,lease_created_by,STRING,"The manager or channel that created the lease (e.g., online, walk-in)."
 analytics,leases,lease_ended,DATE,The date the lease ended. NULL for active leases.
@@ -402,6 +465,7 @@ analytics,leases,status_late_since_date,DATE,The date from which the lease has b
 analytics,leases,status_paid_on_date,DATE,The most recent date a payment was made on this lease.
 analytics,leases,status_paid_through_date,DATE,The date through which rent has been paid on this lease.
 analytics,leases,storing_vehicle,INT64,Flag indicating whether a vehicle is being stored.
+analytics,leases,transferred_to_lease_id,STRING,"When the tenant transferred to another unit, the new lease that replaced this one. Joins to leases.lease_id. NULL if the lease was not ended by a transfer."
 analytics,leases,unit_id,STRING,The unit being leased. Joins to units.unit_id.
 analytics,leases,unit_name,STRING,The unit number/name on the lease. Denormalized from units.
 analytics,leases,value_pricing_tier,STRING,"The value tier selected by the tenant during their online rental session (e.g., Basic, Standard, Premium). Sourced from GA4 add_to_cart events."
@@ -439,12 +503,27 @@ analytics,managers,manager_phone,STRING,The manager's phone number.
 analytics,managers,manager_status,STRING,Whether the manager's account is 'active' or 'inactive'. NULL if the status is not recorded.
 analytics,managers,manager_username,STRING,The manager's login username.
 analytics,managers,org_id,STRING,The organization identifier. Common filter field.
+analytics,marketing_numbers,,TABLE,Materialized marketing-numbers table. Contains one row per marketing (external or tracking) phone number and facility it is assigned to; a number with no facility has a single row with NULL facility. Join to calls on calls.forwarded_from = number within the same org_id. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js.
+analytics,marketing_numbers,call_intent,STRING,"How calls to the number are handled (e.g., EXTERNAL, IVR, AI_AGENT, FORWARD, DIRECT_DIAL)."
+analytics,marketing_numbers,created_at,DATETIME,Timestamp (UTC) when the number was added to the system.
+analytics,marketing_numbers,facility_id,STRING,A facility the number is assigned to. Joins to facilities.facility_id. NULL when the number is not assigned to a facility. A number assigned to several facilities has one row per facility.
+analytics,marketing_numbers,facility_name,STRING,The facility name. Denormalized.
+analytics,marketing_numbers,is_tracking,INT64,Flag (0/1) indicating whether the number is set up as a call-tracking number.
+analytics,marketing_numbers,marketing_number_id,INT64,"Identifier for the marketing number. With facility_id, the primary key."
+analytics,marketing_numbers,name,STRING,"The label the operator gave the number (e.g., Google Ads, Website). Calls received on it carry this name in calls.campaign_label."
+analytics,marketing_numbers,number,STRING,"The phone number in E.164 format (e.g., +15551234567). Joins to calls.forwarded_from within the same org_id."
+analytics,marketing_numbers,org_id,STRING,The organization identifier. Common filter field.
+analytics,marketing_numbers,updated_at,DATETIME,Timestamp (UTC) when the number's settings were last updated.
 analytics,payments,,TABLE,"Materialized payments table. Contains one row per payment transaction (sales, refunds, and failures) with contact, facility, and organisation context. Records gateway attempts, not collections. For collections see book_entries. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,payments,contact_id,STRING,The contact who made the payment. Joins to contact.contact_id.
 analytics,payments,contact_name,STRING,The contact's name. Denormalized.
+analytics,payments,dispute_or_return_fee,NUMERIC,"Fee charged for a card dispute or ACH return, recorded on the FAILURE transaction (Cubby Payments). NULL otherwise."
 analytics,payments,facility_id,STRING,The facility where the payment was made. Joins to facilities.facility_id.
 analytics,payments,facility_name,STRING,The facility name. Denormalized.
+analytics,payments,failed_reason,STRING,"Free-text reason recorded on a failed, refunded or voided transaction: the processor's decline message (e.g., Insufficient Funds) or the reason a staff user entered for a refund. NULL when none was recorded."
+analytics,payments,item_type,STRING,"What the payment was for: LEASE (rent and other lease charges), MERCHANDISE (retail sale with no lease), LEASE_MERCHANDISE (retail sold on a lease), AUCTION (auction proceeds), or MANAGER_SPECIAL."
 analytics,payments,org_id,STRING,The organization identifier. Common filter field.
+analytics,payments,original_payment_id,STRING,"For a REFUND or FAILURE transaction, the transaction it refunds or reverses (almost always a SALE). Joins to payments.payment_id. NULL otherwise."
 analytics,payments,payment_amount,NUMERIC,"The amount of the payment. Amounts are positive on all three types, do not self-net when summed."
 analytics,payments,payment_card_brand,STRING,"The card brand if paid by card (e.g., Visa, Mastercard). NULL if not a card payment."
 analytics,payments,payment_card_last_four,STRING,The last four digits of the card number. NULL if not a card payment.
@@ -456,6 +535,8 @@ analytics,payments,payment_id,STRING,Unique identifier for the payment. Primary 
 analytics,payments,payment_method,STRING,"The payment method used (e.g., credit_card, ACH, cash, check)."
 analytics,payments,payment_status,STRING,"The status of the payment (e.g. APPROVED, DECLINED, ERROR, FAILED, REFUNDED)."
 analytics,payments,payment_type,STRING,"The type of payment transaction (e.g. SALE, REFUND, FAILURE)."
+analytics,payments,per_authorization_fee,NUMERIC,Fixed per-transaction processing fee on a Cubby Payments sale. NULL for other transactions.
+analytics,payments,volume_fee,NUMERIC,Percentage-based processing fee on a Cubby Payments sale. NULL for other transactions.
 analytics,pricing_group,,TABLE,"Materialized pricing-group table. Contains one row per pricing group (unit type) per facility with current calculated rates, strategy metadata, and facility context. Defines the dimensions, rates, and features for a category of units. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,pricing_group,depth,NUMERIC,"Depth of units in this pricing group, in feet."
 analytics,pricing_group,facility_id,STRING,The facility this pricing group belongs to. Joins to facilities.facility_id.
@@ -525,12 +606,16 @@ analytics,rate_changes,facility_name,STRING,The facility name. Denormalized.
 analytics,rate_changes,is_autopay_enabled,BOOL,Whether autopay is enabled on the lease. Denormalized from leases.
 analytics,rate_changes,is_lease_paid,INT64,Whether the lease is currently paid up. Denormalized from leases.
 analytics,rate_changes,is_military,INT64,Military status of the tenant. Denormalized from leases/contact.
+analytics,rate_changes,is_rent_change_notice_sent,INT64,Flag (0/1): 1 once the rent change notice has been sent to the tenant.
 analytics,rate_changes,lease_id,STRING,The lease receiving the rate change. Joins to leases.lease_id.
 analytics,rate_changes,lease_rent_current,NUMERIC,The tenant's current rent. Denormalized.
 analytics,rate_changes,lease_rent_previous,NUMERIC,"The monthly rent amount on the lease prior to the rate change, in dollars."
 analytics,rate_changes,org_id,STRING,The organization identifier. Common filter field.
 analytics,rate_changes,rent_change_amount,NUMERIC,The dollar amount of the proposed or applied rent change.
 analytics,rate_changes,rent_change_created_at,DATETIME,Timestamp when the rate change was created/scheduled.
+analytics,rate_changes,rent_change_manager_id,STRING,"The manager who scheduled the rent change. Joins to managers.manager_id. NULL when it was not scheduled by a manager. May be absent from managers, which lists only the org's own managers."
+analytics,rate_changes,rent_change_manager_name,STRING,Name of the manager who scheduled the rent change.
+analytics,rate_changes,rent_change_notice_date,DATE,The date the app sends (or sent) the rent change notice to the tenant. Compare with rent_change_scheduled_date to check the notice period.
 analytics,rate_changes,rent_change_scheduled_date,DATE,The date the rent change is scheduled to take effect. Note: field name has an uppercase D.
 analytics,rate_changes,rent_change_status,STRING,"Current status of the rate change (e.g., scheduled, applied, cancelled)."
 analytics,rate_changes,street_rate,NUMERIC,"The street rate currently stored for the unit's pricing group (current value, not as of the change). NULL when the unit has no pricing group. Denormalized from pricing_group."
@@ -573,14 +658,18 @@ analytics,sms,error_code,STRING,"Carrier error code returned on failed delivery 
 analytics,sms,facility_id,STRING,Unique identifier of the facility associated with the SMS
 analytics,sms,facility_name,STRING,Name of the facility associated with the SMS
 analytics,sms,failed_at,DATETIME,Timestamp when the SMS delivery failed
+analytics,sms,is_system,INT64,"Flag (0/1): 1 for Cubby platform notices sent to the operator's own staff (e.g., new-lease and new-lead alerts) rather than to tenants. Use created_by to separate staff-sent from automated tenant messages."
 analytics,sms,lease_id,STRING,Unique identifier of the lease associated with the SMS
 analytics,sms,org_id,STRING,Unique identifier of the organization associated with the SMS
 analytics,sms,org_name,STRING,Name of the organization associated with the SMS
 analytics,sms,sent_at,DATETIME,Timestamp when the SMS was submitted for delivery
+analytics,sms,service_phone_number,STRING,The facility or organisation phone number the SMS was sent from (outbound) or received on (inbound). Joins to marketing_numbers.number for tracking numbers.
 analytics,sms,status,STRING,"Delivery status of the SMS message (e.g., DELIVERED, SENT, FAILED, NEW)"
 analytics,sms,tag,STRING,"Template type identifying the message purpose (e.g., RENTAL_CONFIRMATION, INVOICE, RECEIPT, LIEN_NOTICE, OVERLOCK_ADDED)"
 analytics,sms,unit,STRING,Display name of the storage unit associated with the SMS
 analytics,sms,unit_id,STRING,Unique identifier of the unit associated with the SMS
+analytics,sms,workflow_name,STRING,Name of the workflow that sent this SMS. NULL when not sent by a workflow.
+analytics,sms,workflow_run_id,INT64,"The workflow run that sent this SMS, when it was sent by an automated workflow. NULL otherwise. Emails, sms and tasks from the same run share this ID."
 analytics,spaces_historical,,TABLE,"Incremental daily historical snapshot of every unit's state — occupancy status, street rate, tenant details, insurance, and physical attributes. One row per unit per snap_date. Reprocesses a rolling 7-day window on each incremental run to catch delayed snapshot data and recent corrections. Partitioned by date to control query costs. Row-level security enforced via a BigQuery Row Access Policy on org_id."
 analytics,spaces_historical,building_name,STRING,The building within the facility where the unit is located.
 analytics,spaces_historical,contact_id,STRING,The occupying tenant's contact record. Joins to contact.contact_id. NULL if unoccupied.
@@ -591,7 +680,9 @@ analytics,spaces_historical,facility_id,STRING,The facility this unit is in. Joi
 analytics,spaces_historical,facility_name,STRING,The facility name. Denormalized.
 analytics,spaces_historical,height,NUMERIC,Unit ceiling height in feet on this date.
 analytics,spaces_historical,ins_coverage_level,NUMERIC,The tenant's insurance coverage level on this date. NULL if no insurance.
+analytics,spaces_historical,ins_coverage_type,STRING,"How the occupying tenant's unit was protected on this date: ORGANISATION (the operator's insurance or protection plan), PRIVATE_POLICY (the tenant's own insurance) or NONE. NULL if unoccupied, and for dates before this column was added to the warehouse."
 analytics,spaces_historical,ins_premium,NUMERIC,The tenant's insurance premium amount on this date. NULL if no insurance.
+analytics,spaces_historical,ins_private_policy_expiration_date,DATE,"For PRIVATE_POLICY leases, the tenant's policy expiration date as recorded on this date. NULL otherwise, and for dates before this column was added to the warehouse."
 analytics,spaces_historical,is_active,INT64,Flag indicating whether the unit was active/in service on this date.
 analytics,spaces_historical,is_autopay_enabled,INT64,Whether the occupying tenant had autopay enabled on this date. NULL if unoccupied.
 analytics,spaces_historical,is_insurance_active,INT64,Whether the tenant had active insurance on this date. NULL if unoccupied.
@@ -645,15 +736,20 @@ analytics,tasks,,TABLE,"Materialized tasks table. Contains one row per task with
 analytics,tasks,archived_at,DATETIME,Timestamp when the task was first marked ARCHIVED
 analytics,tasks,assignee,ARRAY<STRING>,Manager ID (or array of IDs) of manager assigned to the task
 analytics,tasks,completed_at,DATETIME,Timestamp when the task was first marked COMPLETED
+analytics,tasks,contact_id,STRING,"The tenant or contact the task is about, if any. Joins to contacts.contact_id."
 analytics,tasks,created_at,DATETIME,Timestamp when the task was created
 analytics,tasks,description,STRING,Full text body of task description
 analytics,tasks,due_date,DATETIME,Timestamp when the task is due
 analytics,tasks,facility_id,STRING,Unique identifier of the facility associated with the task
 analytics,tasks,manager_created_by,STRING,Manager ID of manager that created the task
 analytics,tasks,org_id,STRING,Unique identifier of the organization associated with the task
+analytics,tasks,schedule,STRING,"Repeat schedule for a recurring task: DAILY, EVERY_WEEK_DAY, WEEKLY, BIWEEKLY, MONTHLY or YEARLY. NULL for a one-off task."
 analytics,tasks,status,STRING,"Current status of the task (e.g. OPEN, COMPLETED, ARCHIVED)"
 analytics,tasks,task_id,STRING,Unique identifier of the task
 analytics,tasks,title,STRING,Title of the task
+analytics,tasks,unit_id,STRING,"The unit the task is about, if any. Joins to units.unit_id."
+analytics,tasks,workflow_name,STRING,Name of the workflow that created this task. NULL when not created by a workflow.
+analytics,tasks,workflow_run_id,INT64,"The workflow run that created this task, when an automated workflow created it. NULL otherwise. Emails, sms and tasks from the same run share this ID."
 analytics,unit_turnover,,TABLE,"Materialized unit-turnover table. Contains move-in, move-out, and transfer events derived from leases, capturing the full unit and lease context at the time of the move. Enriched with unit, pricing, tenant, insurance, and lead-source context. Use for cohort and turnover analysis. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,unit_turnover,contact_email,STRING,The tenant's email. Denormalized.
 analytics,unit_turnover,contact_id,STRING,The tenant contact. Joins to contact.contact_id.
@@ -709,7 +805,7 @@ analytics,unit_walkthrough,updated_at,DATETIME,Time when the walkthrough activit
 analytics,unit_walkthrough,viewed,INT64,Boolen for whether the walkthrough was completed.
 analytics,unit_walkthrough,viewed_at,DATETIME,Time when the walkthrough activity was marked completed
 analytics,units,,TABLE,"Materialized units table. Contains one row per current unit with pricing, occupancy, physical dimensions, and facility attribution. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
-analytics,units,created_at,DATETIME,Timestamp when the unit was added to the system.
+analytics,units,created_at,DATETIME,Timestamp (UTC) when the unit was added to the system.
 analytics,units,days_unrentable,INT64,Number of days the unit has been continuously in an unrentable state.
 analytics,units,days_vacant,INT64,Number of days the unit has been vacant since the last move-out.
 analytics,units,facility_id,STRING,The facility this unit is in. Joins to facilities.facility_id.
@@ -734,6 +830,7 @@ analytics,units,strikethrough_price_override,NUMERIC,A manual override for the s
 analytics,units,strikethrough_rate,NUMERIC,The current strikethrough/was-price for this unit's pricing group.
 analytics,units,unit_building_name,STRING,The name of the building within the facility.
 analytics,units,unit_depth,NUMERIC,The depth of the unit in feet.
+analytics,units,unit_description,STRING,"A text description of the unit type and features (SiteLink sUnitDesc for imported units). Same source as spaces_historical.unit_description, current value."
 analytics,units,unit_features,JSON,"JSON array of features for this specific unit (e.g., climate_controlled, drive_up, elevator_access)."
 analytics,units,unit_floor_num,INT64,The floor number where the unit is located.
 analytics,units,unit_height,NUMERIC,The ceiling height of the unit in feet.
@@ -746,6 +843,7 @@ analytics,units,unit_type,STRING,"The unit type category (e.g., interior, drive_
 analytics,units,unit_unrentable_note,STRING,Free-text note explaining why the unit is unrentable. NULL if rentable.
 analytics,units,unit_unrentable_reason,STRING,The reason code for why the unit is marked unrentable. NULL if rentable.
 analytics,units,unit_width,NUMERIC,The width of the unit in feet.
+analytics,units,updated_at,DATETIME,Timestamp (UTC) when the unit record was last updated (equivalent of SiteLink dUpdated).
 analytics,units,walk_in_rate,NUMERIC,The current walk-in rate for this unit's pricing group.
 analytics,units,walk_in_rate_override,NUMERIC,A manual override for the walk-in rate.
 analytics,units,web_rate,NUMERIC,The current web rate for this unit's pricing group.
