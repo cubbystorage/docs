@@ -384,6 +384,25 @@
     .cl-entry:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
     .cl-entry h2 { color: #fff; font-size: 16px; font-weight: 700; margin: 0 0 4px; }
     .cl-entry h2 a { color: inherit; }
+    .cl-table { border-collapse: collapse; width: 100%; margin: 0 0 14px; font-size: 14px; }
+    .cl-table th {
+      text-align: left;
+      color: #666;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 0 12px 6px 0;
+      border-bottom: 1px solid #3a3d42;
+    }
+    .cl-table td {
+      color: #aaa;
+      line-height: 1.9;
+      padding: 8px 12px 8px 0;
+      border-bottom: 1px solid #2a2d33;
+      vertical-align: top;
+    }
+    .cl-table td:first-child { white-space: nowrap; }
     .cl-entry h3 {
       color: #888;
       font-size: 11px;
@@ -769,9 +788,51 @@
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>
         <ul>
+          <li><a href="#cl-2026-10-29">October 29, 2026</a></li>
+          <li><a href="#cl-2026-10-28">October 28, 2026</a></li>
           <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
         </ul>
       </div>
+
+      <section class="cl-entry" id="cl-2026-10-29">
+        <h2><a href="#cl-2026-10-29">October 29, 2026</a></h2>
+
+        <h3>New columns</h3>
+        <table class="cl-table">
+          <thead><tr><th>Table</th><th>Columns added</th></tr></thead>
+          <tbody>
+            <tr><td><a onclick="filterTable('leases')"><code>leases</code></a></td><td><code>ins_coverage_type</code>, <code>ins_private_policy_expiration_date</code>, <code>is_imported</code>, <code>billing_cycle</code>, <code>is_tax_exempt</code>, <code>documents_combined_status</code>, <code>lead_id</code>, <code>transferred_to_lease_id</code>, <code>is_gate_lockout_needed</code>, <code>active_delinquency_exemption_id</code>, <code>balance_credit</code>, <code>effective_rate</code>, <code>is_eligible_for_rent_increase</code></td></tr>
+            <tr><td><a onclick="filterTable('spaces_historical')"><code>spaces_historical</code></a></td><td><code>ins_coverage_type</code>, <code>ins_private_policy_expiration_date</code></td></tr>
+            <tr><td><a onclick="filterTable('facilities')"><code>facilities</code></a></td><td><code>city</code>, <code>state</code>, <code>zip</code>, <code>country</code>, <code>facility_email</code>, <code>website_link</code>, <code>currency</code>, <code>is_enabled</code></td></tr>
+            <tr><td><a onclick="filterTable('book_entries')"><code>book_entries</code></a></td><td><code>is_manual</code>, <code>accrual_end</code>, <code>fee_id</code>, <code>fee_name</code>, <code>product_id</code>, <code>quantity</code>, <code>ins_coverage_level</code>, <code>initial_book_entry_id</code></td></tr>
+            <tr><td><a onclick="filterTable('payments')"><code>payments</code></a></td><td><code>item_type</code>, <code>failed_reason</code>, <code>original_payment_id</code>, <code>per_authorization_fee</code>, <code>volume_fee</code>, <code>dispute_or_return_fee</code></td></tr>
+            <tr><td><a onclick="filterTable('rate_changes')"><code>rate_changes</code></a></td><td><code>rent_change_notice_date</code>, <code>is_rent_change_notice_sent</code>, <code>rent_change_manager_id</code>, <code>rent_change_manager_name</code></td></tr>
+            <tr><td><a onclick="filterTable('leads')"><code>leads</code></a></td><td><code>last_activity_at</code>, <code>rate_type</code>, <code>custom_rate</code>, <code>discount_strategy_ids</code>, <code>discount_strategy_names</code>, <code>ins_premium</code>, <code>ins_coverage_level</code></td></tr>
+            <tr><td><a onclick="filterTable('calls')"><code>calls</code></a></td><td><code>summary</code></td></tr>
+            <tr><td><a onclick="filterTable('emails')"><code>emails</code></a></td><td><code>is_system</code>, <code>workflow_run_id</code>, <code>workflow_name</code>, <code>bounce_type</code></td></tr>
+            <tr><td><a onclick="filterTable('sms')"><code>sms</code></a></td><td><code>is_system</code>, <code>workflow_run_id</code>, <code>workflow_name</code>, <code>service_phone_number</code></td></tr>
+            <tr><td><a onclick="filterTable('tasks')"><code>tasks</code></a></td><td><code>schedule</code>, <code>unit_id</code>, <code>contact_id</code>, <code>workflow_run_id</code>, <code>workflow_name</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="cl-entry" id="cl-2026-10-28">
+        <h2><a href="#cl-2026-10-28">October 28, 2026</a></h2>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><a onclick="filterTable('delinquency_exemptions')"><code>delinquency_exemptions</code></a>: one row per active delinquency exemption &mdash; a manager-set hold that pauses some or all of a delinquent lease&rsquo;s collections steps until an end date. Removed, replaced and expired exemptions are not included.</li>
+          <li><a onclick="filterTable('marketing_numbers')"><code>marketing_numbers</code></a>: one row per marketing (external or tracking) phone number and the facility it is assigned to. Joins to <code>calls</code> on <code>calls.forwarded_from = number</code> within the same <code>org_id</code>.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li><a onclick="filterTable('calls')"><code>calls</code></a>: <code>campaign_label</code>.</li>
+          <li><a onclick="filterTable('call_child')"><code>call_child</code></a>: <code>has_recording</code>.</li>
+          <li><a onclick="filterTable('facilities')"><code>facilities</code></a>: <code>billing_cycle</code> and <code>billing_option</code>.</li>
+          <li><a onclick="filterTable('units')"><code>units</code></a>: <code>unit_description</code> and <code>updated_at</code>.</li>
+        </ul>
+      </section>
 
       <section class="cl-entry" id="cl-2026-10-23">
         <h2><a href="#cl-2026-10-23">October 23, 2026</a></h2>
