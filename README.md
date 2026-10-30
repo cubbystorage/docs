@@ -69,3 +69,12 @@ so the CSV is now committed here instead. To publish a schema change:
 
 The page's CSV parser reads one line per row, so cells must not contain line
 breaks.
+
+### Change log
+
+The **Change log** view in `data-dictionary/index.html` (the `#changelog-wrap`
+panel) lists warehouse changes, newest first, on a single page. To record a
+change, add a `<section class="cl-entry" id="cl-YYYY-MM-DD">` above the newest
+entry and a matching link at the top of the "Jump to" list; the HTML comment at
+the top of the panel has the details. Links to `#changelog` or `#cl-YYYY-MM-DD`
+open the page on that view and date.

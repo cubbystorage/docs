@@ -330,6 +330,69 @@
       font-size: 12.5px;
     }
 
+    /* ── Change log view ── */
+    .cl-wrap {
+      padding: 0 40px 60px;
+      max-width: 820px;
+    }
+    .cl-wrap p, .cl-wrap ul {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 0 0 14px;
+    }
+    .cl-wrap ul { padding-left: 20px; }
+    .cl-wrap li { margin-bottom: 6px; }
+    .cl-wrap strong { color: #ddd; }
+    .cl-wrap code {
+      background: rgba(0,0,0,.3);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #e6db74;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      overflow-wrap: anywhere;
+    }
+    .cl-wrap a { color: #66d9ef; text-decoration: none; cursor: pointer; }
+    .cl-wrap a:hover { text-decoration: underline; }
+    /* Dates with changes, newest first; each jumps to its entry below */
+    .cl-dates {
+      background: #22252b;
+      border: 1px solid #3a3d42;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 0 0 30px;
+    }
+    .cl-dates-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .cl-dates ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+    .cl-dates li { margin: 0; }
+    .cl-dates a { color: #9aa4b2; font-size: 13.5px; }
+    .cl-dates a:hover { color: #66d9ef; text-decoration: none; }
+    .cl-entry {
+      border-top: 1px solid #2a2d33;
+      padding-top: 26px;
+      margin-top: 30px;
+      scroll-margin-top: 16px;
+    }
+    .cl-entry:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .cl-entry h2 { color: #fff; font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+    .cl-entry h2 a { color: inherit; }
+    .cl-entry h3 {
+      color: #888;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin: 18px 0 8px;
+    }
+
     /* ── Sample queries view ── */
     .q-wrap {
       padding: 0 40px 60px;
@@ -588,6 +651,7 @@
       <a href="../storefront-css/" class="toc-link">Storefront CSS</a>
       <hr class="toc-divider">
       <a id="nav-intro" class="toc-link" onclick="showIntro();return false;">Introduction</a>
+      <a id="nav-changelog" class="toc-link" href="#changelog" onclick="showChangelog();return false;">Change log</a>
       <a id="nav-erd" class="toc-link" onclick="showDiagram();return false;">Schema Diagram</a>
       <a id="nav-queries" class="toc-link" onclick="showQueries();return false;">Sample queries</a>
       <a class="toc-section-label toc-accordion" id="tables-toggle" onclick="toggleTables();return false;">Tables <span class="acc-caret">&#9656;</span></a>
@@ -690,7 +754,60 @@
         Open <strong>Tables</strong> to browse every table and column,
         <strong>Schema Diagram</strong> to explore how the tables relate, or
         <strong>Sample queries</strong> for worked examples you can copy and run.
+        <strong>Change log</strong> lists what has changed in the warehouse, newest first.
       </p>
+    </div>
+
+    <div class="cl-wrap" id="changelog-wrap" style="display:none">
+      <!--
+        To add an entry: add a <section class="cl-entry" id="cl-YYYY-MM-DD"> ABOVE the newest one,
+        and a matching <li> at the TOP of the .cl-dates list. If a date already has an entry, add
+        to it instead. Group items under "New tables", "New columns", "Deprecated", "Removed" and
+        "Description changes" (omit empty groups). Link table names with filterTable('name').
+      -->
+
+      <div class="cl-dates">
+        <div class="cl-dates-label">Jump to</div>
+        <ul>
+          <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
+        </ul>
+      </div>
+
+      <section class="cl-entry" id="cl-2026-10-23">
+        <h2><a href="#cl-2026-10-23">October 23, 2026</a></h2>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><a onclick="filterTable('manager_roles')"><code>manager_roles</code></a>: one row per role a manager holds at a facility or across the organization, with that role&rsquo;s permissions.</li>
+          <li><a onclick="filterTable('pricing_group_discount_strategies')"><code>pricing_group_discount_strategies</code></a>: one row per discount strategy assigned to a pricing group.</li>
+          <li><a onclick="filterTable('rate_change_plans')"><code>rate_change_plans</code></a>: one row per ECRI rate-increase plan (e.g. &ldquo;6 - 6 - 6 plan&rdquo;), with its increase intervals. Joins to <code>leases.rate_change_plan_id</code>.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li>
+            <a onclick="filterTable('leases')"><code>leases</code></a>: the lease&rsquo;s rate plan
+            (<code>rate_change_plan_id</code>, <code>rate_change_plan_name</code>) and its intervals
+            (<code>rate_change_plan_first_change_months</code>, <code>rate_change_plan_subsequent_change_months</code>);
+            the facility&rsquo;s default plan (<code>facility_rate_change_plan_name</code>);
+            <code>ecri_stage</code> (the app&rsquo;s own READY / IN_REVIEW / SCHEDULED / SNOOZED / SET);
+            <code>estimated_next_rent_change_date</code>; and <code>rent_change_snoozed_until_date</code>.
+          </li>
+          <li><a onclick="filterTable('managers')"><code>managers</code></a>: <code>manager_persona</code> and <code>manager_status</code>.</li>
+          <li><a onclick="filterTable('leads')"><code>leads</code></a>: <code>created_by_manager_id</code> and <code>converted_by_manager_id</code>, which join to <code>managers.manager_id</code>.</li>
+          <li><a onclick="filterTable('pricing_group')"><code>pricing_group</code></a>: <code>value_pricing_strategy_name</code> (NULL when value pricing is off).</li>
+        </ul>
+
+        <h3>Deprecated</h3>
+        <ul>
+          <li><code>managers.manager_permissions</code> was always NULL. Role permissions are now in <code>manager_roles.permissions</code>.</li>
+        </ul>
+
+        <h3>Description changes</h3>
+        <ul>
+          <li><code>unit_turnover.pg_target_rate</code> and <code>rate_changes.target_rate</code> now state that they hold the pricing group&rsquo;s <strong>current</strong> target, not its value at the time of the event.</li>
+        </ul>
+      </section>
     </div>
 
     <div class="q-wrap" id="queries-wrap" style="display:none">
@@ -1868,6 +1985,7 @@ loadData();
 var DICT_SUB  = document.getElementById('page-sub').innerHTML;
 var ERD_SUB   = 'Entity-relationship map of the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> dataset &mdash; every table, its columns, and the foreign keys that join them. Drag a table to rearrange, scroll to zoom, drag the canvas to pan, hover a table to highlight its relationships, and search to locate one.';
 var INTRO_SUB = 'An overview of the Cubby data warehouse and how often it refreshes.';
+var CHANGELOG_SUB = 'What has changed in the data warehouse, newest first.';
 var QUERIES_SUB = 'Worked examples you can copy, adjust, and run against the <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;color:#e6db74;font-family:monospace">analytics</code> dataset &mdash; occupancy, leasing velocity, marketing attribution, tenure, collections, and revenue management.';
 var __erdInit = false;
 
@@ -1876,6 +1994,7 @@ function clearNav() {
   document.getElementById('nav-erd').classList.remove('active');
   document.getElementById('nav-intro').classList.remove('active');
   document.getElementById('nav-queries').classList.remove('active');
+  document.getElementById('nav-changelog').classList.remove('active');
   document.getElementById('tables-toggle').classList.remove('active');
 }
 
@@ -1884,6 +2003,7 @@ function showDiagram() {
   document.getElementById('erd-wrap').style.display     = 'block';
   document.getElementById('intro-wrap').style.display   = 'none';
   document.getElementById('queries-wrap').style.display = 'none';
+  document.getElementById('changelog-wrap').style.display = 'none';
   document.getElementById('controls').style.display     = 'none';
   document.getElementById('status').style.display       = 'none';
   document.getElementById('table-wrap').style.display   = 'none';
@@ -1900,6 +2020,7 @@ function showDict() {
   document.getElementById('erd-wrap').style.display     = 'none';
   document.getElementById('intro-wrap').style.display   = 'none';
   document.getElementById('queries-wrap').style.display = 'none';
+  document.getElementById('changelog-wrap').style.display = 'none';
   if (dataLoaded) {
     document.getElementById('status').style.display     = 'none';
     document.getElementById('controls').style.display   = 'flex';
@@ -1921,11 +2042,27 @@ function showIntro() {
   document.getElementById('controls').style.display     = 'none';
   document.getElementById('status').style.display       = 'none';
   document.getElementById('queries-wrap').style.display = 'none';
+  document.getElementById('changelog-wrap').style.display = 'none';
   document.getElementById('intro-wrap').style.display   = 'block';
   clearNav();
   document.getElementById('nav-intro').classList.add('active');
   document.getElementById('page-title').textContent = 'Introduction';
   document.getElementById('page-sub').innerHTML = INTRO_SUB;
+  window.scrollTo(0, 0);
+}
+function showChangelog() {
+  currentView = 'changelog';
+  document.getElementById('erd-wrap').style.display     = 'none';
+  document.getElementById('table-wrap').style.display   = 'none';
+  document.getElementById('controls').style.display     = 'none';
+  document.getElementById('status').style.display       = 'none';
+  document.getElementById('intro-wrap').style.display   = 'none';
+  document.getElementById('queries-wrap').style.display = 'none';
+  document.getElementById('changelog-wrap').style.display = 'block';
+  clearNav();
+  document.getElementById('nav-changelog').classList.add('active');
+  document.getElementById('page-title').textContent = 'Change log';
+  document.getElementById('page-sub').innerHTML = CHANGELOG_SUB;
   window.scrollTo(0, 0);
 }
 function showQueries() {
@@ -1935,6 +2072,7 @@ function showQueries() {
   document.getElementById('controls').style.display     = 'none';
   document.getElementById('status').style.display       = 'none';
   document.getElementById('intro-wrap').style.display   = 'none';
+  document.getElementById('changelog-wrap').style.display = 'none';
   document.getElementById('queries-wrap').style.display = 'block';
   clearNav();
   document.getElementById('nav-queries').classList.add('active');
@@ -2024,12 +2162,16 @@ function fallbackCopy(text, done) {
 
 initQueryBlocks();
 
-// Default landing view is the Introduction, unless a #q-… anchor was shared.
+// Default landing view is the Introduction, unless a #q-… or #cl-… anchor was shared.
 var __hash = window.location.hash;
 if (__hash === '#sample-queries' || __hash.indexOf('#q-') === 0) {
   showQueries();
   var __target = document.querySelector(__hash);
   if (__target) __target.scrollIntoView();
+} else if (__hash === '#changelog' || __hash.indexOf('#cl-') === 0) {
+  showChangelog();
+  var __clTarget = __hash.indexOf('#cl-') === 0 && document.querySelector(__hash);
+  if (__clTarget) __clTarget.scrollIntoView();
 } else {
   showIntro();
 }
