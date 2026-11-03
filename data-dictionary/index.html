@@ -788,11 +788,36 @@
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>
         <ul>
+          <li><a href="#cl-2026-11-02">November 2, 2026</a></li>
           <li><a href="#cl-2026-10-29">October 29, 2026</a></li>
           <li><a href="#cl-2026-10-28">October 28, 2026</a></li>
           <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
         </ul>
       </div>
+
+      <section class="cl-entry" id="cl-2026-11-02">
+        <h2><a href="#cl-2026-11-02">November 2, 2026</a></h2>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><code>insurance_policies</code>: one row per insurance or protection-plan policy on a lease, current and past. A lease gets a new policy each time its coverage level changes, so consecutive rows show enrollments, upgrades and downgrades over time.</li>
+          <li><code>insurance_coverage_changes</code>: one row per coverage change scheduled on a lease &mdash; a new coverage level, a switch to the tenant&rsquo;s own insurance, or opting out. Each change is applied on the lease&rsquo;s next rent date, when the matching <code>insurance_policies</code> row starts.</li>
+          <li><code>payment_requests</code>: one row per request to waive a charge, write off or refund a balance, or refund a payment, with who requested it, who approved or rejected it, and why.</li>
+          <li><code>payouts</code>: one row per attempted bank payout of a facility&rsquo;s Cubby Payments balance, including failed and skipped attempts. Only organizations on Cubby Payments have rows.</li>
+          <li><code>lien_notices</code>: one row per lien notice sent by email, SMS or physical mail, with USPS mailing and tracking details for mailed notices. Recipient names and mailing addresses are not included.</li>
+          <li><code>retail_sales</code>: one row per merchandise line sold or returned at a facility (boxes, locks, packing supplies), with revenue and cost of goods for margin reporting.</li>
+          <li><code>facility_products</code>: one row per product stocked at a facility, with the facility&rsquo;s price and cost and the current stock on hand.</li>
+          <li><code>door_locks</code>: one row per lock in the organization&rsquo;s lock inventory, with its current status, unit and maintenance flag. Lock combinations are not included.</li>
+          <li><code>door_lock_history</code>: one row per change to a lock, with its status, facility and unit before and after the change and the manager who made it. Lock combinations are not included.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li><a onclick="filterTable('unit_walkthrough')"><code>unit_walkthrough</code></a>: <code>walkthrough_id</code>, <code>walkthrough_date</code>, <code>walkthrough_completed_at</code>, <code>viewed_by_manager_id</code> and <code>viewed_by_manager_name</code>.</li>
+          <li><a onclick="filterTable('payments')"><code>payments</code></a>: <code>payout_id</code>, which joins to <code>payouts</code> so bank deposits can be matched to the payments behind them.</li>
+          <li><a onclick="filterTable('lease_auctions')"><code>lease_auctions</code></a>: <code>lease_auction_id</code>.</li>
+        </ul>
+      </section>
 
       <section class="cl-entry" id="cl-2026-10-29">
         <h2><a href="#cl-2026-10-29">October 29, 2026</a></h2>
