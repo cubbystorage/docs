@@ -781,19 +781,49 @@
       <!--
         To add an entry: add a <section class="cl-entry" id="cl-YYYY-MM-DD"> ABOVE the newest one,
         and a matching <li> at the TOP of the .cl-dates list. If a date already has an entry, add
-        to it instead. Group items under "New tables", "New columns", "Deprecated", "Removed" and
-        "Description changes" (omit empty groups). Link table names with filterTable('name').
+        to it instead. Group items under "New tables", "New columns", "Changed", "Deprecated", "Removed"
+        and "Description changes" (omit empty groups). Link table names with filterTable('name').
       -->
 
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>
         <ul>
+          <li><a href="#cl-2026-11-03">November 3, 2026</a></li>
           <li><a href="#cl-2026-11-02">November 2, 2026</a></li>
           <li><a href="#cl-2026-10-29">October 29, 2026</a></li>
           <li><a href="#cl-2026-10-28">October 28, 2026</a></li>
           <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
         </ul>
       </div>
+
+      <section class="cl-entry" id="cl-2026-11-03">
+        <h2><a href="#cl-2026-11-03">November 3, 2026</a></h2>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><code>sms_conversations</code>: one row per tenant or lead SMS conversation, with whether it is resolved, whether a person has taken it over from the AI agent, and who last resolved it.</li>
+          <li><code>sms_conversation_resolutions</code>: one row each time an SMS conversation was marked resolved or reopened, with who did it, so resolutions by the AI agent can be compared with resolutions by staff.</li>
+          <li><code>workflow_runs</code>: one row per run of an automated workflow (the texts, emails and tasks triggered by an overdue lease, a new lead or reservation, or a move-in or move-out), with the lease or lead that started it and how far it got. Emails, SMS and tasks sent by a run carry its <code>workflow_run_id</code>.</li>
+          <li><code>ai_call_outcomes</code>: one row per call answered by the AI voice agent, with what it got done: leads and leases created, move-outs scheduled, and handoffs to staff or the payment line.</li>
+          <li><code>call_center_reservations</code>: one row each time the call-center queue offered a call to an agent, with the queue, the agent, whether they accepted, and any transfer. A call that rings several agents has several rows.</li>
+          <li><code>sparefoot_reservations</code>: one row per reservation booked through the SpareFoot marketplace, linked to the lead it created. Renter contact details are not included; join to <code>leads</code> for them.</li>
+          <li><code>value_pricing_strategy_tiers</code>: one row per tier (LOWEST, MEDIUM, HIGHEST) of each value pricing strategy, with the tier&rsquo;s name, price increase and listed benefits.</li>
+          <li><code>rate_recommendations</code>: one row per unit type (pricing group) per day with Cubby&rsquo;s street-rate recommendation for that day, to compare with the rate set in <code>pricing_group</code>.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li><a onclick="filterTable('leases')"><code>leases</code></a>: <code>ecri_recommended_rate</code> and <code>ecri_recommended_at</code> &mdash; Cubby&rsquo;s current recommended rent for the lease&rsquo;s next ECRI increase, and when it was made. Only the latest recommendation is kept.</li>
+          <li><a onclick="filterTable('pricing_group')"><code>pricing_group</code></a>: <code>value_pricing_strategy_id</code>, which joins to <code>value_pricing_strategy_tiers</code>.</li>
+          <li><a onclick="filterTable('stor_track')"><code>stor_track</code></a>: <code>year_built</code>, <code>total_sqft</code> and <code>rentable_sqft</code>.</li>
+          <li><a onclick="filterTable('call_agent_availability')"><code>call_agent_availability</code></a>: <code>time_zone</code>, the time zone <code>day</code> is bucketed in.</li>
+        </ul>
+
+        <h3>Changed</h3>
+        <ul>
+          <li><code>call_agent_availability.day</code> is now bucketed in the organization&rsquo;s call-center time zone instead of America/New_York. Organizations without a call-center time zone are unchanged.</li>
+        </ul>
+      </section>
 
       <section class="cl-entry" id="cl-2026-11-02">
         <h2><a href="#cl-2026-11-02">November 2, 2026</a></h2>
