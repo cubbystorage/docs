@@ -1701,10 +1701,12 @@ standardRate 33700 at a DAYS_28 facility, shown as a weekly rate:
 <a href="#facilities-search">Facilities Search</a>. The recurring amounts set up at a facility are expressed per one facility
 cycle: pricing group rates, coverage level premiums, and a lease's rent and scheduled rent change. At a <code>DAYS_28</code>
 facility a <code>standardRate</code> of <code>33700</code> is $337.00 per 28 days.</p>
-<p>Each lease also has a <code>billingCycle</code> on <a href="#leases-search">Leases Search</a>: <code>WEEKLY</code>, <code>BI_WEEKLY</code>, <code>DAYS_28</code> or
-<code>MONTHLY</code>. It is the cycle the customer is charged on. Most leases are on their facility's cycle. A lease can be on
-another one when it was imported from a previous system, or when the customer chose a different cycle at move-in at a
-facility whose <code>billingOption</code> is <code>FLEXIBLE</code>.</p>
+<p>Each lease also has a <code>billingCycle</code> on <a href="#leases-search">Leases Search</a>: <code>WEEKLY</code>, <code>BI_WEEKLY</code>, <code>DAYS_28</code>, <code>MONTHLY</code>,
+<code>QUARTERLY</code>, <code>BI_ANNUAL</code> or <code>ANNUAL</code>. It is the cycle the customer is charged on. Most leases are on their
+facility's cycle. A lease can be on another one when it was imported from a previous system, or when the customer chose
+a different cycle at move-in at a facility whose <code>billingOption</code> is <code>FLEXIBLE</code>. <code>QUARTERLY</code>, <code>BI_ANNUAL</code> and <code>ANNUAL</code>
+are lease cycles only: no facility bills on them, a lease can be put on one only at a facility where Cubby has turned
+them on and where its pricing group allows it, and discounts don't apply to them.</p>
 <p>To express a facility-cycle amount in another cycle, multiply by the cycles per year of the cycle it is in, divide by
 those of the cycle you want, and round half up to the cent:</p>
 <table>
@@ -1715,6 +1717,18 @@ those of the cycle you want, and round half up to the cent:</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>ANNUAL</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>BI_ANNUAL</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>QUARTERLY</code></td>
+<td>4</td>
+</tr>
 <tr>
 <td><code>MONTHLY</code></td>
 <td>12</td>
@@ -2206,6 +2220,7 @@ Search, to read the amounts these endpoints check.</p>
 <h1 id="changelog">Changelog</h1>
 <h2 id="october-2026">October 2026</h2>
 <ul>
+<li><strong>Leases: quarterly, bi-annual and annual billing cycles</strong> — <code>billingCycle</code> on lease objects from <a href="#leases-search">Leases Search</a> and on the <a href="#rent-roll-report">Rent Roll Report</a> can now also be <code>QUARTERLY</code>, <code>BI_ANNUAL</code> or <code>ANNUAL</code>, for a lease charged every 3, 6 or 12 months. A lease can be put on one of these cycles at move-in, by a manager or by a customer on the storefront, at a facility where Cubby has turned them on and where its pricing group allows it; a facility's own <code>billingCycle</code> stays <code>MONTHLY</code> or <code>DAYS_28</code>. They convert like the other cycles, at 4, 2 and 1 cycles per year, so a <code>monthlyRentalAmount</code> of <code>10000</code> at a <code>MONTHLY</code> facility is charged as <code>30000</code> per quarter. At a <code>FIRST_OF_MONTH</code> facility the move-in period is prorated to the 1st against one month of rent before the first full period starts. The <code>description</code> of a prepaid charge from <code>POST /v1/leases/preview-charges</code> reads <code>&quot;$370.00 (period rate) x 2 periods&quot;</code> on these leases, as on weekly ones. Discounts cannot be applied to leases on these cycles. See <a href="#billing-cycles">Billing Cycles</a>.</li>
 <li><strong>Checkout: a card is saved for AutoPay only after it is charged</strong> — With <code>enableAutoPay</code>, <code>POST /v1/leases/checkout</code> saved the card to the customer before charging it. A card the bank declined while it was being saved could then not be charged, so the whole checkout failed although the documentation says that saving never affects the charge. The card is now charged first and saved afterwards. If the save fails, the move-in still completes, with <code>paymentMethodId</code> <code>null</code> and <code>autoPayEnabled</code> <code>false</code>. <code>ACH</code> and <code>ACSS</code> bank accounts are still saved before the debit, because Stripe cannot save a bank account after it has been debited. A declined payment still saves nothing. Requests without <code>enableAutoPay</code> are unchanged. See <a href="#checkout">Checkout</a>.</li>
 <li><strong>Leads Create: the customer must belong to the organization</strong> — <code>POST /v1/leads/create</code> now rejects a <code>customerId</code> of a customer in another organization than <code>organizationId</code> with a <code>400</code> and the error <code>Customer does not belong to the specified organization</code>. Previously the lead was created for that customer. Requests that create a new customer from a <code>customer</code> object are unchanged. See <a href="#leads-create">Leads Create</a>.</li>
 <li><strong>Auctions: settle and complete</strong> — Two new endpoints set the <code>NO_BIDS</code>, <code>SOLD</code> and <code>COMPLETE</code> statuses that <code>POST /v1/auctions/search</code> reports. <code>POST /v1/auctions/settle</code> records the outcome of an auction for a lease. With <code>outcome</code> <code>UNSOLD</code>, the auctioned lease moves to <code>NO_BIDS</code>. With <code>outcome</code> <code>SOLD</code>, it records the winning bidder (an existing customer by <code>winningBidderId</code>, or a new one from <code>winningBidder</code>) and <code>bidAmount</code>, charges the bid and, unless <code>deposit.collect</code> is <code>false</code>, the cleaning deposit set on the auction's lease configuration, and returns the <code>balance</code> the bidder owes with the subtotal and tax of the bid and of the deposit. <code>POST /v1/auctions/complete</code> closes a sale that was paid in Cubby and settles the cleaning deposit by <code>depositAction</code>: <code>REFUND</code> returns it to the bidder, and <code>RETAIN</code> keeps it as facility income. The API does not record auction payments, so completing a sale that is still <code>SOLD</code> is rejected with a <code>403</code>. Completion is also refused while a refund of the deposit is pending, because the auction completes by itself once the refund settles. Auctioned leases now also carry <code>remainingBid</code> when an online auction platform kept part of the bid. Available to the <code>Manager</code> role.</li>
@@ -2912,12 +2927,14 @@ expressed in, and the cycle new leases are created on unless another one is chos
 <code>billingCycle</code>. At a <code>FLEXIBLE</code> facility, a customer can choose another cycle at move-in where the pricing group
 allows it. It does not tell you the cycle of an existing lease: a lease imported from a previous system keeps its
 original cycle under either option, so read <code>billingCycle</code> on each lease from <a href="#leases-search">Leases Search</a>.</li>
-<li><code>leaseAnniversary</code> - when leases on the <code>MONTHLY</code> cycle are charged. <code>START_DATE</code>: on the day of the month the lease
-started. <code>FIRST_OF_MONTH</code>: on the 1st, with the first period prorated to the end of the move-in month. Leases on
-a <code>WEEKLY</code>, <code>BI_WEEKLY</code> or <code>DAYS_28</code> cycle are charged every cycle from their move-in date, whatever this setting.</li>
-<li><code>jumpDay</code> - a day of the month, used when <code>leaseAnniversary</code> is <code>FIRST_OF_MONTH</code>. A monthly lease that moves in on
-or after this day pays the prorated rest of the move-in month plus the following full month at move-in. One that
-moves in before it pays the prorated rest of the month only. <code>32</code> turns this off.</li>
+<li><code>leaseAnniversary</code> - when leases on a <code>MONTHLY</code>, <code>QUARTERLY</code>, <code>BI_ANNUAL</code> or <code>ANNUAL</code> cycle are charged.
+<code>START_DATE</code>: on the day of the month the lease started. <code>FIRST_OF_MONTH</code>: on the 1st, with the first period
+prorated to the end of the move-in month. A <code>QUARTERLY</code>, <code>BI_ANNUAL</code> or <code>ANNUAL</code> lease prorates that first period
+against one month of rent too, then is charged every 3, 6 or 12 months from the 1st. Leases on a <code>WEEKLY</code>,
+<code>BI_WEEKLY</code> or <code>DAYS_28</code> cycle are charged every cycle from their move-in date, whatever this setting.</li>
+<li><code>jumpDay</code> - a day of the month, used when <code>leaseAnniversary</code> is <code>FIRST_OF_MONTH</code>. A lease that moves in on or after
+this day pays the prorated rest of the move-in month plus its first full period at move-in. One that moves in before
+it pays the prorated rest of the month only. <code>32</code> turns this off.</li>
 </ul>
 <h3 id="required-properties-10">Required Properties</h3>
 <p>Exactly one of the following must be provided:</p>
@@ -4325,8 +4342,9 @@ re-finding them with <a href="#customers-search">Customers Search</a>.</p>
 <ul>
 <li><code>createdAt</code> - the date and time the lease was created, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
 <li><code>updatedAt</code> - the date and time the lease was last updated, as an ISO-8601 UTC timestamp (e.g. <code>2024-03-01T12:00:00.000000Z</code>)</li>
-<li><code>billingCycle</code> - the cycle the lease is charged on: <code>WEEKLY</code>, <code>BI_WEEKLY</code>, <code>DAYS_28</code> or <code>MONTHLY</code>. Usually the same
-as the facility's <code>billingCycle</code>, but it can differ. See <a href="#billing-cycles">Billing Cycles</a></li>
+<li><code>billingCycle</code> - the cycle the lease is charged on: <code>WEEKLY</code>, <code>BI_WEEKLY</code>, <code>DAYS_28</code>, <code>MONTHLY</code>, <code>QUARTERLY</code>,
+<code>BI_ANNUAL</code> or <code>ANNUAL</code>. Usually the same as the facility's <code>billingCycle</code>, but it can differ. See
+<a href="#billing-cycles">Billing Cycles</a></li>
 <li><code>monthlyRentalAmount</code> - the lease's rent in cents, per one billing cycle of the lease's <strong>facility</strong>, not of the
 lease. Despite the name, it is a 28-day amount at a <code>DAYS_28</code> facility. When the lease's <code>billingCycle</code> differs from
 its facility's, convert it as described in <a href="#billing-cycles">Billing Cycles</a> to get the rent the customer is charged
@@ -8873,6 +8891,9 @@ lease's cycle; the two differ only for a lease on a different cycle than its fac
 <li><code>BI_WEEKLY</code> - billed every two weeks</li>
 <li><code>DAYS_28</code> - billed every 28 days</li>
 <li><code>MONTHLY</code> - billed monthly</li>
+<li><code>QUARTERLY</code> - billed every three months</li>
+<li><code>BI_ANNUAL</code> - billed every six months</li>
+<li><code>ANNUAL</code> - billed yearly</li>
 </ul>
 </li>
 <li><code>moveInDate</code> - the move-in date for the unit</li>
