@@ -788,6 +788,7 @@
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>
         <ul>
+          <li><a href="#cl-2026-11-06">November 6, 2026</a></li>
           <li><a href="#cl-2026-11-03">November 3, 2026</a></li>
           <li><a href="#cl-2026-11-02">November 2, 2026</a></li>
           <li><a href="#cl-2026-10-29">October 29, 2026</a></li>
@@ -795,6 +796,44 @@
           <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
         </ul>
       </div>
+
+      <section class="cl-entry" id="cl-2026-11-06">
+        <h2><a href="#cl-2026-11-06">November 6, 2026</a></h2>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><code>lease_compliance</code>: one row per lease per required document group (lease agreement, coverage, identity, vehicle) or added document, with its compliance status, as shown in the app.</li>
+          <li><code>payment_methods</code>: one row per saved card or bank account, with type, brand, last four, expiration and whether it pays a lease on autopay. Payment tokens and billing addresses are not included.</li>
+          <li><code>lease_configurations</code>: one row per lease configuration, with its deposit, move-in and payment fees, rent-increase cap, delinquency and lien timeline, and required tenant details.</li>
+          <li><code>coverage_programs</code> and <code>coverage_levels</code>: the organization&rsquo;s insurance and protection-plan programs and their coverage levels, with premiums and payouts.</li>
+          <li><code>facility_schedules</code>: one row per facility schedule per weekday, with open and close times and whether it is the facility&rsquo;s office hours or phone support hours.</li>
+          <li><code>storefront_pricing_groups</code>: one row per unit type shown on a storefront, with its display name, description, booking option and photo count.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <table class="cl-table">
+          <thead><tr><th>Table</th><th>Columns added</th></tr></thead>
+          <tbody>
+            <tr><td><a onclick="filterTable('leases')"><code>leases</code></a></td><td><code>updated_at</code>, <code>pg_id</code>, <code>unit_contents</code>, <code>next_charge_date</code>, <code>autopay_payment_method_id</code>, <code>ins_coverage_level_id</code>, <code>ins_coverage_start_date</code>, <code>ins_private_policy_number</code>, <code>is_ins_autoenrollable</code>, <code>ins_scheduled_coverage_type</code>, <code>ins_scheduled_coverage_level_id</code>, <code>ins_scheduled_coverage_level</code>, <code>ins_scheduled_premium</code>, <code>legacy_id</code></td></tr>
+            <tr><td><a onclick="filterTable('leads')"><code>leads</code></a></td><td><code>message</code>, <code>custom_source</code>, <code>ins_coverage_type</code>, <code>reserved_at</code>, <code>unqualified_at</code>, <code>legacy_id</code></td></tr>
+            <tr><td><a onclick="filterTable('contacts')"><code>contacts</code></a></td><td><code>email_comm_preference_source</code>, <code>sms_comm_preference_source</code>, <code>is_email_undeliverable</code>, <code>is_sms_undeliverable</code>, <code>legacy_id</code></td></tr>
+            <tr><td><a onclick="filterTable('units')"><code>units</code></a></td><td><code>unit_area</code>, <code>unit_volume</code>, <code>walkthrough_order</code>, <code>value_pricing_tier</code>, <code>is_reserved</code>, <code>lease_id</code>, <code>legacy_id</code></td></tr>
+            <tr><td><a onclick="filterTable('pricing_group')"><code>pricing_group</code></a></td><td><code>area</code>, <code>is_vehicle_storage</code>, <code>is_parking</code>, <code>lease_configuration_id</code>, <code>coverage_program_id</code>, <code>value_pricing_status</code>, <code>available_units</code>, <code>reservations_count</code>, <code>is_overbooking_allowed</code>, <code>rentable_units</code></td></tr>
+            <tr><td><a onclick="filterTable('manager_notes')"><code>manager_notes</code></a></td><td><code>manager_note_id</code>, <code>manager_id</code>, <code>contact_id</code>, <code>lease_id</code>, <code>lead_id</code>, <code>unit_id</code>, <code>task_id</code>, <code>pg_id</code>, <code>delinquency_exemption_id</code>, <code>facility_id</code></td></tr>
+            <tr><td><a onclick="filterTable('facilities')"><code>facilities</code></a></td><td><code>payment_service_provider</code></td></tr>
+            <tr><td><a onclick="filterTable('book_entries')"><code>book_entries</code></a></td><td><code>lease_auction_id</code></td></tr>
+            <tr><td><a onclick="filterTable('facility_groups')"><code>facility_groups</code></a></td><td><code>facility_group_id</code></td></tr>
+            <tr><td><a onclick="filterTable('auctions')"><code>auctions</code></a></td><td><code>lease_configuration_id</code></td></tr>
+            <tr><td><a onclick="filterTable('lease_auctions')"><code>lease_auctions</code></a></td><td><code>remaining_bid</code></td></tr>
+            <tr><td><a onclick="filterTable('tasks')"><code>tasks</code></a></td><td><code>updated_at</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Changed</h3>
+        <ul>
+          <li><a onclick="filterTable('manager_notes')"><code>manager_notes</code></a> now has one row per note. Notes not on a contact (for example on a task or unit type) are included, and identical notes are no longer collapsed, so row counts are higher.</li>
+        </ul>
+      </section>
 
       <section class="cl-entry" id="cl-2026-11-03">
         <h2><a href="#cl-2026-11-03">November 3, 2026</a></h2>
