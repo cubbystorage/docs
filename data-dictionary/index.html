@@ -355,6 +355,16 @@
     }
     .cl-wrap a { color: #66d9ef; text-decoration: none; cursor: pointer; }
     .cl-wrap a:hover { text-decoration: underline; }
+    /* Planned changes that have not shipped yet, above the dated entries */
+    .cl-upcoming {
+      border: 1px solid #3a3d42;
+      border-left: 3px solid #e6db74;
+      border-radius: 6px;
+      padding: 14px 18px 4px;
+      margin: 0 0 20px;
+    }
+    .cl-upcoming h2 { color: #fff; font-size: 16px; font-weight: 700; margin: 0 0 8px; }
+    .cl-upcoming h2 a { color: inherit; }
     /* Dates with changes, newest first; each jumps to its entry below */
     .cl-dates {
       background: #22252b;
@@ -773,7 +783,8 @@
         Open <strong>Tables</strong> to browse every table and column,
         <strong>Schema Diagram</strong> to explore how the tables relate, or
         <strong>Sample queries</strong> for worked examples you can copy and run.
-        <strong>Change log</strong> lists what has changed in the warehouse, newest first.
+        <strong>Change log</strong> lists what has changed in the warehouse, newest first, and the notable changes
+        that are coming up.
       </p>
     </div>
 
@@ -784,6 +795,16 @@
         to it instead. Group items under "New tables", "New columns", "Changed", "Deprecated", "Removed"
         and "Description changes" (omit empty groups). Link table names with filterTable('name').
       -->
+
+      <!--
+        Upcoming changes: edit by hand. List notable planned changes that have not shipped yet as <li> items,
+        most important first. When one ships, remove it here and add it to a dated entry below. When nothing is
+        planned, keep the "No upcoming changes" paragraph instead of a list.
+      -->
+      <section class="cl-upcoming" id="cl-upcoming">
+        <h2><a href="#cl-upcoming">Upcoming changes</a></h2>
+        <p>No upcoming changes are announced.</p>
+      </section>
 
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>

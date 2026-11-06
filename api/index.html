@@ -1407,6 +1407,7 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
     <!-- shins; content for the head element from source/includes/_head.md -->
 <meta name="theme-color" content="#F3F7F9">
 <!-- Renderer: Shins v2.6.0 -->
+<!-- Edit by hand. List notable changes that are planned but not yet released, most important first. When one
   </head>
 
   <body data-languages="[]">
@@ -1485,9 +1486,18 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
           </li>
         
           <li>
+            <a href="#upcoming-changes" class="toc-h1 toc-link" data-title="Upcoming Changes">Upcoming Changes</a>
+            
+          </li>
+        
+          <li>
             <a href="#changelog" class="toc-h1 toc-link" data-title="Changelog">Changelog</a>
             
               <ul class="toc-list-h2">
+                
+                  <li>
+                    <a href="#november-2026" class="toc-h2 toc-link" data-title="November 2026">November 2026</a>
+                  </li>
                 
                   <li>
                     <a href="#october-2026" class="toc-h2 toc-link" data-title="October 2026">October 2026</a>
@@ -1889,7 +1899,7 @@ Example via curl:</p>
 </tr>
 <tr>
 <td>Leads</td>
-<td><code>search</code>, <code>create</code>, <code>update</code></td>
+<td><code>search</code>, <code>create</code>, <code>update</code>, <code>get-checkout-link</code></td>
 </tr>
 <tr>
 <td>Leases</td>
@@ -2217,13 +2227,32 @@ Search, to read the amounts these endpoints check.</p>
 </tbody>
 </table>
 <hr>
+<h1 id="upcoming-changes">Upcoming Changes</h1>
+<!-- Edit by hand. List notable changes that are planned but not yet released, most important first. When one
+     ships, remove it here and add it to the Changelog. When nothing is planned, keep the "No upcoming changes"
+     line. -->
+<p>Notable changes that are planned but not yet released. When a change ships, it moves to the <a href="#changelog">Changelog</a>.</p>
+<ul>
+<li><strong>Customer addresses: country and state codes will be validated</strong> — The API will expect <code>country</code> as a two-letter
+ISO 3166-1 code, such as <code>US</code> or <code>CA</code>, and <code>state</code> as the code for a state or province of that country, such as
+<code>TX</code>. Common variants such as <code>USA</code> or <code>United States</code> will be converted to the code for you. Values that can't be
+recognized will be accepted with a warning for a notice period, and then rejected with a <code>400</code>. The date requests
+start to be rejected will be announced here first.</li>
+</ul>
 <h1 id="changelog">Changelog</h1>
+<h2 id="november-2026">November 2026</h2>
+<ul>
+<li><strong>General Ledger reports: <code>leaseId</code> on every line</strong> — Line items of <code>POST /v1/reports/general-ledger/accrual</code> and the <code>details</code> of line items of <code>POST /v1/reports/general-ledger/cash</code> now carry <code>leaseId</code>, the ID of the lease the entry is booked to. On the cash report each line pairs a payment with the charge it paid, and both always belong to the same lease. <code>leaseId</code> is omitted for entries not booked to a lease, such as auction and merchandise sale entries, and on the accrual report the payment method account side of a payment. See <a href="#general-ledger-cash-based-report">General Ledger Cash Based Report</a> and <a href="#general-ledger-accrual-based-report">General Ledger Accrual Based Report</a>.</li>
+<li><strong>Leads: get a checkout link</strong> — New endpoint <code>POST /v1/leads/get-checkout-link</code> returns <code>checkoutLink</code>, the tenant portal link where a customer rents from the quote held on a lead and pays the move-in charges. It is the link Cubby sends in its reservation confirmation, so an integration can now text or read it to the customer itself. The lead must be active and have a pricing group. Available to the <code>Manager</code> role. See <a href="#leads-get-checkout-link">Leads Get Checkout Link</a>.</li>
+<li><strong>Pricing Groups Change Rates: <code>walkInRate</code> field</strong> — <code>POST /v1/pricing-groups/change-rates</code> now accepts an optional <code>walkInRate</code>, in cents. When you send <code>null</code>, the walk-in rate comes from the pricing strategy again, or from the standard rate if the group has no strategy. When you leave it out, the walk-in rate does not change. <code>POST /v1/pricing-groups/search</code> already returns <code>walkInRate</code>. See <a href="#pricing-groups-change-rates">Pricing Groups Change Rates</a>.</li>
+</ul>
 <h2 id="october-2026">October 2026</h2>
 <ul>
 <li><strong>Leases: quarterly, bi-annual and annual billing cycles</strong> — <code>billingCycle</code> on lease objects from <a href="#leases-search">Leases Search</a> and on the <a href="#rent-roll-report">Rent Roll Report</a> can now also be <code>QUARTERLY</code>, <code>BI_ANNUAL</code> or <code>ANNUAL</code>, for a lease charged every 3, 6 or 12 months. A lease can be put on one of these cycles at move-in, by a manager or by a customer on the storefront, at a facility where Cubby has turned them on and where its pricing group allows it; a facility's own <code>billingCycle</code> stays <code>MONTHLY</code> or <code>DAYS_28</code>. They convert like the other cycles, at 4, 2 and 1 cycles per year, so a <code>monthlyRentalAmount</code> of <code>10000</code> at a <code>MONTHLY</code> facility is charged as <code>30000</code> per quarter. At a <code>FIRST_OF_MONTH</code> facility the move-in period is prorated to the 1st against one month of rent before the first full period starts. The <code>description</code> of a prepaid charge from <code>POST /v1/leases/preview-charges</code> reads <code>&quot;$370.00 (period rate) x 2 periods&quot;</code> on these leases, as on weekly ones. Discounts cannot be applied to leases on these cycles. See <a href="#billing-cycles">Billing Cycles</a>.</li>
 <li><strong>Checkout: a card is saved for AutoPay only after it is charged</strong> — With <code>enableAutoPay</code>, <code>POST /v1/leases/checkout</code> saved the card to the customer before charging it. A card the bank declined while it was being saved could then not be charged, so the whole checkout failed although the documentation says that saving never affects the charge. The card is now charged first and saved afterwards. If the save fails, the move-in still completes, with <code>paymentMethodId</code> <code>null</code> and <code>autoPayEnabled</code> <code>false</code>. <code>ACH</code> and <code>ACSS</code> bank accounts are still saved before the debit, because Stripe cannot save a bank account after it has been debited. A declined payment still saves nothing. Requests without <code>enableAutoPay</code> are unchanged. See <a href="#checkout">Checkout</a>.</li>
 <li><strong>Auctions: settle and complete</strong> — Two new endpoints set the <code>NO_BIDS</code>, <code>SOLD</code> and <code>COMPLETE</code> statuses that <code>POST /v1/auctions/search</code> reports. <code>POST /v1/auctions/settle</code> records the outcome of an auction for a lease. With <code>outcome</code> <code>UNSOLD</code>, the auctioned lease moves to <code>NO_BIDS</code>. With <code>outcome</code> <code>SOLD</code>, it records the winning bidder (an existing customer by <code>winningBidderId</code>, or a new one from <code>winningBidder</code>) and <code>bidAmount</code>, charges the bid and, unless <code>deposit.collect</code> is <code>false</code>, the cleaning deposit set on the auction's lease configuration, and returns the <code>balance</code> the bidder owes with the subtotal and tax of the bid and of the deposit. <code>POST /v1/auctions/complete</code> closes a sale that was paid in Cubby and settles the cleaning deposit by <code>depositAction</code>: <code>REFUND</code> returns it to the bidder, and <code>RETAIN</code> keeps it as facility income. The API does not record auction payments, so completing a sale that is still <code>SOLD</code> is rejected with a <code>403</code>. Completion is also refused while a refund of the deposit is pending, because the auction completes by itself once the refund settles. Auctioned leases now also carry <code>remainingBid</code> when an online auction platform kept part of the bid. Available to the <code>Manager</code> role.</li>
-<li><strong>Pricing Groups: assign discount strategies</strong> — New endpoint <code>POST /v1/pricing-groups/update-discount-strategies</code> assigns discount strategies to pricing groups, changes the <code>visibility</code> of an assignment and unassigns strategies. Each entry names a <code>pricingGroupId</code>, the strategies to <code>assign</code>, each with a <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>), and the strategies to <code>unassign</code>. Strategies that the request does not name stay as they are. The whole request is one transaction: when one entry is rejected, nothing changes. An inactive strategy, a strategy of another organization than the pricing group, a missing <code>visibility</code> and a duplicate entry get a <code>400</code>. Unassigning a strategy that is not assigned does nothing, so you can send a request again. The endpoint needs the Manager role. See <a href="#pricing-groups-update-discount-strategies">Pricing Groups Update Discount Strategies</a>.</li>
+<li><strong>Discounts: <code>CALL_CENTER_ONLY</code> visibility</strong> — <code>visibility</code> on <code>pricingGroups[]</code> of <code>POST /v1/discounts/search</code>, and on the <code>discounts</code> expansion of <code>POST /v1/pricing-groups/search</code>, can now be <code>CALL_CENTER_ONLY</code>. A call center only discount is for customers who rent through a call center. Your API key can apply it like any other discount, with no extra role, and <code>availableDiscounts</code> on <code>POST /v1/pricing-groups/search</code> lists it. If your client does not serve call center customers, for example a website or an aggregator, skip these discounts, as you skip <code>CUBBY_ONLY</code> ones. If your client parses <code>visibility</code> as a closed set of values, add the new value.</li>
+<li><strong>Pricing Groups: assign discount strategies</strong> — New endpoint <code>POST /v1/pricing-groups/update-discount-strategies</code> assigns discount strategies to pricing groups, changes the <code>visibility</code> of an assignment and unassigns strategies. Each entry names a <code>pricingGroupId</code>, the strategies to <code>assign</code>, each with a <code>visibility</code> (<code>ALL</code>, <code>CUBBY_ONLY</code> or <code>CALL_CENTER_ONLY</code>), and the strategies to <code>unassign</code>. Strategies that the request does not name stay as they are. The whole request is one transaction: when one entry is rejected, nothing changes. An inactive strategy, a strategy of another organization than the pricing group, a missing <code>visibility</code> and a duplicate entry get a <code>400</code>. Unassigning a strategy that is not assigned does nothing, so you can send a request again. The endpoint needs the Manager role. See <a href="#pricing-groups-update-discount-strategies">Pricing Groups Update Discount Strategies</a>.</li>
 <li><strong>Discount strategies: search, and <code>discountStrategyId</code> on discounts</strong> — New endpoint <code>POST /v1/discount-strategies/search</code> lists an operator's discount strategies. A discount strategy groups discounts, and the operator assigns the strategy to pricing groups. Search by <code>organizationId</code>, <code>pricingGroupId</code> or <code>discountStrategyId</code>. Each strategy returns its discount IDs (<code>discounts</code>) and the <code>pricingGroups</code> it is assigned to, with the <code>visibility</code> of each assignment. <code>pricingGroups</code> lists only pricing groups at the facilities your API key can access, and a strategy with no assignment that the key can see returns an empty list. Discount objects now carry <code>discountStrategyId</code>, the ID of the strategy that holds the discount, on <code>POST /v1/discounts/search</code>, the <code>discounts</code> expansion of <code>POST /v1/pricing-groups/search</code> and the <code>discounts</code> expansion of <code>POST /v1/storefront/pricing-groups/search</code>. See <a href="#discount-strategies-search">Discount Strategies Search</a>.</li>
 <li><strong>Responses can get new fields</strong> — The <a href="#introduction">Introduction</a> now states that responses can get new fields at any time, and that clients must ignore the fields that they do not recognize. This is not a change in behavior.</li>
 <li><strong>Leases: waive charges and issue credits</strong> — Two new endpoints let an integration that approves concessions in its own systems apply them in Cubby without a second approval. <code>POST /v1/leases/waive-charge</code> waives all or part of one charge, with its tax. <code>POST /v1/leases/issue-credit</code> adds a credit to a lease, which Cubby uses on the lease's next charges. Both require you to send back the balance you read: the charge's <code>waivableAmount</code> or the lease's <code>credit</code> balance from <a href="#ledger-search">Ledger Search</a>. If it has changed, the request is rejected with error code <code>8101</code> and nothing is applied. A timed-out waive can therefore be retried without waiving twice. A timed-out credit can too, unless a charge has used up the credit before the retry; <a href="#issue-credit">Issue Credit</a> explains that case. Both need the new <a href="#credits-and-waives">Credits and Waives</a> role. Keys holding all API permissions already have it; no other existing role includes it. See <a href="#waive-charge">Waive Charge</a> and <a href="#issue-credit">Issue Credit</a>.</li>
@@ -3273,6 +3302,7 @@ Present only on an <code>APPROVED</code> group.</li>
       <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_4a2da7d271a&quot;</span>,
       <span class="hljs-attr">&quot;standardRate&quot;</span>: <span class="hljs-number">23000</span>,
       <span class="hljs-attr">&quot;webRate&quot;</span>: <span class="hljs-number">21000</span>,
+      <span class="hljs-attr">&quot;walkInRate&quot;</span>: <span class="hljs-number">22000</span>,
       <span class="hljs-attr">&quot;strikethroughRate&quot;</span>: <span class="hljs-number">25000</span>
     }
   ]
@@ -3287,6 +3317,7 @@ Present only on an <code>APPROVED</code> group.</li>
 <ul>
 <li><code>standardRate</code> - the new standard rate for the pricing group.  Cannot be <code>null</code> if provided.</li>
 <li><code>webRate</code> - the new web rate for the pricing group.  If <code>null</code>, the web rate defaults to the configured pricing strategy, or the pricing group's standard rate.</li>
+<li><code>walkInRate</code> - the new walk-in rate for the pricing group.  If <code>null</code>, the walk-in rate defaults to the configured pricing strategy, or the pricing group's standard rate.</li>
 <li><code>strikethroughRate</code> - the strikethrough price to display on the storefront.  If <code>null</code>, the strikethrough price is disabled.  Even when enabled, the strikethrough price won't display on your storefront when it's less than or equal to the web rate.</li>
 </ul>
 <h3 id="pricing-groups-update-discount-strategies">Pricing Groups Update Discount Strategies</h3>
@@ -3301,7 +3332,7 @@ Present only on an <code>APPROVED</code> group.</li>
       <span class="hljs-attr">&quot;assign&quot;</span>: [
         {
           <span class="hljs-attr">&quot;discountStrategyId&quot;</span>: <span class="hljs-string">&quot;dstrat_4a2da7d271a&quot;</span>,
-          <span class="hljs-attr">&quot;visibility&quot;</span>: <span class="hljs-string">&quot;ALL | CUBBY_ONLY&quot;</span>
+          <span class="hljs-attr">&quot;visibility&quot;</span>: <span class="hljs-string">&quot;ALL | CUBBY_ONLY | CALL_CENTER_ONLY&quot;</span>
         }
       ],
       <span class="hljs-attr">&quot;unassign&quot;</span>: [
@@ -3362,7 +3393,7 @@ gets a <code>403</code>.</p>
 <li><code>assign</code> - the strategies to assign to the pricing group, or whose <code>visibility</code> to change. Each entry has:
 <ul>
 <li><code>discountStrategyId</code> - the ID of the strategy</li>
-<li><code>visibility</code> - required. <code>ALL</code> or <code>CUBBY_ONLY</code>, the <code>visibility</code> that Discounts Search shows for each discount of
+<li><code>visibility</code> - required. <code>ALL</code>, <code>CUBBY_ONLY</code> or <code>CALL_CENTER_ONLY</code>, the <code>visibility</code> that Discounts Search shows for each discount of
 the strategy in the pricing group</li>
 </ul>
 </li>
@@ -3466,7 +3497,7 @@ present in the group's <code>availableTiers</code>)</li>
           {
             <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_4a2da7d271a&quot;</span>,
             <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Standard&quot;</span>,
-            <span class="hljs-attr">&quot;visibility&quot;</span>: <span class="hljs-string">&quot;ALL | CUBBY_ONLY&quot;</span>
+            <span class="hljs-attr">&quot;visibility&quot;</span>: <span class="hljs-string">&quot;ALL | CUBBY_ONLY | CALL_CENTER_ONLY&quot;</span>
           }
         ]
       },
@@ -3484,7 +3515,7 @@ present in the group's <code>availableTiers</code>)</li>
 <p>Each discount carries <code>discountStrategyId</code>, the ID of the discount strategy that holds the discount. A discount
 strategy groups discounts, and an operator assigns the strategy, not the discount, to pricing groups. Use
 <a href="#discount-strategies-search">Discount Strategies Search</a> to get the strategy.</p>
-<p>Each discount also carries a <code>pricingGroups</code> array listing every pricing group it applies to. Each entry has the pricing group's <code>pricingGroupId</code> and <code>name</code>, plus the <code>visibility</code> (<code>ALL</code> or <code>CUBBY_ONLY</code>) configured for that discount in that pricing group — visibility is per discount-and-pricing-group pairing, so the same pricing group may show a different value on a different discount.</p>
+<p>Each discount also carries a <code>pricingGroups</code> array listing every pricing group it applies to. Each entry has the pricing group's <code>pricingGroupId</code> and <code>name</code>, plus the <code>visibility</code> (<code>ALL</code>, <code>CUBBY_ONLY</code> or <code>CALL_CENTER_ONLY</code>) configured for that discount in that pricing group — visibility is per discount-and-pricing-group pairing, so the same pricing group may show a different value on a different discount.</p>
 <h3 id="required-properties-18">Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to discounts in a particular pricing group</li>
@@ -3523,7 +3554,7 @@ strategy groups discounts, and an operator assigns the strategy, not the discoun
           {
             <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_4a2da7d271a&quot;</span>,
             <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Standard&quot;</span>,
-            <span class="hljs-attr">&quot;visibility&quot;</span>: <span class="hljs-string">&quot;ALL | CUBBY_ONLY&quot;</span>
+            <span class="hljs-attr">&quot;visibility&quot;</span>: <span class="hljs-string">&quot;ALL | CUBBY_ONLY | CALL_CENTER_ONLY&quot;</span>
           }
         ]
       },
@@ -3535,7 +3566,7 @@ strategy groups discounts, and an operator assigns the strategy, not the discoun
 <p>Search for discount strategies by organization, pricing group or discount strategy ID. Send exactly one <code>where</code> field.
 A request with none, or with more than one, gets a <code>403</code>. A request without a <code>where</code> object gets a <code>400</code>.</p>
 <p>A discount strategy groups discounts. An operator assigns the strategy, not each discount, to pricing groups. Each
-assignment has a channel <code>visibility</code>, <code>ALL</code> or <code>CUBBY_ONLY</code>, which is the <code>visibility</code> that
+assignment has a channel <code>visibility</code>, <code>ALL</code>, <code>CUBBY_ONLY</code> or <code>CALL_CENTER_ONLY</code>, which is the <code>visibility</code> that
 <a href="#discounts-search">Discounts Search</a> shows for each discount of the strategy in that pricing group. A strategy
 belongs to one organization.</p>
 <p>Each strategy carries:</p>
@@ -3891,6 +3922,7 @@ customer's current state from <code>POST /v1/customers/search</code> first if th
 <li><a href="#leads-search">Leads Search</a></li>
 <li><a href="#leads-create">Leads Create</a></li>
 <li><a href="#leads-update">Leads Update</a></li>
+<li><a href="#leads-get-checkout-link">Leads Get Checkout Link</a></li>
 </ul>
 <h3 id="leads-search">Leads Search</h3>
 <p><code>POST /v1/leads/search</code></p>
@@ -4185,6 +4217,38 @@ re-finding them with <a href="#customers-search">Customers Search</a>.</p>
 <li><code>rateType</code> - the quoted rate type for the lead. One of <code>WALK_IN_RATE</code>, <code>WEB_RATE</code>, or <code>CUSTOM_RATE</code>. Setting <code>CUSTOM_RATE</code> requires the lead to have a facility or pricing group</li>
 <li><code>customRate</code> - the custom monthly rate to quote, in cents. Required in the same request whenever <code>rateType</code> is set to <code>CUSTOM_RATE</code>; ignored otherwise</li>
 </ul>
+<h3 id="leads-get-checkout-link">Leads Get Checkout Link</h3>
+<p><code>POST /v1/leads/get-checkout-link</code></p>
+<blockquote>
+<p>Request Body — leads/get-checkout-link</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+  <span class="hljs-attr">&quot;leadId&quot;</span>: <span class="hljs-string">&quot;lead_4a2da7d271a&quot;</span>
+}
+</code></pre>
+<blockquote>
+<p>Response Body — leads/get-checkout-link</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-number">200</span>,
+  <span class="hljs-attr">&quot;data&quot;</span>: {
+    <span class="hljs-attr">&quot;checkoutLink&quot;</span>: <span class="hljs-string">&quot;https://portal.example.com/checkout/1?token=abc123&quot;</span>
+  }
+}
+</code></pre>
+<p>Generates a link which can be sent to the customer to rent online: they review the quote held on the lead and pay
+the move-in charges in the tenant portal. This is the link Cubby sends in its reservation confirmation
+email and text message. Each request generates a new link, which expires after 30 days.</p>
+<p>The request is rejected with a <code>400</code> when:</p>
+<ul>
+<li>the lead's status is <code>CONVERTED</code>, <code>UNQUALIFIED</code> or <code>DUPLICATE</code></li>
+<li>the lead has no <code>pricingGroupId</code>. Set one with <a href="#leads-update">Leads Update</a>, then request the link again</li>
+<li>the lead's facility is not active on a storefront that has a tenant portal domain</li>
+</ul>
+<h3 id="required-properties-26">Required Properties</h3>
+<ul>
+<li><code>leadId</code> - the ID of the lead to generate a checkout link for</li>
+</ul>
 <h2 id="leases">Leases</h2>
 <ul>
 <li><a href="#leases-search">Leases Search</a></li>
@@ -4320,7 +4384,7 @@ re-finding them with <a href="#customers-search">Customers Search</a>.</p>
 }
 </code></pre>
 <p>Returns metadata for leases at co-managed facilities</p>
-<h3 id="required-properties-26">Required Properties</h3>
+<h3 id="required-properties-27">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to a specific lease</li>
 <li>or</li>
@@ -4456,7 +4520,7 @@ $453.44 on 2024-03-15. The lease then reports <code>paidThroughDate</code> <code
 }
 </code></pre>
 <p>Returns the compliance status for leases</p>
-<h3 id="required-properties-27">Required Properties</h3>
+<h3 id="required-properties-28">Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to get compliance status for</li>
 </ul>
@@ -4526,7 +4590,7 @@ document added by staff, each containing
 }
 </code></pre>
 <p>Returns the next possible rent change schedule for leases</p>
-<h3 id="required-properties-28">Required Properties</h3>
+<h3 id="required-properties-29">Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to get rent change schedules for</li>
 </ul>
@@ -4553,7 +4617,7 @@ document added by staff, each containing
 }
 </code></pre>
 <p>Schedules rent changes for leases, which will take effect on the next possible rent change date for each lease</p>
-<h3 id="required-properties-29">Required Properties</h3>
+<h3 id="required-properties-30">Required Properties</h3>
 <ul>
 <li><code>leases</code> - an array of lease rent change objects, each containing:
 <ul>
@@ -4598,7 +4662,7 @@ if not provided, the notice date will be set to 30 days before the rent change d
 }
 </code></pre>
 <p>Updates the alternative contacts for a lease</p>
-<h3 id="required-properties-30">Required Properties</h3>
+<h3 id="required-properties-31">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to update</li>
 <li><code>alternativeContacts</code> - an array of alternative contacts</li>
@@ -4648,7 +4712,7 @@ group's standard rate when <code>rentAmount</code> is omitted), so the preview m
 <p>An upsell can come with terms the customer has to sign. When such an upsell is added to a lease, its
 document is attached to the lease for signature automatically; no separate call is needed. Its status
 is reported in <code>otherDocuments</code> of <a href="#leases-get-compliances">Leases Get Compliances</a>.</p>
-<h3 id="required-properties-31">Required Properties</h3>
+<h3 id="required-properties-32">Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 </ul>
@@ -4725,7 +4789,7 @@ processing fees configured, the fee is added to the breakdown (as a <code>FEES</
 <code>subtotal</code>, <code>tax</code>, <code>totalBeforePayments</code>, and <code>total</code>, so <code>total</code> equals the <code>amount</code> to send to
 <a href="#make-payment">Make Payment</a> with that method to fully settle the charges. Omit <code>paymentMethodId</code> (or
 supply a non-credit method, or a facility with no fee configured) to get the fee-free charges.</p>
-<h3 id="required-properties-32">Required Properties</h3>
+<h3 id="required-properties-33">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease</li>
 </ul>
@@ -4897,7 +4961,7 @@ taxed under the facility's retail tax rules regardless of <code>taxExempt</code>
 Prices come from
 <a href="#products-search">Products Search</a> at the time of the call and are not reserved; if a price changes before
 checkout, the checkout total will differ and the checkout is rejected.</p>
-<h3 id="required-properties-33">Required Properties</h3>
+<h3 id="required-properties-34">Required Properties</h3>
 <ul>
 <li><code>unitId</code> - the ID of the unit</li>
 <li><code>moveInDate</code> - the date the tenant is moving in</li>
@@ -4991,7 +5055,7 @@ reservations, so offer a group only while it is above <code>0</code>.</p>
   }
 }
 </code></pre>
-<h3 id="required-properties-34">Required Properties</h3>
+<h3 id="required-properties-35">Required Properties</h3>
 <ul>
 <li>
 <p><code>unitId</code> - the ID of the unit</p>
@@ -5305,7 +5369,7 @@ full, from the Cubby app.</p>
   }
 }
 </code></pre>
-<h3 id="required-properties-35">Required Properties</h3>
+<h3 id="required-properties-36">Required Properties</h3>
 <p>All properties from <a href="#create-lease">Create Lease</a>, plus:</p>
 <ul>
 <li><code>payment</code> - payment information for the move-in charges:</li>
@@ -5436,7 +5500,7 @@ full, from the Cubby app.</p>
 }
 </code></pre>
 <p>Cancels a lease which has not yet started (i.e. the move-in date is in the future)</p>
-<h3 id="required-properties-36">Required Properties</h3>
+<h3 id="required-properties-37">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to cancel</li>
 </ul>
@@ -5456,7 +5520,7 @@ full, from the Cubby app.</p>
 }
 </code></pre>
 <p>Schedules a move-out for a lease</p>
-<h3 id="required-properties-37">Required Properties</h3>
+<h3 id="required-properties-38">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to schedule the move-out for</li>
 <li><code>moveOutDate</code> - the date the tenant will move out (YYYY-MM-DD)</li>
@@ -5489,7 +5553,7 @@ one with <a href="#update-scheduled-move-out">Update Scheduled Move Out</a>.</p>
 whole move-out back unchanged is safe, and so is sending only the one field you mean to change. <code>moveOutDate</code>,
 <code>noticeGivenDate</code>, <code>moveOutReason</code> and <code>moveOutTime</code> cannot be cleared, because a scheduled move-out cannot exist
 without them — an explicit <code>null</code> for any of them is rejected with a <code>400</code>.</p>
-<h3 id="required-properties-38">Required Properties</h3>
+<h3 id="required-properties-39">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease whose scheduled move-out to change. A lease with no scheduled move-out is rejected
 with a <code>400</code>, and so is a lease that has already moved out</li>
@@ -5529,7 +5593,7 @@ or <code>ANYTIME</code></li>
 }
 </code></pre>
 <p>Generates a payment link which can be sent to the tenant to make a payment for one or more leases</p>
-<h3 id="required-properties-39">Required Properties</h3>
+<h3 id="required-properties-40">Required Properties</h3>
 <ul>
 <li><code>leaseIds</code> - an array of lease IDs to include in the payment link</li>
 </ul>
@@ -5553,7 +5617,7 @@ or <code>ANYTIME</code></li>
 }
 </code></pre>
 <p>Generates a link which can be sent to the tenant to view, manage, and sign documents for a lease.</p>
-<h3 id="required-properties-40">Required Properties</h3>
+<h3 id="required-properties-41">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to generate a documents link for</li>
 </ul>
@@ -5589,7 +5653,7 @@ or <code>ANYTIME</code></li>
 </code></pre>
 <p>Makes a payment for a lease using a saved payment method.  If the amount paid is more than the amount due, the overpayment will be transferred to the prepaid balance of the lease.</p>
 <p>When the payment method is a credit card and the facility has credit-card processing fees configured in its payment settings, the fee is deducted from <code>amount</code> — the card is charged exactly <code>amount</code>, and the remainder is applied to the lease. To fully settle a balance in this case, charge the fee-inclusive <code>total</code> returned by <a href="#preview-charges">Preview Charges</a> for the same <code>paymentMethodId</code>. Facilities without credit-card fees configured are unaffected.</p>
-<h3 id="required-properties-41">Required Properties</h3>
+<h3 id="required-properties-42">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to make a payment for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use</li>
@@ -5665,7 +5729,7 @@ carries a <code>waivableAmount</code>: how much of it, before tax, can still be 
 <code>8101</code> and nothing is waived. This makes a retry safe: if a request timed out but was applied, the retry carries the
 old <code>waivableAmount</code> and is refused, so the charge is not waived twice. After an <code>8101</code>, search the ledger again
 and decide whether a waive is still needed.</p>
-<h3 id="required-properties-42">Required Properties</h3>
+<h3 id="required-properties-43">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease the charge belongs to</li>
 <li><code>bookEntryId</code> - the ID of the charge, from <a href="#ledger-search">Ledger Search</a></li>
@@ -5739,7 +5803,7 @@ whose outcome you don't know, check <a href="#ledger-search">Ledger Search</a> f
 since one of them may have used your credit. After an <code>8101</code>, search the ledger again and decide whether a credit is
 still needed.</p>
 <p>The facility must have credits enabled, as new facilities do.</p>
-<h3 id="required-properties-43">Required Properties</h3>
+<h3 id="required-properties-44">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to credit</li>
 <li><code>amount</code> - the amount to add, in cents. Must be positive</li>
@@ -5768,7 +5832,7 @@ facility</li>
 }
 </code></pre>
 <p>Enables AutoPay for a lease using a saved payment method.  With AutoPay enabled, the tenant will be automatically charged for the amount due on the next charge date of the lease, and on subsequent charge dates until AutoPay is disabled.</p>
-<h3 id="required-properties-44">Required Properties</h3>
+<h3 id="required-properties-45">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to enable AutoPay for</li>
 <li><code>paymentMethodId</code> - the ID of the payment method to use for AutoPay. It must belong to the customer on the lease
@@ -5830,7 +5894,7 @@ rejected with a <code>400</code></li>
 <p>Search for saved payment methods by customer. Every saved method is returned, including methods held at a
 payment provider the customer's facilities no longer use — read <code>paymentServiceProvider</code> to tell them apart, and
 only charge a method at a facility running on the same provider.</p>
-<h3 id="required-properties-45">Required Properties</h3>
+<h3 id="required-properties-46">Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer</li>
 </ul>
@@ -6043,7 +6107,7 @@ as <code>payment.token</code> when paying move-in charges through <a href="#chec
 <p>Creates a new payment method for a customer using a token generated by the payment gateway.</p>
 <p>The caller must ensure the payment method has been successfully validated and authorized by the payment gateway before submission.
 Unvalidated payment methods may be rejected by the payment gateway when used for a transaction.</p>
-<h3 id="required-properties-46">Required Properties</h3>
+<h3 id="required-properties-47">Required Properties</h3>
 <ul>
 <li><code>methodType</code> - the type of payment method, which can be <code>CREDIT_CARD</code>, <code>ACH</code> or <code>ACSS</code></li>
 <li><code>token</code> - the token generated by the payment gateway</li>
@@ -6155,7 +6219,7 @@ reserved.</p>
 on hand and may be zero or negative, because Cubby accepts sales regardless of stock. Products that
 do not track stock return <code>null</code>. The API neither hides nor blocks out-of-stock products; whether to
 offer them is the integrator's decision.</p>
-<h3 id="required-properties-47">Required Properties</h3>
+<h3 id="required-properties-48">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to the products sold at a particular facility. Omitting it, or naming a facility the key cannot access, is rejected with a <code>403</code>.</li>
 </ul>
@@ -6360,7 +6424,7 @@ offer them is the integrator's decision.</p>
 }
 </code></pre>
 <p>Loads all Account Receivable activity for ledger linked to a <code>lease</code>.</p>
-<h3 id="required-properties-48">Required Properties</h3>
+<h3 id="required-properties-49">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to retrieve the ledger for</li>
 <li>or</li>
@@ -6443,7 +6507,7 @@ tax, can still be waived, in cents. <code>0</code> for a charge that cannot be w
 }
 </code></pre>
 <p>Adds the private coverage policy number and expiration date for a lease.</p>
-<h3 id="required-properties-49">Required Properties</h3>
+<h3 id="required-properties-50">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to set the private policy info for</li>
 <li><code>policyNumber</code> - the policy number for the private coverage policy</li>
@@ -6482,7 +6546,7 @@ Content-Disposition: attachment; filename=&quot;private_policy.pdf&quot;
 <p>Response Body — coverage/download-private-policy</p>
 </blockquote>
 <p>The response body contains the requested private policy file as a binary stream</p>
-<h3 id="required-properties-50">Required Properties</h3>
+<h3 id="required-properties-51">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to remove the private policy info for</li>
 </ul>
@@ -6546,7 +6610,7 @@ across all of the facility's pricing groups.</p>
 <p>Each coverage level belongs to a coverage program, identified by <code>coverageProgramId</code>. Request the
 <code>coverageProgram</code> expansion to also receive the program object(s) — returned as the <code>coveragePrograms</code>
 array — which carry the program-wide <code>coverageOptions</code>.</p>
-<h3 id="required-properties-51">Required Properties</h3>
+<h3 id="required-properties-52">Required Properties</h3>
 <p>Exactly one of the following must be provided:</p>
 <ul>
 <li><code>pricingGroupId</code> - limits results to coverage levels of a particular pricing group</li>
@@ -6626,7 +6690,7 @@ Join each level to its program via <code>coverageProgramId</code>. Each program 
   }
 }
 </code></pre>
-<h3 id="required-properties-52">Required Properties</h3>
+<h3 id="required-properties-53">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to policies in a particular facility</li>
 <li>or</li>
@@ -6720,7 +6784,7 @@ with the unused portion credited to the account.</p>
 <p><code>paymentId</code> is the same identifier that <a href="#checkout">Checkout</a> returns as <code>paymentTransactionId</code> and that
 <a href="#make-payment">Make Payment</a> returns as <code>paymentId</code>, so a payment taken through either of those endpoints can
 be looked up here.</p>
-<h3 id="required-properties-53">Required Properties</h3>
+<h3 id="required-properties-54">Required Properties</h3>
 <p>Exactly one scope must be supplied. Supplying none, or more than one, is rejected with a <code>403</code>.</p>
 <ul>
 <li><code>facilityId</code> - limits results to payments taken at a particular facility</li>
@@ -6827,7 +6891,7 @@ ledger, so summing <code>amount</code> without filtering on <code>status</code> 
 }
 </code></pre>
 <p>Search for auctions by facility or auction ID</p>
-<h3 id="required-properties-54">Required Properties</h3>
+<h3 id="required-properties-55">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to auctions in a particular facility</li>
 <li>or</li>
@@ -6914,7 +6978,7 @@ Omitted when the facility collects the whole bid</li>
 }
 </code></pre>
 <p>Creates a new auction for a facility</p>
-<h3 id="required-properties-55">Required Properties</h3>
+<h3 id="required-properties-56">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the auction for</li>
 <li><code>auctionTime</code> - the date and time of the auction</li>
@@ -6933,7 +6997,7 @@ Omitted when the facility collects the whole bid</li>
 }
 </code></pre>
 <p>Starts the lien process for a lease, which may include sending lien notices to the tenant and alternative contacts</p>
-<h3 id="required-properties-56">Required Properties</h3>
+<h3 id="required-properties-57">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to start the lien process for</li>
 <li><code>auctionId</code> - the ID of the auction to include the lease in</li>
@@ -7021,7 +7085,7 @@ charged. The response carries the <code>balance</code> the bidder owes.</p>
 <code>PAYMENT_RECEIVED</code>. When the balance is zero, the auctioned lease moves to <code>PAYMENT_RECEIVED</code> straight away.</p>
 <p>The auction must have taken place. A request made before the day of the auction is rejected with a <code>400</code>, as is one
 for a lease that is not in the lien process, whose lien process was cancelled, or whose auction was already settled.</p>
-<h3 id="required-properties-57">Required Properties</h3>
+<h3 id="required-properties-58">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the auctioned lease</li>
 <li><code>outcome</code> - <code>SOLD</code> or <code>UNSOLD</code></li>
@@ -7119,7 +7183,7 @@ with the auctioned lease still in <code>PAYMENT_RECEIVED</code> and <code>deposi
 by itself once the refund settles; poll <a href="#auctions-search">Auctions Search</a> for <code>COMPLETE</code>. Until then, another call
 to this endpoint is rejected with a <code>400</code>, whether it asks to refund or to retain. A refund the payment provider
 declines returns a <code>400</code> and leaves the auction in <code>PAYMENT_RECEIVED</code>.</p>
-<h3 id="required-properties-58">Required Properties</h3>
+<h3 id="required-properties-59">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the auctioned lease</li>
 <li><code>depositAction</code> - what to do with the cleaning deposit: <code>REFUND</code> or <code>RETAIN</code>. Required when a deposit was charged, and
@@ -7186,7 +7250,7 @@ started. The exception is <code>pauseOverlock</code>, which lifts an overlock or
 </code></pre>
 <p>Returns the active delinquency exemptions for a lease, a customer, or a facility. Only active exemptions are
 returned. An exemption that has ended or has been removed is not returned.</p>
-<h3 id="required-properties-59">Required Properties</h3>
+<h3 id="required-properties-60">Required Properties</h3>
 <p>Exactly one of the following:</p>
 <ul>
 <li><code>leaseId</code> - returns the active exemption of a specific lease, or an empty list if the lease has none</li>
@@ -7245,7 +7309,7 @@ created by your API key's user.</p>
 <p>A lease can hold only one active exemption. A create for a lease that already has one is rejected with a <code>400</code> and
 does not replace it. To change an exemption, use
 <a href="#delinquency-exemptions-update">Delinquency Exemptions Update</a>, which reads back the note as well.</p>
-<h3 id="required-properties-60">Required Properties</h3>
+<h3 id="required-properties-61">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease to exempt</li>
 <li><code>reason</code> - one of <code>BANKRUPTCY</code>, <code>DECEASED</code>, <code>MILITARY_SERVICE</code>, <code>PAYMENT_ARRANGEMENT</code>, or <code>OTHER</code></li>
@@ -7295,7 +7359,7 @@ already has; turning it off re-applies both immediately if the lease is still ov
 the next daily run. Changing <code>endDate</code> to a later date extends the exemption; there is no limit on how far.</p>
 <p>A file attached to the exemption's note from the dashboard is left untouched, and cannot be added or removed
 through this API. Clearing a note that carries one is rejected with a <code>400</code>.</p>
-<h3 id="required-properties-61">Required Properties</h3>
+<h3 id="required-properties-62">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease whose exemption to change. A lease with no active exemption is rejected with a
 <code>400</code></li>
@@ -7330,7 +7394,7 @@ delinquency flow. For example, use this when a tenant re-enrolls in AutoPay befo
 is no longer returned by <a href="#delinquency-exemptions-search">Delinquency Exemptions Search</a>. If the exemption paused
 overlock, the lease is checked at once and is overlocked or locked out of the gate again if it is still overdue.
 Other automated actions resume from the next daily run.</p>
-<h3 id="required-properties-62">Required Properties</h3>
+<h3 id="required-properties-63">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - the ID of the lease whose exemption to cancel. A lease with no active exemption is rejected with a
 <code>400</code></li>
@@ -7372,7 +7436,7 @@ Other automated actions resume from the next daily run.</p>
 }
 </code></pre>
 <p>Search for notes related to leases, customers, leads, units, or pricing groups.</p>
-<h3 id="required-properties-63">Required Properties</h3>
+<h3 id="required-properties-64">Required Properties</h3>
 <ul>
 <li><code>leaseId</code> - limits results to notes for a specific lease</li>
 <li>or</li>
@@ -7405,7 +7469,7 @@ Other automated actions resume from the next daily run.</p>
 }
 </code></pre>
 <p>Creates a new note related to a lease, customer, lead, unit, or pricing group.</p>
-<h3 id="required-properties-64">Required Properties</h3>
+<h3 id="required-properties-65">Required Properties</h3>
 <ul>
 <li><code>text</code> - the text of the note</li>
 <li>and one of</li>
@@ -7480,7 +7544,7 @@ Other automated actions resume from the next daily run.</p>
 </code></pre>
 <p>Search for tasks by ID, facility, organization, unit, or customer, optionally narrowed by status, due date, or
 when the task last changed</p>
-<h3 id="required-properties-65">Required Properties</h3>
+<h3 id="required-properties-66">Required Properties</h3>
 <p>Exactly one of the following:</p>
 <ul>
 <li><code>taskId</code> - returns the single task with this ID</li>
@@ -7525,7 +7589,7 @@ endpoint are <code>facility</code>, <code>unit</code>, and <code>tenant</code></
 </code></pre>
 <p>Creates a new task at the specified facility and returns its <code>taskId</code>, for use with
 <a href="#tasks-update">Tasks Update</a> or the <code>taskId</code> scope on <a href="#tasks-search">Tasks Search</a></p>
-<h3 id="required-properties-66">Required Properties</h3>
+<h3 id="required-properties-67">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to create the task in</li>
 <li><code>title</code> - the title of the task</li>
@@ -7558,7 +7622,7 @@ sent as <code>null</code> is cleared. Sending a whole open task back unchanged i
 be cleared — an explicit <code>null</code> for either is ignored — and <code>dueDate</code> cannot be cleared on a task that repeats.</p>
 <p>A task stays at the facility it was created in. Its assignees, attachments, team assignments and repeat settings
 are managed in the Cubby app and are preserved by this endpoint.</p>
-<h3 id="required-properties-67">Required Properties</h3>
+<h3 id="required-properties-68">Required Properties</h3>
 <ul>
 <li><code>taskId</code> - the ID of the task to update</li>
 </ul>
@@ -7622,6 +7686,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;details&quot;</span>: {
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7638,6 +7703,7 @@ completion can return a task the client never created.</p>
           <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Security Deposit&quot;</span>,
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7655,6 +7721,7 @@ completion can return a task the client never created.</p>
           <span class="hljs-attr">&quot;cardLastFour&quot;</span>: <span class="hljs-string">&quot;1111&quot;</span>,
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7670,6 +7737,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;details&quot;</span>: {
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7686,6 +7754,7 @@ completion can return a task the client never created.</p>
           <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;2%&quot;</span>,
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7702,6 +7771,7 @@ completion can return a task the client never created.</p>
           <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;4.6%&quot;</span>,
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7717,6 +7787,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;details&quot;</span>: {
           <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_FH1Hw36xoLd&quot;</span>,
           <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+          <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
           <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;A-100&quot;</span>,
           <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_LnKY1qJHmc6&quot;</span>
         }
@@ -7726,7 +7797,7 @@ completion can return a task the client never created.</p>
 }
 </code></pre>
 <p>Generates a cash basis general ledger report for a facility over a specified time period.</p>
-<h3 id="required-properties-68">Required Properties</h3>
+<h3 id="required-properties-69">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -7957,6 +8028,11 @@ completion can return a task the client never created.</p>
 </li>
 <li>
 <ul>
+<li><code>leaseId</code> - the ID of the lease the journal entry is booked to. Omitted when the entry is not booked to a lease, such as an auction or merchandise sale entry</li>
+</ul>
+</li>
+<li>
+<ul>
 <li><code>unitName</code> - the name of the unit associated with the journal entry</li>
 </ul>
 </li>
@@ -8019,6 +8095,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;FEES&quot;</span>,
@@ -8038,6 +8115,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;ACCOUNT_RECEIVABLE&quot;</span>,
@@ -8057,6 +8135,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;DEPOSIT&quot;</span>,
@@ -8076,6 +8155,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;account&quot;</span>: <span class="hljs-string">&quot;ACCOUNT_RECEIVABLE&quot;</span>,
@@ -8095,6 +8175,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>,
@@ -8116,6 +8197,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>,
@@ -8137,6 +8219,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>,
@@ -8158,6 +8241,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>,
@@ -8179,6 +8263,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>,
@@ -8200,6 +8285,7 @@ completion can return a task the client never created.</p>
         <span class="hljs-attr">&quot;facilityName&quot;</span>: <span class="hljs-string">&quot;Test Facility&quot;</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_JZQa2bFkpvW&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_GfNkzV4itfk&quot;</span>,
         <span class="hljs-attr">&quot;unitId&quot;</span>: <span class="hljs-string">&quot;unit_G77Ba9sR8Cr&quot;</span>,
         <span class="hljs-attr">&quot;unitName&quot;</span>: <span class="hljs-string">&quot;IPFN723&quot;</span>,
         <span class="hljs-attr">&quot;accruesOn&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>,
@@ -8218,7 +8304,7 @@ completion can return a task the client never created.</p>
 }
 </code></pre>
 <p>Generates an accrual basis general ledger report for a facility over a specified time period.</p>
-<h3 id="required-properties-69">Required Properties</h3>
+<h3 id="required-properties-70">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - the ID of the facility to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -8239,6 +8325,7 @@ completion can return a task the client never created.</p>
 <li><code>facilityName</code> - the name of the facility associated with the journal entry</li>
 <li><code>customerId</code> - the ID of the customer associated with the journal entry</li>
 <li><code>customerName</code> - the name of the customer associated with the journal entry</li>
+<li><code>leaseId</code> - the ID of the lease the journal entry is booked to. Omitted when the entry is not booked to a lease, such as an auction or merchandise sale entry, or the payment method account side of a payment</li>
 <li><code>unitId</code> - the ID of the unit associated with the journal entry</li>
 <li><code>unitName</code> - the name of the unit associated with the journal entry</li>
 <li><code>account</code> - the account the journal entry is associated with, which can be one of the following:</li>
@@ -8623,7 +8710,7 @@ completion can return a task the client never created.</p>
 }
 </code></pre>
 <p>Generates an aged receivables report for one or more facilities.</p>
-<h3 id="required-properties-70">Required Properties</h3>
+<h3 id="required-properties-71">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 </ul>
@@ -8842,7 +8929,7 @@ only <code>outstandingAmount</code> and <code>range</code> (<code>RANGE_UNKNOWN<
 }
 </code></pre>
 <p>Generates a rent roll report for one or more facilities.</p>
-<h3 id="required-properties-71">Required Properties</h3>
+<h3 id="required-properties-72">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>throughDate</code> - the date through which to calculate rent due in <code>YYYY-MM-DD</code> format</li>
@@ -8964,7 +9051,7 @@ lease's cycle; the two differ only for a lease on a different cycle than its fac
 }
 </code></pre>
 <p>Generates a merchant services disbursements report for one or more facilities over a specified time period. The report includes batch-level settlement summaries and individual transaction details from configured payment providers (Stripe, Payabli).</p>
-<h3 id="required-properties-72">Required Properties</h3>
+<h3 id="required-properties-73">Required Properties</h3>
 <ul>
 <li><code>facilityIds</code> - an array of facility IDs to generate the report for</li>
 <li><code>startDate</code> - the start date for the report in <code>YYYY-MM-DD</code> format</li>
@@ -9098,7 +9185,7 @@ Cubby, for example.</li>
 }
 </code></pre>
 <p>Search for storefront-visible facilities by facility or organization</p>
-<h3 id="required-properties-73">Required Properties</h3>
+<h3 id="required-properties-74">Required Properties</h3>
 <ul>
 <li><code>facilityId</code> - limits results to a specific facility</li>
 <li>or</li>
@@ -9187,7 +9274,7 @@ from your own site, create a lead with <a href="#leads-create">Leads Create</a>.
 (<code>customerId</code> or a <code>customer</code> object), <code>source</code> set to <code>WAITLIST_FORM</code>, <code>pricingGroupId</code> and
 <code>targetMoveInDate</code>. The lead triggers the same new-lead notification as a storefront sign-up.
 <a href="#leads-search">Leads Search</a> reports its <code>origin</code> as <code>API</code>.</p>
-<h3 id="required-properties-74">Required Properties</h3>
+<h3 id="required-properties-75">Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to a specific pricing group</li>
 <li>or</li>
@@ -9233,7 +9320,7 @@ allows overbooking). It is <code>false</code> exactly when <code>rentableUnits</
 }
 </code></pre>
 <p>Sends an SMS message to a customer</p>
-<h3 id="required-properties-75">Required Properties</h3>
+<h3 id="required-properties-76">Required Properties</h3>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
 <li><code>facilityId</code> - the ID of the facility to send the message from</li>
@@ -9300,7 +9387,7 @@ allows overbooking). It is <code>false</code> exactly when <code>rentableUnits</
   --form <span class="hljs-string">&#x27;attachments=@invoice.pdf&#x27;</span> \
   --form <span class="hljs-string">&#x27;attachments=@receipt.pdf&#x27;</span>
 </code></pre>
-<h3 id="required-properties-76">Required Properties</h3>
+<h3 id="required-properties-77">Required Properties</h3>
 <p>The following fields belong inside the JSON <code>request</code> part:</p>
 <ul>
 <li><code>customerId</code> - the ID of the customer to send the message to</li>
@@ -9414,6 +9501,7 @@ confirm the new total.</p>
 </table>
 <p>* One of <code>pricing-groups</code> or <code>unit-id</code> must be supplied.</p>
 <!-- Renderer: Shins v2.6.0 -->
+<!-- Edit by hand. List notable changes that are planned but not yet released, most important first. When one
       </div>
       <div class="dark-box">
         
