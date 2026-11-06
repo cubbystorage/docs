@@ -806,15 +806,6 @@ analytics,rate_changes,street_rate,NUMERIC,"The street rate currently stored for
 analytics,rate_changes,target_rate,NUMERIC,"The target rate currently stored for the unit's pricing group (current value, not as of the change). NULL when no target is set or the unit has no pricing group. Set by the operator, unchanged by pricing strategies or rate publishes, and quoted to no tenant. BI can use street_rate when it needs a value for groups without a target. Denormalized from pricing_group."
 analytics,rate_changes,unit_id,STRING,The unit receiving the rate change. Joins to units.unit_id.
 analytics,rate_changes,unit_name,STRING,The unit name. Denormalized from units.
-analytics,rate_recommendations,,TABLE,"Materialized rate-recommendations table. Contains one row per unit type (pricing group) per day with Cubby's street-rate recommendation for that day, so it can be compared with the rate the operator set (see pricing_group). Cubby recalculates recommendations several times a day; this table keeps the last one each day. Only the recommended rate is included: the comparable competitor rates behind it are licensed market data and are not. Existing-customer rate increase (ECRI) recommendations are on leases (ecri_recommended_rate). Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
-analytics,rate_recommendations,facility_id,STRING,The facility of the unit type. Joins to facilities.facility_id.
-analytics,rate_recommendations,facility_name,STRING,The facility name. Denormalized.
-analytics,rate_recommendations,org_id,STRING,The organization identifier. Common filter field.
-analytics,rate_recommendations,pricing_group_id,STRING,"The unit type the rate is recommended for. Joins to pricing_group.pg_id. Together with recommendation_date, the primary key."
-analytics,rate_recommendations,recommendation_count,INT64,How many times Cubby recalculated the recommendation that day.
-analytics,rate_recommendations,recommendation_date,DATE,"The day of the recommendation, in facility local time."
-analytics,rate_recommendations,recommended_at,DATETIME,"Timestamp of that recommendation, in facility local time."
-analytics,rate_recommendations,recommended_rate,NUMERIC,Cubby's recommended street rate: the day's last recommendation that produced a rate. NULL when Cubby could not produce a rate for the unit type that day.
 analytics,recurring_fees,,TABLE,"Materialized recurring-fees table. Contains one row per recurring fee assignment on a lease, enriched with fee and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,recurring_fees,active,INT64,"Whether the fee is currently active on the lease (1 = active, 0 = inactive)"
 analytics,recurring_fees,amount,NUMERIC,Fixed dollar amount of the fee; null for percentage-based fees
