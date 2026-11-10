@@ -1146,7 +1146,7 @@ analytics,storefront_pricing_groups,image_count,INT64,How many photos the storef
 analytics,storefront_pricing_groups,is_active,INT64,Flag (0/1): the operator has the unit type switched on for this storefront. 1 by default when there are no storefront settings. Does not by itself mean customers can see it; see is_listed.
 analytics,storefront_pricing_groups,is_api_storefront,INT64,Flag (0/1): this is the storefront the External API serves the facility from. A facility on several live storefronts is returned by the API only for the lowest-numbered one; the other storefronts still show the unit type on their own sites.
 analytics,storefront_pricing_groups,is_listed,INT64,"Flag (0/1): the unit type is available on a live storefront (is_active = 1 and is_published = 1). The storefront may still hide it while it has no vacant units, unless the storefront shows occupied unit types; combine with pricing_group.rentable_units."
-analytics,storefront_pricing_groups,is_published,INT64,Flag (0/1): the storefront is live and the facility is published on it.
+analytics,storefront_pricing_groups,is_published,INT64,"Flag (0/1): the storefront is live and the facility is published on it. Does not depend on facilities.is_enabled: the storefront and the External API still show the unit types of a disabled facility."
 analytics,storefront_pricing_groups,is_value_pricing_tiers_shown,INT64,Flag (0/1): the storefront offers the value-pricing tiers (see value_pricing_strategy_tiers) at checkout.
 analytics,storefront_pricing_groups,org_id,STRING,The organization identifier. Common filter field.
 analytics,storefront_pricing_groups,pg_id,STRING,The unit type shown. Joins to pricing_group.pg_id.
