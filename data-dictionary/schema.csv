@@ -1133,16 +1133,20 @@ analytics,stor_track,total_sqft,INT64,"Total building square footage of the comp
 analytics,stor_track,width,NUMERIC,Width of unit in feet.
 analytics,stor_track,year_built,INT64,"Year the competitor store was built, as reported by StorTrack. NULL when unknown."
 analytics,stor_track,zip,STRING,Competitor store zip code.
-analytics,storefront_pricing_groups,,TABLE,"Materialized storefront-pricing-groups table. Contains one row per unit type (pricing group) per online storefront, with how the storefront presents it: display name and description, whether customers can rent, reserve or must call, and the 'units left' prompt settings. Rates are on pricing_group. Matches the External API's storefront pricing groups. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
+analytics,storefront_pricing_groups,,TABLE,"Materialized storefront-pricing-groups table. Contains one row per unit type (pricing group) per online storefront that carries its facility, published or not, with how the storefront presents it: display name and description, whether customers can rent, reserve or must call, and the 'units left' prompt settings. A unit type the operator never customized in the storefront builder has no settings of its own; its row carries the app's defaults (listed, RENT, value-pricing tiers shown) and has_storefront_settings = 0. Filter on is_listed = 1 for the unit types available on a live storefront. Rates and rentable units are on pricing_group. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,storefront_pricing_groups,booking_option,STRING,"What customers can do online: RENT (rent only), RENT_OR_RESERVE (rent or reserve), or CALL_TO_RENT (no online booking; the storefront shows a phone number)."
 analytics,storefront_pricing_groups,description,STRING,"The description the storefront shows for the unit type, when the operator wrote one."
 analytics,storefront_pricing_groups,display_name,STRING,"The name the storefront shows for the unit type, when the operator set one."
 analytics,storefront_pricing_groups,displayed_units_left_limit,INT64,"The highest count the 'units left' prompt will show, so a storefront can say '3 left' when more are free. NULL when no cap is set."
 analytics,storefront_pricing_groups,facility_id,STRING,The facility of the unit type. Joins to facilities.facility_id.
 analytics,storefront_pricing_groups,facility_name,STRING,The facility name. Denormalized.
-analytics,storefront_pricing_groups,features,JSON,JSON array of features the storefront lists for the unit type.
+analytics,storefront_pricing_groups,features,JSON,"JSON array of features for the unit type. From the storefront settings when they exist, otherwise the pricing group's own features (which the storefront inherits)."
+analytics,storefront_pricing_groups,has_storefront_settings,INT64,"Flag (0/1): the operator has customized this unit type in the storefront builder. 0 means the row carries the app's defaults (is_active = 1, booking_option = RENT, is_value_pricing_tiers_shown = 1, no display name, description, tags or images)."
 analytics,storefront_pricing_groups,image_count,INT64,How many photos the storefront shows for the unit type.
-analytics,storefront_pricing_groups,is_active,INT64,Flag (0/1): the unit type is listed on the storefront.
+analytics,storefront_pricing_groups,is_active,INT64,Flag (0/1): the operator has the unit type switched on for this storefront. 1 by default when there are no storefront settings. Does not by itself mean customers can see it; see is_listed.
+analytics,storefront_pricing_groups,is_api_storefront,INT64,Flag (0/1): this is the storefront the External API serves the facility from. A facility on several live storefronts is returned by the API only for the lowest-numbered one; the other storefronts still show the unit type on their own sites.
+analytics,storefront_pricing_groups,is_listed,INT64,"Flag (0/1): the unit type is available on a live storefront (is_active = 1 and is_published = 1). The storefront may still hide it while it has no vacant units, unless the storefront shows occupied unit types; combine with pricing_group.rentable_units."
+analytics,storefront_pricing_groups,is_published,INT64,"Flag (0/1): the storefront is live and the facility is published on it. Does not depend on facilities.is_enabled: the storefront and the External API still show the unit types of a disabled facility."
 analytics,storefront_pricing_groups,is_value_pricing_tiers_shown,INT64,Flag (0/1): the storefront offers the value-pricing tiers (see value_pricing_strategy_tiers) at checkout.
 analytics,storefront_pricing_groups,org_id,STRING,The organization identifier. Common filter field.
 analytics,storefront_pricing_groups,pg_id,STRING,The unit type shown. Joins to pricing_group.pg_id.
@@ -1150,7 +1154,7 @@ analytics,storefront_pricing_groups,storefront_id,INT64,"The storefront (online 
 analytics,storefront_pricing_groups,storefront_name,STRING,The storefront's name in the app.
 analytics,storefront_pricing_groups,tags,STRING,"Short labels the storefront shows on the unit type (for example 'Most popular'), pipe-delimited. Empty when none."
 analytics,storefront_pricing_groups,units_left_threshold,INT64,The storefront shows a 'units left' prompt once pricing_group.rentable_units falls to this number or lower. NULL when the prompt is off.
-analytics,storefront_pricing_groups,updated_at,DATETIME,"Timestamp when these storefront settings were last changed, in facility local time."
+analytics,storefront_pricing_groups,updated_at,DATETIME,"Timestamp when these storefront settings were last changed, in facility local time. NULL when there are no storefront settings."
 analytics,tasks,,TABLE,"Materialized tasks table. Contains one row per task with manager, facility, and organisation context. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
 analytics,tasks,archived_at,DATETIME,Timestamp when the task was first marked ARCHIVED
 analytics,tasks,assignee,ARRAY<STRING>,Manager ID (or array of IDs) of manager assigned to the task
