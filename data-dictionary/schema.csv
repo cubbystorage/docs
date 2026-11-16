@@ -1088,24 +1088,6 @@ analytics,spaces_historical,unrentable_reason_note,STRING,Free-text note explain
 analytics,spaces_historical,walk_in_rate,NUMERIC,Rate offered to walk-in customers at the facility
 analytics,spaces_historical,web_rate,NUMERIC,Promotional online rate displayed on the website for new rentals
 analytics,spaces_historical,width,NUMERIC,Unit width in feet on this date.
-analytics,sparefoot_reservations,,TABLE,"Materialized SpareFoot-reservations table. Contains one row per reservation booked through the SpareFoot marketplace that Cubby received a notification for, linked to the lead it created. Kept separately from leads because a lead can later be deleted, merged or converted, while the SpareFoot reservation is what SpareFoot bills against. Renter names, emails and phone numbers are not included; join to leads for the contact. Only organizations that forward SpareFoot notifications to Cubby have rows. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js."
-analytics,sparefoot_reservations,created_at,DATETIME,"Timestamp when Cubby recorded the reservation, in facility local time."
-analytics,sparefoot_reservations,depth,NUMERIC,"Depth of the reserved unit in feet, as listed on SpareFoot."
-analytics,sparefoot_reservations,facility_id,STRING,The facility the unit was reserved at. Joins to facilities.facility_id. NULL when the notification could not be matched to a facility.
-analytics,sparefoot_reservations,facility_name,STRING,The facility name. Denormalized.
-analytics,sparefoot_reservations,features,STRING,"The unit features listed on SpareFoot, comma-separated (for example 'Climate Controlled, Interior')."
-analytics,sparefoot_reservations,lead_id,STRING,The lead Cubby created for the reservation. Joins to leads.lead_id. NULL if the lead has since been deleted.
-analytics,sparefoot_reservations,move_in_confirm_requested_at,DATETIME,"Timestamp when SpareFoot last asked whether the tenant moved in, in facility local time. NULL if it has not asked."
-analytics,sparefoot_reservations,move_in_date,DATE,The move-in date the renter chose.
-analytics,sparefoot_reservations,org_id,STRING,The organization identifier. Common filter field.
-analytics,sparefoot_reservations,price,NUMERIC,The price listed on SpareFoot for the reserved unit.
-analytics,sparefoot_reservations,reservation_code,STRING,"SpareFoot's reservation code (for example HQ6TWSKTY), as shown in SpareFoot's reservation emails."
-analytics,sparefoot_reservations,reserved_at,DATETIME,"Timestamp when the renter booked on SpareFoot, in facility local time."
-analytics,sparefoot_reservations,sparefoot_reservation_id,INT64,Unique identifier for the reservation in Cubby. Primary key.
-analytics,sparefoot_reservations,sparefoot_reservation_number,INT64,SpareFoot's numeric reservation id. Usually NULL: only SpareFoot's 'Reservation Has Changed' notification includes it.
-analytics,sparefoot_reservations,status,STRING,"The latest notification SpareFoot sent about the reservation: RESERVED, CHANGED, AT_RISK or CONFIRMATION_REQUESTED (SpareFoot asked whether the tenant moved in). This is not SpareFoot's own reservation status or its billing decision."
-analytics,sparefoot_reservations,updated_at,DATETIME,"Timestamp when the reservation was last updated, in facility local time."
-analytics,sparefoot_reservations,width,NUMERIC,"Width of the reserved unit in feet, as listed on SpareFoot."
 analytics,stor_track,,TABLE,Materialized Stor Track table. Contains unit-day-level information on a facility's listed competitors. Row-level security enforced via a BigQuery Row Access Policy on org_id. Published atomically from an RLS-protected staging table so the previous protected version remains available until cutover; see includes/refresh.js.
 analytics,stor_track,address,STRING,Competitor store address.
 analytics,stor_track,city,STRING,Competitor store city.
