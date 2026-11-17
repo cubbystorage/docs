@@ -809,6 +809,7 @@
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>
         <ul>
+          <li><a href="#cl-2026-11-10">November 10, 2026</a></li>
           <li><a href="#cl-2026-11-09">November 9, 2026</a></li>
           <li><a href="#cl-2026-11-06">November 6, 2026</a></li>
           <li><a href="#cl-2026-11-03">November 3, 2026</a></li>
@@ -818,6 +819,25 @@
           <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
         </ul>
       </div>
+
+      <section class="cl-entry" id="cl-2026-11-10">
+        <h2><a href="#cl-2026-11-10">November 10, 2026</a></h2>
+
+        <h3>Changed</h3>
+        <ul>
+          <li><a onclick="filterTable('storefront_pricing_groups')"><code>storefront_pricing_groups</code></a> now has a row for every unit type on every storefront that carries its facility, not only the unit types an operator has customized in the storefront builder. Uncustomized unit types carry the storefront&rsquo;s defaults (listed, <code>RENT</code>, value-pricing tiers shown, the unit type&rsquo;s own features). Rows for unpublished storefronts and facilities are included too, so row counts are much higher; filter on <code>is_listed = 1</code> for what is available on a live storefront.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li><a onclick="filterTable('storefront_pricing_groups')"><code>storefront_pricing_groups</code></a>: <code>has_storefront_settings</code> (the operator customized the unit type), <code>is_published</code> (the storefront is live and the facility is published on it), <code>is_listed</code> (the unit type is available on a live storefront), and <code>is_api_storefront</code> (the storefront the External API serves the facility from).</li>
+        </ul>
+
+        <h3>Description changes</h3>
+        <ul>
+          <li><code>storefront_pricing_groups.is_active</code> is the operator&rsquo;s on/off switch only; it does not account for whether the storefront or facility is published. Use <code>is_listed</code> for that.</li>
+        </ul>
+      </section>
 
       <section class="cl-entry" id="cl-2026-11-09">
         <h2><a href="#cl-2026-11-09">November 9, 2026</a></h2>
