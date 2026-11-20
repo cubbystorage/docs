@@ -356,6 +356,8 @@
     .cl-wrap a { color: #66d9ef; text-decoration: none; cursor: pointer; }
     .cl-wrap a:hover { text-decoration: underline; }
     /* Planned changes that have not shipped yet, above the dated entries */
+    /* A table or column that has been replaced or retired */
+    .cl-retired { text-decoration: line-through; opacity: .5; }
     .cl-upcoming {
       border: 1px solid #3a3d42;
       border-left: 3px solid #e6db74;
@@ -803,12 +805,17 @@
       -->
       <section class="cl-upcoming" id="cl-upcoming">
         <h2><a href="#cl-upcoming">Upcoming changes</a></h2>
-        <p>No upcoming changes are announced.</p>
+        <ul>
+          <li><strong>December 4, 2026:</strong> <code>sparefoot_reservations</code> will be retired. Use <code>market_aggregator_reservations</code>, which has the same columns (see <a href="#cl-2026-11-20">November 20</a>).</li>
+        </ul>
       </section>
 
       <div class="cl-dates">
         <div class="cl-dates-label">Jump to</div>
         <ul>
+          <li><a href="#cl-2026-11-20">November 20, 2026</a></li>
+          <li><a href="#cl-2026-11-19">November 19, 2026</a></li>
+          <li><a href="#cl-2026-11-16">November 16, 2026</a></li>
           <li><a href="#cl-2026-11-09">November 9, 2026</a></li>
           <li><a href="#cl-2026-11-06">November 6, 2026</a></li>
           <li><a href="#cl-2026-11-03">November 3, 2026</a></li>
@@ -818,6 +825,71 @@
           <li><a href="#cl-2026-10-23">October 23, 2026</a></li>
         </ul>
       </div>
+
+      <section class="cl-entry" id="cl-2026-11-20">
+        <h2><a href="#cl-2026-11-20">November 20, 2026</a></h2>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><code>market_aggregator_reservations</code> replaces <code>sparefoot_reservations</code>: one row per reservation booked through a market aggregator marketplace, linked to the lead it created. Renter contact details are not included; join to <code>leads</code> for them. It has exactly the same columns as <code>sparefoot_reservations</code>, so switching is a change of table name only: <code>org_id</code>, <code>sparefoot_reservation_id</code>, <code>reservation_code</code>, <code>sparefoot_reservation_number</code>, <code>facility_id</code>, <code>facility_name</code>, <code>lead_id</code>, <code>status</code>, <code>reserved_at</code>, <code>move_in_date</code>, <code>width</code>, <code>depth</code>, <code>price</code>, <code>features</code>, <code>move_in_confirm_requested_at</code>, <code>created_at</code> and <code>updated_at</code>.</li>
+        </ul>
+
+        <h3>Deprecated</h3>
+        <ul>
+          <li><code>sparefoot_reservations</code> will be retired on <strong>December 4, 2026</strong>. Move queries to <code>market_aggregator_reservations</code> before then.</li>
+        </ul>
+      </section>
+
+      <section class="cl-entry" id="cl-2026-11-19">
+        <h2><a href="#cl-2026-11-19">November 19, 2026</a></h2>
+        <p><code>call_outcomes</code> and the <code>call_child</code> changes below became available on November 20.</p>
+
+        <h3>New tables</h3>
+        <ul>
+          <li><code>call_outcomes</code>: one row per inbound Calls+ call, with one answer to whether it was handled, by whom, and if not, why not. Use <code>outcome</code> instead of <code>calls.status</code> for answer and abandon rates: <code>calls.status</code> marks some callers who paid by phone and then hung up as abandoned. Spoke calls are not included.</li>
+          <li><code>call_center_tasks</code>: one row per call waiting in one team&rsquo;s queue. A call that rolls from one team to another (for example from a facility to the call center) has one row per team. Shows how long it waited, how many agents or desk phones it was offered to, who answered, and why it ended.</li>
+          <li><code>call_tree_runs</code>: one row per time a call went through a Calls+ call tree (IVR), with the menu choices the caller made and whether it reached a queue, voicemail or phone payment.</li>
+          <li><code>call_tree_steps</code>: one row per step a call took through a call tree, including the key pressed at each menu and the branch taken next.</li>
+          <li><code>call_tree_menu_options</code>: one row per call-tree version, menu and key, labeled with where each key leads. Use it to decode <code>call_tree_steps.menu_digit_pressed</code>.</li>
+          <li><code>call_trees</code>: one row per Calls+ call tree, with its current name, status and version.</li>
+          <li><code>call_agent_status_log</code>: one row per agent status change, for Spoke and Calls+ agents, with when each status started and ended. <code>call_agent_availability</code> is its daily rollup.</li>
+          <li><code>call_missed_team_snapshot</code>: one row per unanswered Calls+ queue task and each agent who could have taken it, with what each agent was doing when the call entered and left the queue, and whether the call was offered to them. Team membership is current, not historical.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li><code>calls</code>: <code>provider</code> (FLEX for Calls+, or SPOKE) and <code>ended_by</code> (who ended the call; recorded from November 12, 2026, NULL for earlier calls).</li>
+          <li><code>call_child</code>: <code>provider</code>.</li>
+          <li><code>call_center_reservations</code>: <code>call_center_task_id</code> and <code>team_id</code>, <code>offer_target_type</code> (AGENT or DESK_PHONE), <code>offer_sequence</code>, <code>agent_offer_attempt</code>, <code>offer_outcome</code> and <code>ring_seconds</code>.</li>
+          <li><code>call_agent_availability</code>: <code>status_category</code> and <code>custom_status_name</code> (for example Lunch or Coaching).</li>
+        </ul>
+
+        <h3>Changed</h3>
+        <ul>
+          <li><code>call_agent_availability.status_name</code> now covers Calls+ statuses, which were NULL before.</li>
+          <li><code>call_child.abandoned</code> for inbound Calls+ calls now comes from <code>call_outcomes</code>, so callers who paid by phone and then hung up are no longer counted as abandoned. Spoke calls are unchanged.</li>
+          <li><code>call_center_reservations</code>: offers to a desk phone now carry the desk phone&rsquo;s facility.</li>
+        </ul>
+
+        <h3>Description changes</h3>
+        <ul>
+          <li><code>calls.option_selected_type</code> is now described as Spoke-only. It is NULL for Calls+ calls; use <code>call_tree_runs</code> or <code>call_tree_steps</code> for menu choices.</li>
+        </ul>
+      </section>
+
+      <section class="cl-entry" id="cl-2026-11-16">
+        <h2><a href="#cl-2026-11-16">November 16, 2026</a></h2>
+
+        <h3>Changed</h3>
+        <ul>
+          <li><code>storefront_pricing_groups</code> now has a row for every unit type on every storefront that carries its facility, published or not. Before, a unit type only appeared once someone had customized it in the storefront builder, so many unit types on live storefronts were missing. Rows for unit types that were never customized carry the app&rsquo;s defaults. The table is about five times larger. Filter on <code>is_listed = 1</code> for unit types available on a live storefront.</li>
+        </ul>
+
+        <h3>New columns</h3>
+        <ul>
+          <li><code>storefront_pricing_groups</code>: <code>has_storefront_settings</code>, <code>is_published</code>, <code>is_listed</code> and <code>is_api_storefront</code> (the storefront the External API serves the facility from).</li>
+        </ul>
+      </section>
 
       <section class="cl-entry" id="cl-2026-11-09">
         <h2><a href="#cl-2026-11-09">November 9, 2026</a></h2>
@@ -876,7 +948,7 @@
           <li><code>workflow_runs</code>: one row per run of an automated workflow (the texts, emails and tasks triggered by an overdue lease, a new lead or reservation, or a move-in or move-out), with the lease or lead that started it and how far it got. Emails, SMS and tasks sent by a run carry its <code>workflow_run_id</code>.</li>
           <li><code>ai_call_outcomes</code>: one row per call answered by the AI voice agent, with what it got done: leads and leases created, move-outs scheduled, and handoffs to staff or the payment line.</li>
           <li><code>call_center_reservations</code>: one row each time the call-center queue offered a call to an agent, with the queue, the agent, whether they accepted, and any transfer. A call that rings several agents has several rows.</li>
-          <li><code>sparefoot_reservations</code>: one row per reservation booked through the SpareFoot marketplace, linked to the lead it created. Renter contact details are not included; join to <code>leads</code> for them.</li>
+          <li><code class="cl-retired">sparefoot_reservations</code>: one row per reservation booked through the SpareFoot marketplace, linked to the lead it created. Renter contact details are not included; join to <code>leads</code> for them. <strong>Note: Table replaced with &ldquo;market_aggregator_reservations&rdquo; on Nov 20 (see <a href="#cl-2026-11-20">entry for Nov 20</a>). &ldquo;sparefoot_reservations&rdquo; will be retired on Dec 4.</strong></li>
           <li><code>value_pricing_strategy_tiers</code>: one row per tier (LOWEST, MEDIUM, HIGHEST) of each value pricing strategy, with the tier&rsquo;s name, price increase and listed benefits.</li>
         </ul>
 
