@@ -2244,6 +2244,10 @@ start to be rejected will be announced here first.</li>
 <h1 id="changelog">Changelog</h1>
 <h2 id="november-2026">November 2026</h2>
 <ul>
+<li><strong>Send Email: large attachments arrive as download links</strong> — When the attachments of an email sent with <code>POST /v1/messages/email/send</code> total more than 7 MB, the largest ones are no longer attached. The email body ends with a download link for each of them, labelled with the file name, and the links expire 7 days after the email is sent. Before, attachments were always attached, and an email whose attachments were too large for the email provider was not delivered. The request and response are unchanged. See <a href="#send-email">Send Email</a>.</li>
+<li><strong>Pricing groups and Rent Roll: <code>targetRate</code></strong> — Pricing groups on <code>POST /v1/pricing-groups/search</code>, every expanded pricing group, and each entry of <code>POST /v1/reports/rent-roll</code> now carry <code>targetRate</code>, the rate the operator aims to rent the pricing group at, in cents. It is omitted when the operator has set no target rate. <code>POST /v1/pricing-groups/change-rates</code> accepts an optional <code>targetRate</code> to set it, or <code>null</code> to remove it. See <a href="#pricing-group-search">Pricing Group Search</a>, <a href="#pricing-groups-change-rates">Pricing Groups Change Rates</a> and <a href="#rent-roll-report">Rent Roll Report</a>.</li>
+<li><strong>Discounts: <code>discountStart</code></strong> — Periodic discounts on <code>POST /v1/discounts/search</code>, and on the <code>discounts</code> expansions of <code>POST /v1/pricing-groups/search</code> and <code>POST /v1/storefront/pricing-groups/search</code>, now carry <code>discountStart</code> (<code>NOW</code>, <code>NEXT_MONTH</code> or <code>SPECIFIC_MONTH</code>). See <a href="#discounts-search">Discounts Search</a>.</li>
+<li><strong>Tax category: <code>RENT_RESIDENTIAL</code></strong> — <code>taxCategory</code> can now be <code>RENT_RESIDENTIAL</code>, for rent on residential units such as apartments. It appears wherever <code>taxCategory</code> is returned, including <code>POST /v1/reports/general-ledger/accrual</code> and <code>POST /v1/reports/aged-receivables</code>.</li>
 <li><strong>Storefront Pricing Groups Search: value-pricing prices start from the cheapest tier on offer</strong> — For a value-pricing unit type whose tiers show on the storefront, <code>price</code> and <code>strikethroughPrice</code> on <code>POST /v1/storefront/pricing-groups/search</code> now start from the cheapest tier a customer can still rent, as the storefront card does. They used to start from the web rate. The two differ when the lowest tier is sold out, and the price is then higher, because each tier costs at least $1 more than the tier below it. No field is added or removed, and other unit types are unchanged. <code>POST /v1/pricing-groups/search</code> still returns the raw rates. See <a href="#storefront-pricing-groups-search">Storefront Pricing Groups Search</a>.</li>
 <li><strong>Value pricing: tier prices round to whole dollars, and <code>tierWebRates</code> on pricing groups</strong> — Better and Best (<code>MEDIUM</code> and <code>HIGHEST</code>) tier prices now round to the nearest whole dollar, and 50 cents rounds up. After rounding, each tier price is at least $1 above the tier below it, so a price can go up by more than 50 cents. Good (<code>LOWEST</code>) still equals the base rate. Pricing groups on <code>POST /v1/pricing-groups/search</code>, and every expanded pricing group, carry a new <code>tierWebRates</code> field on <code>APPROVED</code> groups: the 3 rounded tier prices at the web rate, in cents, in Good, Better, Best order, per one facility billing cycle like <code>webRate</code>. See <a href="#pricing-group-search">Pricing Group Search</a> and the tier formula in <a href="#value-pricing-strategies-search">Value Pricing Strategies Search</a>.</li>
 <li><strong>Auctions: complete with a pending deposit refund</strong> — <code>POST /v1/auctions/complete</code> with <code>depositAction</code> <code>REFUND</code> now completes the auction in the same call even when the payment provider does not settle the refund at once: the auctioned lease moves to <code>COMPLETE</code> and <code>depositRefund.status</code> is <code>PENDING</code>. Before, the auctioned lease stayed in <code>PAYMENT_RECEIVED</code> until the refund settled. If the payment provider later declines the refund, the deposit stays held for the winner until it is refunded again from the Cubby app. Completion is now also refused while a refund of the bid is pending, as it already was for a refund of the deposit. See <a href="#complete-auction">Complete auction</a>.</li>
@@ -3220,6 +3224,7 @@ storefront.</li>
         <span class="hljs-attr">&quot;walkInRate&quot;</span>: <span class="hljs-number">20000</span>,
         <span class="hljs-attr">&quot;webRate&quot;</span>: <span class="hljs-number">18000</span>,
         <span class="hljs-attr">&quot;strikethroughRate&quot;</span>: <span class="hljs-number">16000</span>,
+        <span class="hljs-attr">&quot;targetRate&quot;</span>: <span class="hljs-number">24000</span>,
         <span class="hljs-attr">&quot;features&quot;</span>: [
           <span class="hljs-string">&quot;Climate controlled&quot;</span>,
           <span class="hljs-string">&quot;Ground floor&quot;</span>,
@@ -3266,6 +3271,8 @@ and the <code>pricingGroups</code> array that carries the channel <code>visibili
 <li><code>standardRate</code>, <code>walkInRate</code>, <code>webRate</code>, <code>strikethroughRate</code> - rates in cents, per one billing cycle of the pricing
 group's facility (<code>billingCycle</code> on <a href="#facilities-search">Facilities Search</a>). At a <code>DAYS_28</code> facility they are
 28-day rates. To show one as a weekly or monthly rate, convert it as described in <a href="#billing-cycles">Billing Cycles</a></li>
+<li><code>targetRate</code> - the rate the operator aims to rent the pricing group at, in cents, per one billing cycle like
+<code>standardRate</code>. Omitted when the operator has set no target rate; use <code>standardRate</code> then</li>
 <li><code>discounts</code> - every active discount program assigned to the pricing group</li>
 <li><code>availableDiscounts</code> - the subset of <code>discounts</code> that can currently be applied, after filtering each program's
 occupancy-percentage and available-units restrictions against the pricing group's current unit counts</li>
@@ -3315,7 +3322,8 @@ when a tier cannot be rented now; <code>availableTiers</code> says which tiers c
       <span class="hljs-attr">&quot;standardRate&quot;</span>: <span class="hljs-number">23000</span>,
       <span class="hljs-attr">&quot;webRate&quot;</span>: <span class="hljs-number">21000</span>,
       <span class="hljs-attr">&quot;walkInRate&quot;</span>: <span class="hljs-number">22000</span>,
-      <span class="hljs-attr">&quot;strikethroughRate&quot;</span>: <span class="hljs-number">25000</span>
+      <span class="hljs-attr">&quot;strikethroughRate&quot;</span>: <span class="hljs-number">25000</span>,
+      <span class="hljs-attr">&quot;targetRate&quot;</span>: <span class="hljs-number">24000</span>
     }
   ]
 }
@@ -3331,6 +3339,7 @@ when a tier cannot be rented now; <code>availableTiers</code> says which tiers c
 <li><code>webRate</code> - the new web rate for the pricing group.  If <code>null</code>, the web rate defaults to the configured pricing strategy, or the pricing group's standard rate.</li>
 <li><code>walkInRate</code> - the new walk-in rate for the pricing group.  If <code>null</code>, the walk-in rate defaults to the configured pricing strategy, or the pricing group's standard rate.</li>
 <li><code>strikethroughRate</code> - the strikethrough price to display on the storefront.  If <code>null</code>, the strikethrough price is disabled.  Even when enabled, the strikethrough price won't display on your storefront when it's less than or equal to the web rate.</li>
+<li><code>targetRate</code> - the new target rate for the pricing group, above <code>0</code>. If <code>null</code>, the target rate is removed, and <a href="#pricing-group-search">Pricing Group Search</a> no longer returns one.</li>
 </ul>
 <h3 id="pricing-groups-update-discount-strategies">Pricing Groups Update Discount Strategies</h3>
 <p><code>POST /v1/pricing-groups/update-discount-strategies</code></p>
@@ -3473,9 +3482,9 @@ present in the group's <code>availableTiers</code>)</li>
 </blockquote>
 <pre class="highlight tab tab-json"><code>{
   <span class="hljs-attr">&quot;where&quot;</span>: {
-    <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_4a2da7d271a&quot;</span>,
-    <span class="hljs-attr">&quot;discountId&quot;</span>: <span class="hljs-string">&quot;discount_JgNkzV4itfk&quot;</span>,
-    <span class="hljs-attr">&quot;organizationId&quot;</span>: <span class="hljs-string">&quot;org_&lt;ID&gt;&quot;</span>
+    <span class="hljs-comment">// one of:</span>
+    <span class="hljs-attr">&quot;pricingGroupId&quot;</span>: <span class="hljs-string">&quot;pg_4a2da7d271a&quot;</span>
+    <span class="hljs-comment">// &quot;discountId&quot;: &quot;discount_JgNkzV4itfk&quot;</span>
   }
 }
 </code></pre>
@@ -3491,12 +3500,16 @@ present in the group's <code>availableTiers</code>)</li>
         <span class="hljs-attr">&quot;discountStrategyId&quot;</span>: <span class="hljs-string">&quot;dstrat_4a2da7d271a&quot;</span>,
         <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;First Month Free&quot;</span>,
         <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;PERPETUAL | PERIODIC | PAID_UPFRONT | ONE_TIME&quot;</span>,
+        <span class="hljs-attr">&quot;active&quot;</span>: <span class="hljs-literal">true</span>,
         <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;PUBLISHED | ARCHIVED&quot;</span>,
+
+        <span class="hljs-comment">// Periodic discount fields</span>
+        <span class="hljs-attr">&quot;discountStart&quot;</span>: <span class="hljs-string">&quot;NOW | NEXT_MONTH | SPECIFIC_MONTH&quot;</span>,
         <span class="hljs-attr">&quot;startAfterMonths&quot;</span>: <span class="hljs-number">1</span>,
-        <span class="hljs-attr">&quot;discountedMonths&quot;</span>: <span class="hljs-number">1</span>
+        <span class="hljs-attr">&quot;discountedMonths&quot;</span>: <span class="hljs-number">1</span>,
         
         <span class="hljs-comment">// Upfront discount fields</span>
-        <span class="hljs-string">&quot;upfrontPaidMonths&quot;</span>: <span class="hljs-number">1</span>,
+        <span class="hljs-attr">&quot;upfrontPaidMonths&quot;</span>: <span class="hljs-number">1</span>,
         <span class="hljs-attr">&quot;upfrontFreeMonths&quot;</span>: <span class="hljs-number">1</span>,
         
         <span class="hljs-comment">// Periodic / perpetual discount fields.</span>
@@ -3527,10 +3540,19 @@ present in the group's <code>availableTiers</code>)</li>
 <p>Each discount carries <code>discountStrategyId</code>, the ID of the discount strategy that holds the discount. A discount
 strategy groups discounts, and an operator assigns the strategy, not the discount, to pricing groups. Use
 <a href="#discount-strategies-search">Discount Strategies Search</a> to get the strategy.</p>
+<p>A <code>PERIODIC</code> discount reduces the rent of <code>discountedMonths</code> months. <code>discountStart</code> says when they start:</p>
+<ul>
+<li><code>NOW</code> - at move-in. A prorated move-in period is discounted and counts as the first of <code>discountedMonths</code>.</li>
+<li><code>NEXT_MONTH</code> - on the first full month. A prorated move-in period is not discounted.</li>
+<li><code>SPECIFIC_MONTH</code> - after <code>startAfterMonths</code> full months.</li>
+</ul>
+<p><code>NOW</code> and <code>NEXT_MONTH</code> differ only when the move-in period is prorated, for example when the facility bills on the 1st. With anniversary billing they behave the same.</p>
+<p><code>startAfterMonths</code> is <code>0</code> unless <code>discountStart</code> is <code>SPECIFIC_MONTH</code>.</p>
 <p>Each discount also carries a <code>pricingGroups</code> array listing every pricing group it applies to. Each entry has the pricing group's <code>pricingGroupId</code> and <code>name</code>, plus the <code>visibility</code> (<code>ALL</code>, <code>CUBBY_ONLY</code> or <code>CALL_CENTER_ONLY</code>) configured for that discount in that pricing group — visibility is per discount-and-pricing-group pairing, so the same pricing group may show a different value on a different discount.</p>
 <h3 id="required-properties-18">Required Properties</h3>
 <ul>
 <li><code>pricingGroupId</code> - limits results to discounts in a particular pricing group</li>
+<li>or <code>discountId</code> - limits results to a specific discount</li>
 </ul>
 <h3 id="discount-strategies-search">Discount Strategies Search</h3>
 <p><code>POST /v1/discount-strategies/search</code></p>
@@ -8771,6 +8793,11 @@ completion can return a task the client never created.</p>
 </li>
 <li>
 <ul>
+<li><code>RENT_RESIDENTIAL</code> - Rent for residential unit</li>
+</ul>
+</li>
+<li>
+<ul>
 <li><code>INSURANCE</code> - Insurance</li>
 </ul>
 </li>
@@ -9121,6 +9148,7 @@ only <code>outstandingAmount</code> and <code>range</code> (<code>RANGE_UNKNOWN<
         <span class="hljs-attr">&quot;depth&quot;</span>: <span class="hljs-number">5.0</span>,
         <span class="hljs-attr">&quot;height&quot;</span>: <span class="hljs-number">8.0</span>,
         <span class="hljs-attr">&quot;standardRate&quot;</span>: <span class="hljs-number">5000</span>,
+        <span class="hljs-attr">&quot;targetRate&quot;</span>: <span class="hljs-number">5500</span>,
         <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_P4Cecw1xuQE&quot;</span>,
         <span class="hljs-attr">&quot;customerName&quot;</span>: <span class="hljs-string">&quot;John Smith&quot;</span>,
         <span class="hljs-attr">&quot;companyName&quot;</span>: <span class="hljs-string">&quot;Acme Corp&quot;</span>,
@@ -9186,6 +9214,8 @@ only <code>outstandingAmount</code> and <code>range</code> (<code>RANGE_UNKNOWN<
 <li><code>depth</code> - the depth of the unit in feet</li>
 <li><code>height</code> - the height of the unit in feet</li>
 <li><code>standardRate</code> - the standard rental rate for the unit in cents, per one billing cycle of the facility</li>
+<li><code>targetRate</code> - the target rate of the unit's pricing group in cents, per one billing cycle of the facility like
+<code>standardRate</code>. Omitted when the operator has set no target rate; use <code>standardRate</code> then</li>
 <li><code>customerId</code> - the ID of the customer renting the unit</li>
 <li><code>customerName</code> - the name of the customer renting the unit</li>
 <li><code>companyName</code> - the company name of the customer renting the unit</li>
@@ -9525,8 +9555,8 @@ from the cheapest tier on offer, not from the web rate</li>
 <li><code>description</code> - the unit type's storefront description, omitted when it has none</li>
 <li><code>images</code> - an array of image URLs</li>
 <li><code>features</code> - an array of feature descriptions: the unit type's features that the storefront shows, in the storefront's order</li>
-<li><code>discounts</code> - an array of discount IDs (expand with <code>discounts</code> expansion to get full discount objects). Each
-expanded discount object carries <code>discountStrategyId</code>, the ID of the discount strategy that holds the discount</li>
+<li><code>discounts</code> - an array of discount IDs (expand with <code>discounts</code> expansion to get full discount objects). Expanded
+discount objects have the same shape as <a href="#discounts-search">Discounts Search</a>, without <code>pricingGroups</code></li>
 <li><code>parking</code> - a boolean indicating if this is a parking space</li>
 <li><code>vehicleStorage</code> - a boolean indicating if this is vehicle storage</li>
 <li><code>rentable</code> - <code>true</code> when a customer without a reservation can rent a unit of this type now. <code>false</code> when
@@ -9583,6 +9613,9 @@ allows overbooking). It is <code>false</code> exactly when <code>rentableUnits</
 </tr>
 </tbody>
 </table>
+<p>An email can carry attachments up to 7 MB in total. When the attachments are larger than that, the largest
+ones are not attached. Instead, the email body ends with a download link for each of them, labelled with the file
+name. The links expire 7 days after the email is sent.</p>
 <blockquote>
 <p>JSON body of the <code>request</code> part</p>
 </blockquote>
