@@ -2244,6 +2244,7 @@ start to be rejected will be announced here first.</li>
 <h1 id="changelog">Changelog</h1>
 <h2 id="november-2026">November 2026</h2>
 <ul>
+<li><strong>Leases Search: <code>recurringFee</code> expansion</strong> — <code>POST /v1/leases/search</code> accepts a <code>recurringFee</code> expansion that returns the recurring fees set on each lease, including fees not charged yet. See <a href="#leases-search">Leases Search</a>.</li>
 <li><strong>Send Email: large attachments arrive as download links</strong> — When the attachments of an email sent with <code>POST /v1/messages/email/send</code> total more than 7 MB, the largest ones are no longer attached. The email body ends with a download link for each of them, labelled with the file name, and the links expire 7 days after the email is sent. Before, attachments were always attached, and an email whose attachments were too large for the email provider was not delivered. The request and response are unchanged. See <a href="#send-email">Send Email</a>.</li>
 <li><strong>Pricing groups and Rent Roll: <code>targetRate</code></strong> — Pricing groups on <code>POST /v1/pricing-groups/search</code>, every expanded pricing group, and each entry of <code>POST /v1/reports/rent-roll</code> now carry <code>targetRate</code>, the rate the operator aims to rent the pricing group at, in cents. It is omitted when the operator has set no target rate. <code>POST /v1/pricing-groups/change-rates</code> accepts an optional <code>targetRate</code> to set it, or <code>null</code> to remove it. See <a href="#pricing-group-search">Pricing Group Search</a>, <a href="#pricing-groups-change-rates">Pricing Groups Change Rates</a> and <a href="#rent-roll-report">Rent Roll Report</a>.</li>
 <li><strong>Discounts: <code>discountStart</code></strong> — Periodic discounts on <code>POST /v1/discounts/search</code>, and on the <code>discounts</code> expansions of <code>POST /v1/pricing-groups/search</code> and <code>POST /v1/storefront/pricing-groups/search</code>, now carry <code>discountStart</code> (<code>NOW</code>, <code>NEXT_MONTH</code> or <code>SPECIFIC_MONTH</code>). See <a href="#discounts-search">Discounts Search</a>.</li>
@@ -3122,6 +3123,15 @@ each group's <code>facilityIds</code>. Without the expansion, only the per-group
         <span class="hljs-attr">&quot;valuePricingTier&quot;</span>: <span class="hljs-string">&quot;MEDIUM&quot;</span>
       },
       {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;pricingGroups&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;leases&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;facilities&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
     ]
   }
 }
@@ -3247,6 +3257,15 @@ storefront.</li>
         <span class="hljs-attr">&quot;rentableTiers&quot;</span>: [ <span class="hljs-string">&quot;LOWEST&quot;</span>, <span class="hljs-string">&quot;MEDIUM&quot;</span>, <span class="hljs-string">&quot;HIGHEST&quot;</span> ],
         <span class="hljs-attr">&quot;tierWebRates&quot;</span>: [ <span class="hljs-number">18000</span>, <span class="hljs-number">20000</span>, <span class="hljs-number">22000</span> ]
       },
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;discounts&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;facilities&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;valuePricingStrategies&quot;</span>: [
       {<span class="hljs-comment">/* ... */</span>}
     ]
   }
@@ -3787,6 +3806,9 @@ strategy's organization can use it</li>
         ]
       }
     ],
+    <span class="hljs-attr">&quot;leases&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
     <span class="hljs-attr">&quot;leads&quot;</span>: [
       {
         <span class="hljs-attr">&quot;leadId&quot;</span>: <span class="hljs-string">&quot;lead_4a2da7d271a&quot;</span>,
@@ -4008,6 +4030,18 @@ customer's current state from <code>POST /v1/customers/search</code> first if th
         <span class="hljs-attr">&quot;unqualifiedAt&quot;</span>: <span class="hljs-literal">null</span>,
         <span class="hljs-attr">&quot;leaseMoveInDate&quot;</span>: <span class="hljs-literal">null</span>
       }
+    ],
+    <span class="hljs-attr">&quot;customers&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;units&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;pricingGroups&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;facilities&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
     ]
   }
 }
@@ -4399,31 +4433,33 @@ email and text message. Each request generates a new link, which expires after 3
         }
       }
     ],
-    <span class="hljs-attr">&quot;customers&quot;</span>: [
-      {
-        <span class="hljs-attr">&quot;customerId&quot;</span>: <span class="hljs-string">&quot;cust_BqaN6zApXCH&quot;</span>,
-        <span class="hljs-attr">&quot;createdAt&quot;</span>: <span class="hljs-string">&quot;2024-03-01T12:00:00.000000Z&quot;</span>,
-        <span class="hljs-attr">&quot;updatedAt&quot;</span>: <span class="hljs-string">&quot;2024-03-01T12:00:00.000000Z&quot;</span>,
-        <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Bebe Flatley&quot;</span>,
-        <span class="hljs-attr">&quot;firstName&quot;</span>: <span class="hljs-string">&quot;Bebe&quot;</span>,
-        <span class="hljs-attr">&quot;lastName&quot;</span>: <span class="hljs-string">&quot;Flatley&quot;</span>,
-        <span class="hljs-attr">&quot;contact&quot;</span>: {
-          <span class="hljs-attr">&quot;address&quot;</span>: <span class="hljs-string">&quot;2055 Earnest Mountain&quot;</span>,
-          <span class="hljs-attr">&quot;address2&quot;</span>: <span class="hljs-string">&quot;Apt. 805&quot;</span>,
-          <span class="hljs-attr">&quot;city&quot;</span>: <span class="hljs-string">&quot;Johnston&quot;</span>,
-          <span class="hljs-attr">&quot;state&quot;</span>: <span class="hljs-string">&quot;Minnesota&quot;</span>,
-          <span class="hljs-attr">&quot;country&quot;</span>: <span class="hljs-string">&quot;USA&quot;</span>,
-          <span class="hljs-attr">&quot;zip&quot;</span>: <span class="hljs-string">&quot;15219&quot;</span>,
-          <span class="hljs-attr">&quot;email&quot;</span>: <span class="hljs-string">&quot;bebe.flatley@example.org&quot;</span>,
-          <span class="hljs-attr">&quot;phone&quot;</span>: <span class="hljs-string">&quot;+15943590263&quot;</span>
-        }
-      }
+    <span class="hljs-attr">&quot;tenants&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
     ],
-    <span class="hljs-attr">&quot;units&quot;</span>: [],
-    <span class="hljs-attr">&quot;pricingGroups&quot;</span>: [],
-    <span class="hljs-attr">&quot;facilities&quot;</span>: [],
-    <span class="hljs-attr">&quot;ledgers&quot;</span>: [],
-    <span class="hljs-attr">&quot;compliances&quot;</span>: []
+    <span class="hljs-attr">&quot;units&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;pricingGroups&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;facilities&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;ledgers&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;compliances&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;recurringFees&quot;</span>: [
+      {
+        <span class="hljs-attr">&quot;leaseId&quot;</span>: <span class="hljs-string">&quot;lease_V4w64pjUwVK&quot;</span>,
+        <span class="hljs-attr">&quot;feeId&quot;</span>: <span class="hljs-string">&quot;fee_8kQwPz3LmTr&quot;</span>,
+        <span class="hljs-attr">&quot;createdAt&quot;</span>: <span class="hljs-string">&quot;2024-03-01T12:00:00.000000Z&quot;</span>,
+        <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Smart Unit Service&quot;</span>,
+        <span class="hljs-attr">&quot;amount&quot;</span>: <span class="hljs-number">1200</span>
+      }
+    ]
   }
 }
 </code></pre>
@@ -4443,7 +4479,7 @@ email and text message. Each request generates a new link, which expires after 3
 <li><code>updatedAfter</code> - limits results to leases whose <code>updatedAt</code> is <strong>strictly after</strong> the given UTC timestamp (ISO-8601, e.g. <code>2024-03-01T12:00:00.000000Z</code>). Use for incremental polling — pass the timestamp of your last sync to skip the boundary record on the next call.</li>
 <li><code>updatedBefore</code> - limits results to leases whose <code>updatedAt</code> is <strong>strictly before</strong> the given UTC timestamp.</li>
 <li><code>expansions</code> - an array of strings which can be used to include additional data in the response; supported for this</li>
-<li>endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code> <code>ledger</code>, <code>customer</code>, <code>compliance</code></li>
+<li>endpoint are <code>facility</code>, <code>unit</code>, <code>pricingGroup</code>, <code>ledger</code>, <code>customer</code>, <code>compliance</code>, <code>recurringFee</code></li>
 </ul>
 <h3 id="response-properties">Response Properties</h3>
 <ul>
@@ -4502,6 +4538,15 @@ facility, like <code>monthlyRentalAmount</code></li>
 <li><code>note</code> - a note about the contact</li>
 </ul>
 </li>
+</ul>
+<p>With the <code>recurringFee</code> expansion, <code>recurringFees</code> lists the recurring fees set on each returned lease, including fees
+not charged yet. Adding or removing a recurring fee does not change the lease's <code>updatedAt</code>:</p>
+<ul>
+<li><code>leaseId</code> - the lease the fee is set on</li>
+<li><code>feeId</code> - the fee's ID</li>
+<li><code>createdAt</code> - when the fee was added to the lease, as an ISO-8601 UTC timestamp</li>
+<li><code>name</code> - the fee's name as shown to customers</li>
+<li><code>amount</code> - the fee in cents, per one billing cycle of the lease's facility, like <code>monthlyRentalAmount</code></li>
 </ul>
 <h3 id="paid-through-date-and-prepayments">Paid-through date and prepayments</h3>
 <p>A payment larger than the lease's outstanding balance does not move <code>paidThroughDate</code> or <code>nextChargeDate</code>. The
@@ -7137,8 +7182,12 @@ which can't be refunded in Cubby, or the payment's facility is disabled</li>
         }
       }
     ],
-    <span class="hljs-attr">&quot;leases&quot;</span>: [ ... ],
-    <span class="hljs-attr">&quot;units&quot;</span>: [ ... ]
+    <span class="hljs-attr">&quot;leases&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ],
+    <span class="hljs-attr">&quot;units&quot;</span>: [
+      {<span class="hljs-comment">/* ... */</span>}
+    ]
   }
 }
 </code></pre>
